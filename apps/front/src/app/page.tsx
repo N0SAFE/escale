@@ -107,16 +107,11 @@ export default function Home() {
             <section>
                 <Image src="https://so-spa.fr/wp-content/uploads/2022/07/La-Falaise-web-4-1-scaled.jpg" alt="Picture of the author" className="object-cover h-[800px]" width={1980} height={1080} />
             </section>
-            <section className="p-24 text-3xl leading-6 text-center text-black"><p>Venez découvrir notre Maison avec spa privatif à seulement 40 minutes de Paris. Séjour idéal pour passer un moment de détente en amoureux ou entre amis</p></section>
+            <section className="py-24 px-4 text-3xl leading-6 text-center text-black md:p-24">
+                <p>Venez découvrir notre Maison avec spa privatif à seulement 40 minutes de Paris. Séjour idéal pour passer un moment de détente en amoureux ou entre amis</p>
+            </section>
             <section>
-                <video
-                    src="https://so-spa.fr/wp-content/uploads/2022/07/WhatsApp-Video-2022-06-26-at-18.53.25-1.mp4"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    controlsList="nodownload"
-                ></video>
+                <video src="https://so-spa.fr/wp-content/uploads/2022/07/WhatsApp-Video-2022-06-26-at-18.53.25-1.mp4" autoPlay loop muted playsInline controlsList="nodownload"></video>
             </section>
 
             <section>
@@ -134,17 +129,7 @@ export default function Home() {
                     </Carousel>
                 </Card>
             </section>
-            <section
-                style={{
-                    backgroundImage: "url('https://so-spa.fr/wp-content/uploads/2022/07/2022-07-05_16h16_44.png')",
-                    backgroundSize: "cover",
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "center",
-                    width: "100%",
-                    backgroundColor: "#27355DED",
-                    backdropFilter: "blur(30px)"
-                }}
-            >
+            <section className="bg-[url('https://so-spa.fr/wp-content/uploads/2022/07/2022-07-05_16h16_44.png')] bg-cover bg-no-reapeat bg-center w-full background-color-[#27355DED] backdrop-filter-blur-[30px] relative">
                 <div className="h-full w-full opacity-75 bg-[#525252ED] absolute"></div>
                 <Comment comments={comments} />
             </section>
