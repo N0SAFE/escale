@@ -1,31 +1,94 @@
 {
-  "name": "api",
+  "name": "@n0safe/api",
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "node ace serve --watch",
-    "build": "node ace build --production && cd build && npm ci --omit=dev",
+    "dev": "concurrently -n stripe,adonis -c yellow,blue \"stripe listen --forward-to http://localhost:4444/webhook/stripe\" \"node checkPort.js node ace serve --watch\"",
     "start": "node server.js",
-    "start:build": "node build/server.js",
-    "test": "node ace test"
+    "start:build": "node checkPort.js node build/server.js",
+    "build": "npm install --package-lock-only && node ace build --production && cd build && npm ci --production",
+    "test": "npm run db:unmigrate && node ace test && npm run db:fresh:seed",
+    "lint": "eslint . --ext=.ts --fix",
+    "format": "prettier --write .",
+    "swagger": "node ace swagger:init",
+    "db:make:migration": "node ace make:migration",
+    "db:migrate": "npm run db:migrate:up",
+    "db:unmigrate": "npm run db:migrate:down",
+    "db:migrate:up": "node ace migration:run",
+    "db:migrate:down": "node ace migration:rollback",
+    "db:seed": "node ace db:seed",
+    "db:refresh:seed": "node ace migration:refresh --seed",
+    "db:refresh": "node ace migration:refresh",
+    "db:fresh:seed": "node ace migration:fresh --seed",
+    "db:fresh": "node ace migration:fresh"
   },
-  "devDependencies": {
-    "@adonisjs/assembler": "^5.9.6",
-    "@japa/preset-adonis": "^1.2.0",
-    "@japa/runner": "^2.5.1",
-    "@types/proxy-addr": "^2.0.3",
-    "@types/source-map-support": "^0.5.10",
-    "adonis-preset-ts": "^2.1.0",
-    "pino-pretty": "^10.2.3",
-    "typescript": "~4.6",
-    "youch": "^3.3.3",
-    "youch-terminal": "^2.2.3"
+  "eslintConfig": {
+    "extends": [
+      "plugin:adonis/typescriptApp",
+      "prettier"
+    ],
+    "plugins": [
+      "prettier"
+    ],
+    "rules": {
+      "prettier/prettier": [
+        "error"
+      ]
+    }
+  },
+  "eslintIgnore": [
+    "build"
+  ],
+  "prettier": {
+    "trailingComma": "es5",
+    "semi": false,
+    "singleQuote": true,
+    "useTabs": false,
+    "quoteProps": "consistent",
+    "bracketSpacing": true,
+    "arrowParens": "always",
+    "printWidth": 100
   },
   "dependencies": {
+    "@adonisjs/ally": "^4.1.5",
+    "@adonisjs/auth": "^8.2.3",
     "@adonisjs/core": "^5.9.0",
+    "@adonisjs/lucid": "^18.4.0",
     "@adonisjs/repl": "^3.1.11",
+    "@stouder-io/adonis-scheduler": "^1.0.3",
+    "adonis-lucid-filter": "^4.1.0",
+    "adonis-lucid-soft-deletes": "^1.4.3",
+    "adonis5-jwt": "^1.1.7",
+    "adonis5-swagger": "^1.4.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
+    "cli-color": "^2.0.3",
+    "dotenv-cli": "^7.2.1",
+    "jsonwebtoken": "^9.0.1",
+    "luxon": "^3.3.0",
+    "mysql2": "^3.3.5",
+    "p-try": "^3.0.0",
     "proxy-addr": "^2.0.7",
-    "reflect-metadata": "^0.1.13",
-    "source-map-support": "^0.5.21"
+    "reflect-metadata": "^0.1.14",
+    "source-map-support": "^0.5.21",
+    "stripe": "^14.9.0",
+    "wait-port": "^1.0.4"
+  },
+  "devDependencies": {
+    "@adonisjs/assembler": "^5.9.5",
+    "@japa/preset-adonis": "^1.2.0",
+    "@japa/runner": "^2.5.1",
+    "@types/proxy-addr": "^2.0.0",
+    "@types/source-map-support": "^0.5.6",
+    "adonis-preset-ts": "^2.1.0",
+    "eslint": "^8.42.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-adonis": "^2.1.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "pino-pretty": "^10.0.0",
+    "prettier": "^2.8.8",
+    "typescript": "~4.6",
+    "youch": "^3.2.3",
+    "youch-terminal": "^2.2.0"
   }
 }

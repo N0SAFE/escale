@@ -1,0 +1,14 @@
+nuité dimanche-jeudi = 149
+nuité vendredi-samedi = 199
+aprem full = 99
+
+tarif journée = modulable (check)
+
+todo:
+creer des tarif que pour nuité et aprem avec un weekend different de la semaine
+
+
+
+
+use: 
+swiper js, react-multi-date-picker, react-accessible-accordion
