@@ -59,12 +59,12 @@ export default class ReservationsController {
       return response.badRequest({ message: 'reservation already exist' })
     }
 
-    const reservation = await Reservation.create({
-      startAt: DateTime.fromISO(body.startAt),
-      endAt: DateTime.fromISO(body.endAt),
-    })
+    // const reservation = await Reservation.create({
+    //   startAt: DateTime.fromISO(body.startAt),
+    //   endAt: DateTime.fromISO(body.endAt),
+    // })
 
-    return response.ok(reservation)
+    // return response.ok(reservation)
   }
 
   public async show ({}: HttpContextContract) {}

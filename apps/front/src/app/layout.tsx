@@ -4,6 +4,8 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import "@/lib/fontAwesome"
+import axios from "axios";
+axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
 
 const inter = Inter({ subsets: ["latin"] });
 

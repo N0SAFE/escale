@@ -13,7 +13,20 @@ export default class extends BaseSchema {
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
       table.string('text')
-      table.integer('user_id').unsigned().references('id').inTable('users')
+      table
+        .integer('user_id')
+        .unsigned()
+        .references('id')
+        .inTable('users')
+        .defaultTo(null)
+        .onDelete('SET NULL')
+      table
+        .integer('spa_id')
+        .unsigned()
+        .references('id')
+        .inTable('spas')
+        .defaultTo(null)
+        .onDelete('SET NULL')
     })
   }
 

@@ -13,7 +13,7 @@ export default class extends BaseSchema {
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
       table.integer('spa_id').unsigned().references('spas.id').onDelete('CASCADE')
-      table.string('name').notNullable()
+      table.string('label').notNullable()
       table.string('icon').notNullable()
       table.integer('number').notNullable()
     })

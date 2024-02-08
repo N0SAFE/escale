@@ -4,7 +4,8 @@ import { UsersRessourcePatchDto } from './dto/UsersDto/Patch'
 import User from '../../Models/User'
 
 export default class UsersController {
-  public async index ({}: HttpContextContract) {
+  public async index ({ response }: HttpContextContract) {
+    console.log(response.ok('ouais'))
     return User.query()
   }
 

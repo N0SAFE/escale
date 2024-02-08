@@ -19,7 +19,7 @@ export default class Tag extends BaseModel {
   public spa: BelongsTo<typeof Spa>
 
   @column()
-  public name: string
+  public label: string
 
   @column()
   public icon: string

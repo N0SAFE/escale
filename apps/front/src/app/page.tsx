@@ -1,5 +1,3 @@
-"use client";
-
 import Comment from "@/components/Comment";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
@@ -115,19 +113,7 @@ export default function Home() {
             </section>
 
             <section>
-                <Card className="w-full max-w-lg items-center justify-center mx-auto flex">
-                    <Carousel responsive={responsive}>
-                        {Array.from({ length: 5 }).map((_, index) => (
-                            <div key={index} className="p-1">
-                                <Card>
-                                    <div className="flex aspect-square items-center justify-center p-6">
-                                        <span className="text-3xl font-semibold">{index + 1}</span>
-                                    </div>
-                                </Card>
-                            </div>
-                        ))}
-                    </Carousel>
-                </Card>
+                
             </section>
             <section className="bg-[url('https://so-spa.fr/wp-content/uploads/2022/07/2022-07-05_16h16_44.png')] bg-cover bg-no-reapeat bg-center w-full background-color-[#27355DED] backdrop-filter-blur-[30px] relative">
                 <div className="h-full w-full opacity-75 bg-[#525252ED] absolute"></div>

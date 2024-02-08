@@ -1,9 +1,9 @@
 import BaseSeeder from '@ioc:Adonis/Lucid/Seeder'
 import Service from 'App/Models/Service'
 
-export default class extends BaseSeeder {
+export default class ServiceSeeder extends BaseSeeder {
   public async run () {
-    await Service.createMany([
+    const services = await Service.createMany([
       {
         label: 'Checkin/Checkout autonome',
         description: 'description',
@@ -45,5 +45,10 @@ export default class extends BaseSeeder {
         image: 'https://supermanager-img.s3.amazonaws.com/forms/16317116268495.png',
       },
     ])
+    await Promise.all(
+      services.map(async (service) => {
+        await service.related('spa').attach([1])
+      })
+    )
   }
 }

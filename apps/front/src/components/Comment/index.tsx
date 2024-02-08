@@ -1,3 +1,5 @@
+"use client"
+
 // import Swiper core and required modules
 import { Navigation, Pagination, A11y } from "swiper/modules";
 

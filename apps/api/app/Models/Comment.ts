@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, HasOne, column, hasOne } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, HasOne, belongsTo, column, hasOne } from '@ioc:Adonis/Lucid/Orm'
 import User from './User'
 import Spa from './Spa'
 
@@ -16,8 +16,14 @@ export default class Comment extends BaseModel {
   @column()
   public text: string
 
-  @hasOne(() => User)
-  public user: HasOne<typeof User>
+  @column()
+  public userId: number
+
+  @column()
+  public spaId: number
+
+  @belongsTo(() => User)
+  public user: BelongsTo<typeof User>
 
   @hasOne(() => Spa)
   public spa: HasOne<typeof Spa>

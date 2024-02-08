@@ -26,7 +26,12 @@ export default class SpasController {
     return response.ok(spa)
   }
 
-  public async show ({}: HttpContextContract) {}
+  public async show ({ request, response }: HttpContextContract) {
+    const spa = await Spa.findOrFail(request.param('id'))
+    await spa.load('tags')
+    await spa.load('services')
+    return response.ok(spa)
+  }
 
   public async edit ({}: HttpContextContract) {}
 
