@@ -6,8 +6,8 @@ export default class TagSeeder extends BaseSeeder {
   public async run () {
     const tags = await Tag.createMany([
       {
-        label: 'spa',
-        icon: 'fas-spa',
+        label: 'chambre',
+        icon: 'fa-solid fa-bed',
         number: 1,
       },
       {

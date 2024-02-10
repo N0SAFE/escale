@@ -3,6 +3,7 @@ import { BaseModel, HasMany, ManyToMany, column, hasMany, manyToMany } from '@io
 import Availability from './Availability'
 import Tag from './Tag'
 import Service from './Service'
+import Reservation from './Reservation'
 
 export default class Spa extends BaseModel {
   @column({ isPrimary: true })
@@ -24,6 +25,9 @@ export default class Spa extends BaseModel {
     prepare: (value: string[]) => JSON.stringify(value),
   })
   public images: string[]
+
+  @hasMany(() => Reservation)
+  public reservations: HasMany<typeof Reservation>
 
   @hasMany(() => Availability)
   public availability: HasMany<typeof Availability>

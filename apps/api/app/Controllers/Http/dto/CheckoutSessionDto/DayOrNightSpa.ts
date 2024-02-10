@@ -30,9 +30,13 @@ export class CheckoutSessionRessourceDayOrNightSpaBodyDto {
 }
 
 export class CheckoutSessionRessourceDayOrNightSpaQueryDto {
+  // @IsDefined()
+  // @IsEnum(['day', 'night'])
+  // public type: 'day' | 'night' @flag enable night and journey
+
   @IsDefined()
-  @IsEnum(['day', 'night'])
-  public type: 'day' | 'night'
+  @IsEnum(['night'])
+  public type: 'night'
 }
 
 export class CheckoutSessionRessourceDayOrNightSpaDto extends BaseDto {
@@ -68,7 +72,8 @@ implements AsSameProperties<CheckoutSessionRessourceDayOrNightSpaBodyDto> {
 
 export class CheckoutSessionRessourceDayOrNightSpaQueryDtoAfter
 implements AsSameProperties<CheckoutSessionRessourceDayOrNightSpaQueryDto> {
-  public type: 'day' | 'night'
+  // public type: 'day' | 'night' @flag enable night and journey
+  public type: 'night'
 }
 
 export class CheckoutSessionRessourceDayOrNightSpaDtoAfter extends BaseDto {

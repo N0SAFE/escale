@@ -24,6 +24,9 @@ export default class JourneyReservation extends BaseModel {
   })
   public endAt: DateTime
 
+  @column()
+  public reservationId: number
+
   @hasOne(() => Reservation)
   public reservation: HasOne<typeof Reservation>
 }

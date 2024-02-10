@@ -9,41 +9,99 @@ import DateTimeService from './DateTimeService'
 export default class ReservationService {
   constructor (private dateTimeService: DateTimeService) {}
 
-  public async getReservations (
+  private createReservationQueryBuilderBetweenDate (startAt: DateTime, endAt: DateTime, spa?: Spa) {
+    const reservationQueryBuilder = Reservation.query()
+      .whereIn('id', function (builder) {
+        builder
+          .select('reservation_id')
+          .from('day_reservations')
+          .where('day_reservations.date', '>=', startAt.toSQLDate()!)
+          .where('day_reservations.date', '<=', endAt.toSQLDate()!)
+          .union(function (builder) {
+            builder
+              .select('reservation_id')
+              .from('night_reservations')
+              .where('night_reservations.date', '>=', startAt.toSQLDate()!)
+              .where('night_reservations.date', '<=', endAt.toSQLDate()!)
+          })
+          .union(function (builder) {
+            builder
+              .select('reservation_id')
+              .from('journey_reservations')
+              .where('journey_reservations.start_at', '<=', endAt.toSQLDate()!)
+              .where('journey_reservations.end_at', '>=', startAt.toSQLDate()!)
+          })
+      })
+      .preload('dayReservation')
+      .preload('nightReservation')
+      .preload('journeyReservation')
+    if (spa) {
+      return reservationQueryBuilder.where('spa_id', spa.id)
+    } else {
+      return reservationQueryBuilder
+    }
+  }
+
+  private createReservationQueryBuilderByDate (date: DateTime, spa?: Spa) {
+    const reservationQueryBuilder = Reservation.query().whereIn('id', function (builder) {
+      builder
+        .select('reservation_id')
+        .from('day_reservations')
+        .where('day_reservations.date', date.toSQLDate()!)
+        .union(function (builder) {
+          builder
+            .select('reservation_id')
+            .from('night_reservations')
+            .where('night_reservations.date', date.toSQLDate()!)
+        })
+        .union(function (builder) {
+          builder
+            .select('reservation_id')
+            .from('day_reservations')
+            .where('day_reservations.date', date.toSQLDate()!)
+        })
+        .union(function (builder) {
+          builder
+            .select('reservation_id')
+            .from('journey_reservations')
+            .where('journey_reservations.start_at', '<=', date.toSQLDate()!)
+            .where('journey_reservations.end_at', '>=', date.toSQLDate()!)
+        })
+    })
+    if (spa) {
+      return reservationQueryBuilder.where('spa_id', spa.id)
+    } else {
+      return reservationQueryBuilder
+    }
+  }
+
+  public async getReservationsBetweenDate (
     startAt: DateTime,
     endAt: DateTime,
     spa?: Spa
   ): Promise<Reservation[]> {
+    const reservationQueryBuilder = this.createReservationQueryBuilderBetweenDate(
+      startAt,
+      endAt,
+      spa
+    )
     if (!spa) {
-      return await Reservation.query()
-        .where('start_at', '<=', endAt.toSQL()!)
-        .andWhere('end_at', '>=', startAt.toSQL()!)
-        .exec()
+      return reservationQueryBuilder.exec()
     } else {
-      return await Reservation.query()
-        .where('start_at', '<=', endAt.toSQL()!)
-        .andWhere('end_at', '>=', startAt.toSQL()!)
-        .andWhere('spa_id', spa.id)
-        .exec()
+      return reservationQueryBuilder.where('spa_id', spa.id).exec()
     }
   }
 
-  public async getReservationByDay (date: DateTime, spa?: Spa): Promise<Reservation | null> {
+  public async getReservationByDate (date: DateTime, spa?: Spa): Promise<Reservation | null> {
+    const reservationQueryBuilder = this.createReservationQueryBuilderByDate(date, spa)
     if (!spa) {
-      return await Reservation.query()
-        .where('start_at', '<=', date.toSQL()!)
-        .andWhere('end_at', '>=', date.toSQL()!)
-        .first()
+      return await reservationQueryBuilder.first()
     } else {
-      return await Reservation.query()
-        .where('start_at', '<=', date.toSQL()!)
-        .andWhere('end_at', '>=', date.toSQL()!)
-        .andWhere('spa_id', spa.id)
-        .first()
+      return await reservationQueryBuilder.where('spa_id', spa.id).first()
     }
   }
 
-  public async getAvailabilities (
+  public async getAvailabilitiesBetweenDate (
     startAt: DateTime,
     endAt: DateTime,
     spa?: Spa
@@ -62,7 +120,7 @@ export default class ReservationService {
     }
   }
 
-  public async getAvailabilitieByDay (date: DateTime, spa?: Spa): Promise<Availability | null> {
+  public async getAvailabilitieByDate (date: DateTime, spa?: Spa): Promise<Availability | null> {
     if (!spa) {
       return await Availability.query()
         .where('start_at', '<=', date.toSQL()!)
@@ -88,9 +146,9 @@ export default class ReservationService {
   ): Promise<
     { state: true; availability: Availability } | { state: false; code: number; message: string }
   > {
-    const availability = await this.getAvailabilities(startAt, endAt, spa)
+    const availability = await this.getAvailabilitiesBetweenDate(startAt, endAt, spa)
 
-    const reservation = this.getFirst(await this.getReservations(startAt, endAt, spa))
+    const reservation = this.getFirst(await this.getReservationsBetweenDate(startAt, endAt, spa))
 
     // check if all the availibilty have all the day
     const isAvailabilityChaining =
@@ -135,9 +193,9 @@ export default class ReservationService {
   ): Promise<
     { state: true; availability: Availability } | { state: false; code: number; message: string }
   > {
-    const availability = await this.getAvailabilitieByDay(date, spa)
+    const availability = await this.getAvailabilitieByDate(date, spa)
 
-    const reservation = await this.getReservationByDay(date, date, spa)
+    const reservation = await this.getReservationByDate(date, spa)
 
     // check if the spa is available
     if (reservation) {
@@ -150,7 +208,7 @@ export default class ReservationService {
 
     return {
       state: true,
-      availability: availability[0],
+      availability: availability as Availability,
     }
   }
 
@@ -161,9 +219,9 @@ export default class ReservationService {
   ): Promise<
     { state: true; availability: Availability } | { state: false; code: number; message: string }
   > {
-    const availability = await this.getAvailabilities(startAt, endAt, spa)
+    const availability = await this.getAvailabilitiesBetweenDate(startAt, endAt, spa)
 
-    const reservation = this.getFirst(await this.getReservations(startAt, endAt, spa))
+    const reservation = this.getFirst(await this.getReservationsBetweenDate(startAt, endAt, spa))
 
     // check if all the availibilty have all the day
     const isAvailabilityChaining =
@@ -208,9 +266,9 @@ export default class ReservationService {
   ): Promise<
     { state: true; availability: Availability } | { state: false; code: number; message: string }
   > {
-    const availability = await this.getAvailabilitieByDay(date, spa)
+    const availability = await this.getAvailabilitieByDate(date, spa)
 
-    const reservation = await this.getReservationByDay(date, spa)
+    const reservation = await this.getReservationByDate(date, spa)
 
     // check if the spa is available
     if (reservation) {
@@ -242,9 +300,9 @@ export default class ReservationService {
   ): Promise<
     { state: true; availability: Availability[] } | { state: false; code: number; message: string }
   > {
-    const availability = await this.getAvailabilities(startAt, endAt, spa)
+    const availability = await this.getAvailabilitiesBetweenDate(startAt, endAt, spa)
 
-    const reservation = this.getFirst(await this.getReservations(startAt, endAt, spa))
+    const reservation = this.getFirst(await this.getReservationsBetweenDate(startAt, endAt, spa))
 
     // check if all the availibilty have all the day
     const isAvailabilityChaining =

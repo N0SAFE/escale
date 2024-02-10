@@ -18,6 +18,9 @@ export default class DayReservation extends BaseModel {
   })
   public date: DateTime
 
+  @column()
+  public reservationId: number
+
   @hasOne(() => Reservation)
   public reservation: HasOne<typeof Reservation>
 }

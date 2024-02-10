@@ -26,9 +26,9 @@ export default class StripeProvider {
   constructor (protected app: ApplicationContract) {}
 
   public register () {
+    const { stripeConfig } = this.app.config.get('stripe')
+    this.stripe = new Stripe(stripeConfig.secretKey)
     this.app.container.singleton('Stripe', () => {
-      const { stripeConfig } = this.app.config.get('stripe')
-      this.stripe = new Stripe(stripeConfig.secretKey)
       return this.stripe
     })
   }
@@ -38,7 +38,7 @@ export default class StripeProvider {
   }
 
   public async ready () {
-    if (!Env.get('NODE_ENV') && Env.get('NODE_ENV') !== 'production') {
+    if (!!Env.get('NODE_ENV') && Env.get('NODE_ENV') === 'production') {
       await this.stripe.webhookEndpoints.create({
         url: Env.get('APP_URL') + '/webhook/stripe',
         enabled_events: [

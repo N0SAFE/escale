@@ -13,14 +13,14 @@ export default class Availability extends BaseModel {
   public updatedAt: DateTime
 
   @column.dateTime({
-    consume: (value: Date) => DateTime.fromISO(value.toISOString()),
-    prepare: (value: DateTime) => value.toISODate(),
+    consume: (value: Date | undefined) => value && DateTime.fromISO(value.toISOString()),
+    prepare: (value: DateTime) => value?.toISODate(),
   })
   public startAt: DateTime
 
   @column.dateTime({
-    consume: (value: Date) => DateTime.fromISO(value.toISOString()),
-    prepare: (value: DateTime) => value.toISODate(),
+    consume: (value: Date | undefined) => value && DateTime.fromISO(value.toISOString()),
+    prepare: (value: DateTime) => value?.toISODate(),
   })
   public endAt: DateTime
 

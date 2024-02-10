@@ -20,7 +20,6 @@
 
 import Route from '@ioc:Adonis/Core/Route'
 import HealthCheck from '@ioc:Adonis/Core/HealthCheck'
-import UsersController from 'App/Controllers/Http/UsersController'
 
 // check db connection
 Route.get('health', async ({ response }) => {
@@ -48,19 +47,25 @@ Route.group(() => {
   Route.get('whoami', 'AuthController.whoami')
 
   Route.group(() => {
-    Route.resource('users', 'UsersController').apiOnly()
-    Route.resource('reservations', 'ReservationsController').apiOnly()
-    Route.resource('availabilities', 'AvailabilitiesController').apiOnly()
-    Route.resource('spas', 'SpasController').apiOnly()
+    Route.resource('users', 'UsersController').apiOnly().only(['show'])
+    Route.get('users/me', 'UsersController.me')
+    Route.get('reservations/available-dates', 'ReservationsController.availableDates')
+    Route.get('reservations/price', 'ReservationsController.price')
+    Route.get('reservations/journey-price', 'ReservationsController.journeyPrice')
+    Route.resource('reservations', 'ReservationsController').apiOnly().only(['show'])
+    Route.resource('availabilities', 'AvailabilitiesController').apiOnly().only(['index', 'show'])
+    Route.resource('spas', 'SpasController').apiOnly().only(['index', 'show'])
     Route.resource('services', 'ServicesController').apiOnly().only(['index', 'show'])
-    Route.resource('tags', 'TagsController').apiOnly()
+    Route.resource('tags', 'TagsController').apiOnly().only(['index', 'show'])
     Route.resource('comments', 'CommentsController').apiOnly().only(['index', 'show'])
+  })
+
+  Route.group(() => {
+    Route.group(() => {
+      // route for admin user only
+    })
   }).middleware('connected')
 }).middleware('loadJwtUser')
-
-type RouteType = {
-  users: UsersController
-}
 
 // Route.group(() => {
 //   Route.post('login', 'AuthController.login')

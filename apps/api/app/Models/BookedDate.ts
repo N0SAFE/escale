@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import { BaseModel, HasOne, column, hasOne } from '@ioc:Adonis/Lucid/Orm'
 import Reservation from './Reservation'
 
-export default class NightReservation extends BaseModel {
+export default class BookedDate extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
@@ -13,8 +13,8 @@ export default class NightReservation extends BaseModel {
   public updatedAt: DateTime
 
   @column.dateTime({
-    consume: (value: Date) => DateTime.fromISO(value.toISOString()),
-    prepare: (value: DateTime) => value.toISODate(),
+    consume: (value: Date | undefined) => value && DateTime.fromISO(value.toISOString()),
+    prepare: (value: DateTime) => value?.toISODate(),
   })
   public date: DateTime
 
@@ -23,4 +23,7 @@ export default class NightReservation extends BaseModel {
 
   @hasOne(() => Reservation)
   public reservation: HasOne<typeof Reservation>
+
+  @column()
+  public typeReservationId: number
 }

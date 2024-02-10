@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { CalendarIcon } from "@radix-ui/react-icons";
-import fr from 'date-fns/locale/fr';
+import fr from "date-fns/locale/fr";
 import { addDays, format } from "date-fns";
 import { DateRange } from "react-day-picker";
 
@@ -10,37 +10,41 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DateTime } from "luxon";
 
-type Props = {
-    onSelect?: (date: DateRange | undefined, type: "multiple-day") => void;
-    type: "multiple-day";
-} | {
-    onSelect?: (date: Date | undefined, type: "night" | "afternoon") => void;
-    type: "night" | "afternoon";
-};
+type Props = { disabledDate: Set<string>; onMonthChange: (month: Date) => void, defaultValue?: {
+    date?: Date | DateRange | undefined;
+} } & (
+    | {
+          onSelect?: (date: DateRange | undefined, type: "journey") => void;
+          type: "journey";
+      }
+    | {
+          onSelect?: (date: Date | undefined, type: "night" | "afternoon") => void;
+          type: "night" | "afternoon";
+      }
+);
 
-export default function SelectDate({ onSelect, className, type }: Omit<React.HTMLAttributes<HTMLDivElement>, keyof Props> & Props) {
-    console.log(new Date());
-    const [rangeDate, setRangeDate] = useState<DateRange | undefined>({
-        from: new Date(),
-        to: addDays(new Date(), 5)
-    });
-    const [date, setDate] = useState<Date | undefined>(new Date());
+export default function SelectDate({ onSelect, className, type, disabledDate, onMonthChange, defaultValue }: Omit<React.HTMLAttributes<HTMLDivElement>, keyof Props> & Props) {
+    const [rangeDate, setRangeDate] = useState<DateRange | undefined>(type === 'journey' && defaultValue?.date ? (defaultValue.date as DateRange) : undefined);
+    const [date, setDate] = useState<Date | undefined>(type !== 'journey' && defaultValue?.date ? (defaultValue.date as Date) : undefined);
 
     useEffect(() => {
         if (onSelect) {
-            if (type === "multiple-day") {
+            if (type === "journey") {
                 onSelect(rangeDate, type);
             } else {
                 onSelect(date, type);
             }
         }
-    }, [date, onSelect, rangeDate, type]);
+    }, [date, onSelect, rangeDate, type, disabledDate]);
+    
+    console.log(disabledDate)
 
     return (
         <div className={cn("grid gap-2", className)}>
             <Popover>
-                {type === "multiple-day" ? (
+                {type === "journey" ? (
                     <div className="flex items-center">
                         <span className="text-nowrap">sélectionner des dates : </span>
                         <PopoverTrigger asChild>
@@ -49,10 +53,10 @@ export default function SelectDate({ onSelect, className, type }: Omit<React.HTM
                                 {rangeDate?.from ? (
                                     rangeDate.to ? (
                                         <>
-                                            {format(rangeDate.from, "LLL dd, y", {locale: fr})} - {format(rangeDate.to, "LLL dd, y", {locale: fr})}
+                                            {format(rangeDate.from, "LLL dd, y", { locale: fr })} - {format(rangeDate.to, "LLL dd, y", { locale: fr })}
                                         </>
                                     ) : (
-                                        format(rangeDate.from, "LLL dd, y", {locale: fr})
+                                        format(rangeDate.from, "LLL dd, y", { locale: fr })
                                     )
                                 ) : (
                                     <span>Pick a date</span>
@@ -60,7 +64,16 @@ export default function SelectDate({ onSelect, className, type }: Omit<React.HTM
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar initialFocus mode="range" defaultMonth={rangeDate?.from} selected={rangeDate} onSelect={setRangeDate} numberOfMonths={2} />
+                            <Calendar
+                                initialFocus
+                                mode="range"
+                                defaultMonth={rangeDate?.from}
+                                selected={rangeDate}
+                                onSelect={setRangeDate}
+                                numberOfMonths={2}
+                                disabled={(date) => disabledDate.has((DateTime.fromJSDate(date) as DateTime<true>).toSQLDate())}
+                                onMonthChange={onMonthChange}
+                            />
                         </PopoverContent>
                     </div>
                 ) : type === "night" || type === "afternoon" ? (
@@ -73,7 +86,14 @@ export default function SelectDate({ onSelect, className, type }: Omit<React.HTM
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
+                            <Calendar
+                                mode="single"
+                                selected={disabledDate.has((DateTime.fromJSDate(date as Date) as DateTime<true>).toSQLDate()) ? undefined : date}
+                                onSelect={setDate}
+                                initialFocus
+                                onMonthChange={onMonthChange}
+                                disabled={(date) => disabledDate.has((DateTime.fromJSDate(date) as DateTime<true>).toSQLDate())}
+                            />
                         </PopoverContent>
                     </div>
                 ) : null}

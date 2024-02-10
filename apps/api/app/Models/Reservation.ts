@@ -16,21 +16,27 @@ export default class Reservation extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
-  @hasOne(() => Spa)
-  public spa: HasOne<typeof Spa>
+  @column()
+  public email?: string
+
+  @column()
+  public spaId: number
+
+  @column()
+  public userId: number
+
+  @belongsTo(() => Spa)
+  public spa: BelongsTo<typeof Spa>
 
   @belongsTo(() => User)
   public user: BelongsTo<typeof User>
 
-  @column()
-  public email?: string
+  @hasOne(() => DayReservation)
+  public dayReservation: HasOne<typeof DayReservation>
 
-  @belongsTo(() => DayReservation)
-  public dayReservation: BelongsTo<typeof DayReservation>
+  @hasOne(() => NightReservation)
+  public nightReservation: HasOne<typeof NightReservation>
 
-  @belongsTo(() => NightReservation)
-  public nightReservation: BelongsTo<typeof NightReservation>
-
-  @belongsTo(() => JourneyReservation)
-  public journeyReservation: BelongsTo<typeof JourneyReservation>
+  @hasOne(() => JourneyReservation)
+  public journeyReservation: HasOne<typeof JourneyReservation>
 }

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "./ui/button";
@@ -14,21 +14,7 @@ export default function Navbar() {
                             <FlowerIcon className="h-8 w-8 text-white" />
                         </div>
                         <div className="hidden md:flex items-center space-x-1">
-                            <Link aria-current="page" className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/">
-                                ACCUEIL
-                            </Link>
-                            <Link className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/reservation">
-                                RÉSERVEZ VOTRE SÉJOUR
-                            </Link>
-                            <Link className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/contact">
-                                CONTACT
-                            </Link>
-                            <Link className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/faq">
-                                FAQ
-                            </Link>
-                            <Link className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/reglement">
-                                RÈGLEMENT INTÉRIEUR
-                            </Link>
+                            <Links />
                         </div>
                     </div>
                     <div className="flex items-center">
@@ -50,22 +36,8 @@ export default function Navbar() {
                 </div>
             </div>
             <div className={`md:hidden ${isMenuOpen ? "" : "hidden"}`} id="mobile-menu">
-                <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                    <a aria-current="page" className="text-white block px-3 py-2 rounded-md text-base font-medium" href="#">
-                        ACCUEIL
-                    </a>
-                    <a className="text-white block px-3 py-2 rounded-md text-base font-medium" href="#">
-                        RÉSERVEZ VOTRE SÉJOUR
-                    </a>
-                    <a className="text-white block px-3 py-2 rounded-md text-base font-medium" href="#">
-                        CONTACT
-                    </a>
-                    <a className="text-white block px-3 py-2 rounded-md text-base font-medium" href="#">
-                        FAQ
-                    </a>
-                    <a className="text-white block px-3 py-2 rounded-md text-base font-medium" href="#">
-                        RÈGLEMENT INTÉRIEUR
-                    </a>
+                <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
+                    <Links />
                 </div>
             </div>
         </nav>
@@ -110,5 +82,27 @@ function XIcon(props: React.SVGProps<SVGSVGElement>) {
             <path d="M18 6 6 18" />
             <path d="m6 6 12 12" />
         </svg>
+    );
+}
+
+function Links() {
+    return (
+        <>
+            <Link aria-current="page" className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/">
+                ACCUEIL
+            </Link>
+            <Link className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/reservation">
+                RÉSERVEZ VOTRE SÉJOUR
+            </Link>
+            <Link className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/contact">
+                CONTACT
+            </Link>
+            <Link className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/faq">
+                FAQ
+            </Link>
+            <Link className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/reglement">
+                RÈGLEMENT INTÉRIEUR
+            </Link>
+        </>
     );
 }

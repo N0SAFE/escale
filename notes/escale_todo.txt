@@ -1,5 +1,5 @@
-nuité dimanche-jeudi = 149
-nuité vendredi-samedi = 199
+nuité lundi-jeudi = 149
+nuité vendredi-dimanche = 199
 aprem full = 99
 
 tarif journée = modulable (check)
