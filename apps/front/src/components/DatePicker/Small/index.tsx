@@ -7,6 +7,7 @@ import { DateRange } from "react-day-picker";
 import { Button } from "@/components/ui/button";
 import { DateTime } from "luxon";
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
+import Loader from "@/components/Loader";
 
 type DatePickerProps = {
     onConfirm: (selected: "night" | "afternoon" | "journey" | undefined, date: Date | DateRange | undefined) => Promise<string | undefined> | string | undefined;
@@ -18,10 +19,11 @@ type DatePickerProps = {
         BookedDate?: Set<string>;
         price?: number;
         month?: number;
-    }
+    };
 };
 
 export default function DatePickerSmall({ onConfirm, getAvailableDates, getPrice, defaultValue }: DatePickerProps) {
+    const [isLoading, setIsLoading] = useState(false);
     const [date, setDate] = useState<Date | DateRange | undefined>(defaultValue?.date);
     const [selected, setSelected] = useState<"journey" | "night" | "afternoon" | undefined>(defaultValue?.selected);
     const [error, setError] = useState<string | undefined>();
@@ -103,7 +105,7 @@ export default function DatePickerSmall({ onConfirm, getAvailableDates, getPrice
                                     setSelectedMonth((DateTime.fromJSDate(date) as DateTime<true>).month);
                                 }}
                                 disabledDate={bookedDate}
-                                defaultValue={{date: date}}
+                                defaultValue={{ date: date }}
                             />
                             {price ? <p>le prix est de {price / 100}€</p> : null}
                             {error ? (
@@ -116,6 +118,7 @@ export default function DatePickerSmall({ onConfirm, getAvailableDates, getPrice
                         <DrawerFooter>
                             {selected && (
                                 <Button
+                                    disabled={isLoading}
                                     onClick={() =>
                                         Promise.resolve(onConfirm(selected, date)).then(async function (error) {
                                             if (await error) {
@@ -124,7 +127,14 @@ export default function DatePickerSmall({ onConfirm, getAvailableDates, getPrice
                                         })
                                     }
                                 >
-                                    confirmer
+                                    {isLoading ? (
+                                        <div className="flex items-center justify-center gap-1 p-4">
+                                            <Loader className="p-1" />
+                                            Loading...
+                                        </div>
+                                    ) : (
+                                        "confirmer"
+                                    )}
                                 </Button>
                             )}
                             <DrawerClose asChild className="text-black">

@@ -28,7 +28,7 @@ type Spa = {
 const Reservation = async ({ params }: { params: { id: string } }) => {
     const { id } = params;
     const { data } = await axios<Spa>(`/spas/${id}`);
-
+    
     async function getPrice(date: string | { from: string; to: string }, type: "night" | "afternoon" | "journey") {
         "use server";
 

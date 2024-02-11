@@ -6,51 +6,52 @@ import { useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { Button } from "@/components/ui/button";
 import { DateTime } from "luxon";
+import Loader from "@/components/Loader";
 
 type DatePickerProps = {
     onConfirm: (selected: "night" | "afternoon" | "journey" | undefined, date: Date | DateRange | undefined) => Promise<string | undefined> | string | undefined;
-    getAvailableDates: (startAt: string, endAt: string, type: "night" | "afternoon" | "journey") => Promise<{date: string, available: boolean}[]>;
-    getPrice: (date: string | {from: string, to: string}, type: "night" | "afternoon" | "journey") => Promise<number | undefined>;
+    getAvailableDates: (startAt: string, endAt: string, type: "night" | "afternoon" | "journey") => Promise<{ date: string; available: boolean }[]>;
+    getPrice: (date: string | { from: string; to: string }, type: "night" | "afternoon" | "journey") => Promise<number | undefined>;
     defaultValue?: {
         date?: Date | DateRange;
         selected?: "night" | "afternoon" | "journey";
         BookedDate?: Set<string>;
         price?: number;
         month?: number;
-    }
+    };
 };
 
-export default function DatePicker({ onConfirm, getAvailableDates, getPrice, defaultValue, ...props }: DatePickerProps & Omit<React.HTMLAttributes<HTMLDivElement>, 'defaultValue'>) {
+export default function DatePicker({ onConfirm, getAvailableDates, getPrice, defaultValue, ...props }: DatePickerProps & Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue">) {
+    const [isLoading, setIsLoading] = useState(false);
     const [date, setDate] = useState<Date | DateRange | undefined>(defaultValue?.date);
     const [selected, setSelected] = useState<"journey" | "night" | "afternoon" | undefined>(defaultValue?.selected);
     const [error, setError] = useState<string | undefined>();
     const [selectedMonth, setSelectedMonth] = useState(defaultValue?.month || DateTime.now().month);
     const [bookedDate, setBookedDate] = useState<Set<string>>(defaultValue?.BookedDate || new Set());
     const [price, setPrice] = useState<number | undefined>(defaultValue?.price);
-    console.log("date", date)
     // get the date from the first day of the actual month to the last day of the next month
     useEffect(() => {
-        if (!selected) return
+        if (!selected) return;
         // startAt is the first day of the month inside selectedMonth
-        const startAt = DateTime.now().set({ month: selectedMonth, day: 1 })
-        const endAt =  startAt.plus({ month: 1 }).minus({ day: 1 })
+        const startAt = DateTime.now().set({ month: selectedMonth, day: 1 });
+        const endAt = startAt.plus({ month: 1 }).minus({ day: 1 });
         getAvailableDates(startAt.toISODate(), endAt.toISODate(), selected).then((dates) => {
-            setBookedDate(new Set(dates.filter(date => !date.available).map((date) => date.date)));
+            setBookedDate(new Set(dates.filter((date) => !date.available).map((date) => date.date)));
         });
         if (selected === "journey") {
-            getPrice({from: DateTime.fromJSDate((date as DateRange).from!).toISODate()!, to: DateTime.fromJSDate((date as DateRange).to!).toISODate()!}, selected).then((price) => {
+            getPrice({ from: DateTime.fromJSDate((date as DateRange).from!).toISODate()!, to: DateTime.fromJSDate((date as DateRange).to!).toISODate()! }, selected).then((price) => {
                 setPrice(price);
             });
-        }else {
+        } else {
             getPrice(DateTime.fromJSDate(date as Date).toISODate()!, selected).then((price) => {
                 setPrice(price);
             });
         }
     }, [getAvailableDates, setBookedDate, selectedMonth, selected, date, getPrice]);
-    
+
     console.log("selected", selected);
     return (
-        <div {...props} className={"flex flex-col gap-2 text-black w-full " + props.className} >
+        <div {...props} className={"flex flex-col gap-2 text-black w-full " + props.className}>
             <div className="flex gap-2 items-center">
                 <span className="text-nowrap">réserver pour : </span>
                 <Select
@@ -79,19 +80,37 @@ export default function DatePicker({ onConfirm, getAvailableDates, getPrice, def
             ) : selected === "afternoon" ? (
                 <SelectDate onSelect={setDate} type={selected} />
             ) : null} */}
-            <SelectDate onSelect={setDate} type={"night"} onMonthChange={function(date) {setSelectedMonth((DateTime.fromJSDate(date) as DateTime<true>).month)}} disabledDate={bookedDate} defaultValue={{date: date}} />
+            <SelectDate
+                onSelect={setDate}
+                type={"night"}
+                onMonthChange={function (date) {
+                    setSelectedMonth((DateTime.fromJSDate(date) as DateTime<true>).month);
+                }}
+                disabledDate={bookedDate}
+                defaultValue={{ date: date }}
+            />
             {price ? <p>le prix est de {price / 100}€</p> : null}
             {selected && (
                 <Button
+                    disabled={isLoading}
                     onClick={() =>
                         Promise.resolve(onConfirm(selected, date)).then(async function (error) {
                             if (await error) {
-                                setError((await error));
+                                setError(await error);
+                            } else {
+                                setIsLoading(true);
                             }
                         })
                     }
                 >
-                    confirmer
+                    {isLoading ? (
+                        <div className="flex items-center justify-center gap-1 p-4">
+                            <Loader className="p-1" /> 
+                            Loading...
+                        </div>
+                    ) : (
+                        "confirmer"
+                    )}
                 </Button>
             )}
             {error ? (

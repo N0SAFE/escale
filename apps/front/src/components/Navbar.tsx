@@ -35,9 +35,9 @@ export default function Navbar() {
                     </div>
                 </div>
             </div>
-            <div className={`md:hidden ${isMenuOpen ? "" : "hidden"}`} id="mobile-menu">
+            <div className={`md:hidden absolute w-screen bg-[#8B5A3C] ${isMenuOpen ? "" : "hidden"}`} id="mobile-menu">
                 <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
-                    <Links />
+                    <Links onClick={() => {setIsMenuOpen(false)}} />
                 </div>
             </div>
         </nav>
@@ -85,22 +85,26 @@ function XIcon(props: React.SVGProps<SVGSVGElement>) {
     );
 }
 
-function Links() {
+type LinksProps = {
+    onClick?: () => void;
+};
+
+function Links({onClick}: LinksProps) {
     return (
         <>
-            <Link aria-current="page" className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/">
+            <Link onClick={onClick} aria-current="page" className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/">
                 ACCUEIL
             </Link>
-            <Link className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/reservation">
+            <Link onClick={onClick} className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/reservation">
                 RÉSERVEZ VOTRE SÉJOUR
             </Link>
-            <Link className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/contact">
+            <Link onClick={onClick} className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/contact">
                 CONTACT
             </Link>
-            <Link className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/faq">
+            <Link onClick={onClick} className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/faq">
                 FAQ
             </Link>
-            <Link className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/reglement">
+            <Link onClick={onClick} className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/reglement">
                 RÈGLEMENT INTÉRIEUR
             </Link>
         </>
