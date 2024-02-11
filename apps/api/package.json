@@ -17,7 +17,7 @@
     "db:migrate:build": "npm --prefix=./build run db:migrate",
     "db:migrate": "npm run db:migrate:up",
     "db:unmigrate": "npm run db:migrate:down",
-    "db:migrate:up": "node ace migration:run",
+    "db:migrate:up": "node ace migration:run --force",
     "db:migrate:down": "node ace migration:rollback",
     "db:seed": "node ace db:seed",
     "db:refresh:seed": "node ace migration:refresh --seed",
