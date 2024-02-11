@@ -24,7 +24,8 @@ export default class extends BaseSchema {
       table.string('type').notNullable()
     })
 
-    // i want to create a trigger on the table reservations that check for the dates that as been booked and add it to the booked_dates table
+    // i want to create a trigger on the table reservations that check
+    // for the dates that as been booked and add it to the booked_dates table
     await this.raw(
       `
       CREATE TRIGGER check_booked_dates_on_night_reservations

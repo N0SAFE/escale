@@ -15,11 +15,15 @@ type ContactFormProps = {
 
 export default function ContactForm({ onSubmit }: ContactFormProps) {
   const [error, setError] = useState<string | undefined>()
+  const [success, setSuccess] = useState<true | undefined>()
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     onSubmit(new FormData(event.currentTarget)).then((response) => {
+      console.log(response)
       if(!response.state) {
         setError(response.message)
+      }else {
+        setSuccess(true)
       }
     })
   }
@@ -53,6 +57,7 @@ export default function ContactForm({ onSubmit }: ContactFormProps) {
               </label>
               <Textarea name="message" className="h-32" id="message" placeholder="Tapez votre message ici." />
             </div>
+            {success && <p className="text-green-500 mt-4">your question has been transmited</p>}
             {error && <p className="text-red-500 mt-4">{error}</p>}
             <Button>Envoyer</Button>
           </form>

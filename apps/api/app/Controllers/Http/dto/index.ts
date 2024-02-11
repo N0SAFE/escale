@@ -6,12 +6,12 @@ type Handler = <T extends {}, K extends keyof T, V extends T[K] = T[K]>(
   value: V
 ) => Promisable<T[K]>
 
+export const customMetadataHandlerSymbol = Symbol('customMetadata')
+export const customMetadataConsumerSymbol = Symbol('customMetadataConsumer')
+
 type Metadatas<T> = Map<keyof T, Handler[]> & {
   [customMetadataConsumerSymbol]: () => Promise<void>
 }
-
-export const customMetadataHandlerSymbol = Symbol('customMetadata')
-export const customMetadataConsumerSymbol = Symbol('customMetadataConsumer')
 
 export function defineMetadata<T extends {}, K extends keyof T> (
   target: T,

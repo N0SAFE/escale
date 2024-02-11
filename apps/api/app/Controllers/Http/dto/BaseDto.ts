@@ -7,6 +7,7 @@ export const afterSymbol = Symbol('after')
 export class BaseDto {
   public customTransform: Promise<this>
   constructor (args) {
+    // to do add a generic type that is the this
     /**
      * assign all args to this but only if they are defined
      * create a new instance to the nested object if the type as to be BaseDto

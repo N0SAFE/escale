@@ -3,7 +3,6 @@ import {
   IsISO8601,
   IsNumber,
   IsObject,
-  IsOptional,
   ValidateNested,
   ValidationArguments,
 } from 'class-validator'

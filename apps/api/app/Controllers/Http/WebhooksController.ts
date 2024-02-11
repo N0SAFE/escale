@@ -2,7 +2,6 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Reservation from 'App/Models/Reservation'
 import Spa from 'App/Models/Spa'
 import { DateTime } from 'luxon'
-import stripe from '@ioc:Stripe'
 
 export default class WebhooksController {
   public async stripe ({ request, response }: HttpContextContract) {

@@ -12,6 +12,11 @@ export default class extends BaseSchema {
        */
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
+      table.string('name').notNullable()
+      table.string('email').notNullable()
+      table.string('subject').notNullable()
+      table.string('message').notNullable()
+      table.boolean('read').notNullable()
     })
   }
 

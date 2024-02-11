@@ -12,17 +12,17 @@ export default class Contact extends BaseModel {
   public updatedAt: DateTime
 
   @column()
-  public object: string
-
-  @column()
   public email: string
 
   @column()
   public message: string
 
   @column()
-  public read: boolean
+  public subject: string
 
   @column()
   public name: string
+
+  @column()
+  public read: boolean
 }

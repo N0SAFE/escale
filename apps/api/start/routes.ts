@@ -47,6 +47,7 @@ Route.group(() => {
   Route.get('whoami', 'AuthController.whoami')
 
   Route.group(() => {
+    Route.resource('contact', 'ContactsController').apiOnly().only(['store'])
     Route.resource('users', 'UsersController').apiOnly().only(['show'])
     Route.get('users/me', 'UsersController.me')
     Route.get('reservations/available-dates', 'ReservationsController.availableDates')

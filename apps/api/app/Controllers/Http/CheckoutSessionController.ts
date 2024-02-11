@@ -3,7 +3,6 @@ import stripe from '@ioc:Stripe'
 import { inject } from '@adonisjs/fold'
 import ReservationService from 'App/Service/ReservationService'
 import { CheckoutSessionRessourceDayOrNightSpaDto } from './dto/CheckoutSessionDto/DayOrNightSpa'
-import { CheckoutSessionRessourceJourneySpaDto } from './dto/CheckoutSessionDto/JourneySpa'
 
 @inject()
 export default class CheckoutSessionsController {
@@ -71,7 +70,7 @@ export default class CheckoutSessionsController {
     }
   }
 
-  public async journeySpa ({ request, response }: HttpContextContract) {
+  public async journeySpa ({ response }: HttpContextContract) {
     return response.badRequest({ message: 'not implemented' })
     // const dto = new CheckoutSessionRessourceJourneySpaDto({
     //   body: request.body(),

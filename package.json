@@ -7,9 +7,15 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "concurrently -c blue,green -n api,front \"npm run dev -w apps/api\" \"npm run dev -w apps/front\"",
-    "build": "concurrently -c blue,green -n api,front \"npm run build -w apps/api\" \"npm run build -w apps/front\"",
-    "start": "concurrently -c blue,green -n api,front \"npm run start:build -w apps/api\" \"npm run start -w apps/front\""
+    "dev": "concurrently -c blue,green -n api,front \"npm run dev:api\" \"npm run dev:front\"",
+    "build": "node ./build",
+    "start": "concurrently -c blue,green -n api,front \"npm run start:api\" \"npm run start:front\"",
+    "dev:api": "npm run dev -w apps/api",
+    "dev:front": "npm run dev -w apps/front",
+    "start:api": "npm run start:build -w apps/api",
+    "start:front": "npm run start -w apps/front",
+    "build:api": "npm run build -w apps/api",
+    "build:front": "npm run build -w apps/front"
   },
   "keywords": [],
   "author": "",

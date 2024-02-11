@@ -1,8 +1,4 @@
-import {
-  IsDefined,
-  IsObject,
-  ValidateNested,
-} from 'class-validator'
+import { IsDefined, IsObject, ValidateNested } from 'class-validator'
 import { BaseDto } from '../BaseDto'
 import { Type } from 'class-transformer'
 import { AsSameProperties } from '../type/AsSameProperties'
@@ -29,9 +25,11 @@ export class ContactRessourcePutDto extends BaseDto {
   }
 }
 
-export class ContactRessourcePutBodyDtoAfter implements AsSameProperties<ContactRessourcePutBodyDto> {}
+export class ContactRessourcePutBodyDtoAfter
+implements AsSameProperties<ContactRessourcePutBodyDto> {}
 
-export class ContactRessourcePutQueryDtoAfter implements AsSameProperties<ContactRessourcePutQueryDto> {}
+export class ContactRessourcePutQueryDtoAfter
+implements AsSameProperties<ContactRessourcePutQueryDto> {}
 
 export class ContactRessourcePutDtoAfter extends BaseDto {
   @IsDefined()
