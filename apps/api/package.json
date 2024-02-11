@@ -14,6 +14,7 @@
     "format": "prettier --write .",
     "swagger": "node ace swagger:init",
     "db:make:migration": "node ace make:migration",
+    "db:migrate:build": "npm --prefix=./build run db:migrate",
     "db:migrate": "npm run db:migrate:up",
     "db:unmigrate": "npm run db:migrate:down",
     "db:migrate:up": "node ace migration:run",

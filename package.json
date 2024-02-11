@@ -17,7 +17,7 @@
     "start:front": "npm run start -w apps/front",
     "build:api": "npm run build -w apps/api",
     "build:front": "npm run build -w apps/front",
-    "db:migrate:api": "npm run db:migrate -w apps/api"
+    "db:migrate:api": "npm run db:migrate:build -w apps/api"
   },
   "keywords": [],
   "author": "",
