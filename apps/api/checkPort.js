@@ -2,7 +2,9 @@ const waitPort = require('wait-port')
 const dotenv = require('dotenv')
 const childProcess = require('child_process')
 const clc = require('cli-color')
-dotenv.config()
+dotenv.config({
+  path: __dirname + '/.env',
+})
 
 const args = process.argv.slice(2)
 
