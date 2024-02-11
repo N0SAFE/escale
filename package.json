@@ -12,10 +12,12 @@
     "start": "concurrently -c blue,green -n api,front \"npm run start:api\" \"npm run start:front\"",
     "dev:api": "npm run dev -w apps/api",
     "dev:front": "npm run dev -w apps/front",
+    "stop:api": "npm run stop -w apps/api && npm run stop:build -w apps/api",
     "start:api": "npm run start:build -w apps/api",
     "start:front": "npm run start -w apps/front",
     "build:api": "npm run build -w apps/api",
-    "build:front": "npm run build -w apps/front"
+    "build:front": "npm run build -w apps/front",
+    "db:migrate:api": "npm run db:migrate -w apps/api"
   },
   "keywords": [],
   "author": "",

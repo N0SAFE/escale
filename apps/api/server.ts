@@ -13,7 +13,10 @@
 import 'reflect-metadata'
 import sourceMapSupport from 'source-map-support'
 import { Ignitor } from '@adonisjs/core/build/standalone'
+import fs from 'fs'
 
 sourceMapSupport.install({ handleUncaughtExceptions: false })
 
 new Ignitor(__dirname).httpServer().start()
+
+fs.writeFileSync(__dirname + '/logs/server.pid', process.pid.toString())

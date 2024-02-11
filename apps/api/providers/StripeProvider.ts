@@ -51,6 +51,11 @@ export default class StripeProvider {
   }
 
   public async shutdown () {
-    // Cleanup, since app is going down
+    console.log('shutdown')
+    this.stripe.webhookEndpoints.list().then((endpoints) => {
+      endpoints.data.forEach((endpoint) => {
+        this.stripe.webhookEndpoints.del(endpoint.id)
+      })
+    })
   }
 }

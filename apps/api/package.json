@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "concurrently -n stripe,adonis -c yellow,blue \"stripe listen --forward-to http://localhost:4444/webhook/stripe\" \"node checkPort.js node ace serve --watch\"",
     "start": "node server.js",
+    "stop": "node stop.js",
     "start:build": "node checkPort.js node build/server.js",
+    "stop:build": "node build/stop.js",
     "build": "npm install --package-lock-only && node ace build --production && node ./post-build.js",
     "test": "npm run db:unmigrate && node ace test && npm run db:fresh:seed",
     "lint": "eslint . --ext=.ts --fix",

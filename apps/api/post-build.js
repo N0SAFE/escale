@@ -7,3 +7,9 @@ if (!fs.existsSync('./.env.production')) {
 }
 console.log('Copying .env.production to ./build/.env')
 fs.copyFileSync('.env.production', './build/.env')
+console.log('Copying checkPort.js to ./build/checkPort.js')
+fs.copyFileSync('checkPort.js', './build/checkPort.js')
+console.log('Copying stop.js to ./build/stop.js')
+fs.copyFileSync('stop.js', './build/stop.js')
+console.log('creating logs folder')
+fs.mkdirSync('./build/logs', { recursive: true })
