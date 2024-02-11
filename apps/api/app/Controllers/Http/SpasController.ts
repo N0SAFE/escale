@@ -4,9 +4,7 @@ import Spa from 'App/Models/Spa'
 
 export default class SpasController {
   public async index ({ response }: HttpContextContract) {
-    const spas = await Spa.all()
-
-    return response.ok(spas)
+    return response.ok(await Spa.all())
   }
 
   public async create ({}: HttpContextContract) {}

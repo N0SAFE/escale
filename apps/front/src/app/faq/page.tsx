@@ -8,7 +8,6 @@ type Faq = {
 
 export default async function faq() {
     const { data } = await axios<Faq[]>(`/faqs`);
-    console.log(data);
     return (
         <div className="mb-16 mt-4">
             <div className="flex items-center justify-center">
