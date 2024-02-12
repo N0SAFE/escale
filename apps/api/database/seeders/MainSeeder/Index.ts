@@ -7,6 +7,7 @@ import Service from '../Service'
 import Tag from '../Tag'
 import Availability from '../Availability'
 import Faq from '../Faq'
+import Rule from '../Rule'
 
 export default class IndexSeeder extends BaseSeeder {
   private async runSeeder (Seeders: typeof BaseSeeder | (typeof BaseSeeder)[]) {
@@ -33,6 +34,6 @@ export default class IndexSeeder extends BaseSeeder {
   }
 
   public async run () {
-    await this.runSeeder([User, Comment, Spa, Service, Tag, Availability, Faq])
+    await this.runSeeder([User, Comment, Spa, Service, Tag, Availability, Faq, Rule])
   }
 }

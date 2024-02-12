@@ -7,7 +7,7 @@ type Faq = {
 };
 
 export default async function faq() {
-    const { data } = await axios<Faq[]>(`/faqs`);
+    const { data } = await axios.get<Faq[]>(`/faqs`);
     return (
         <div className="mb-16 mt-4">
             <div className="flex items-center justify-center">

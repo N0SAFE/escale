@@ -9,11 +9,17 @@ export default function layout({ children }: React.PropsWithChildren<{}>) {
                     <h1 className="text-7xl font-allura">Réservations</h1>
                 </div>
             </section>
-            <section className="grow flex flex-col">
-                <Suspense fallback={<Loader />}>
-                    {children}
+            <section className="grow flex">
+                <Suspense
+                    fallback={
+                        <div className="flex items-center justify-center w-full grow">
+                            <Loader />
+                        </div>
+                    }
+                >
+                    <div className="w-[-webkit-fill-available]">{children}</div>
                 </Suspense>
             </section>
         </main>
-    )
+    );
 }

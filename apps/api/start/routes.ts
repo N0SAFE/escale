@@ -48,6 +48,7 @@ Route.group(() => {
 
   Route.group(() => {
     Route.resource('faqs', 'FaqsController').apiOnly().only(['index', 'show'])
+    Route.resource('rules', 'RulesController').apiOnly().only(['index', 'show'])
     Route.resource('contact', 'ContactsController').apiOnly().only(['store'])
     Route.resource('users', 'UsersController').apiOnly().only(['show'])
     Route.get('users/me', 'UsersController.me')

@@ -1,8 +1,4 @@
-import {
-  IsDefined,
-  IsObject,
-  ValidateNested,
-} from 'class-validator'
+import { IsDefined, IsObject, ValidateNested } from 'class-validator'
 import { BaseDto } from '../BaseDto'
 import { Type } from 'class-transformer'
 import { AsSameProperties } from '../type/AsSameProperties'
@@ -29,9 +25,11 @@ export class FaqRessourceDeleteDto extends BaseDto {
   }
 }
 
-export class FaqRessourceDeleteBodyDtoAfter implements AsSameProperties<FaqRessourceDeleteBodyDto> {}
+export class FaqRessourceDeleteBodyDtoAfter
+implements AsSameProperties<FaqRessourceDeleteBodyDto> {}
 
-export class FaqRessourceDeleteQueryDtoAfter implements AsSameProperties<FaqRessourceDeleteQueryDto> {}
+export class FaqRessourceDeleteQueryDtoAfter
+implements AsSameProperties<FaqRessourceDeleteQueryDto> {}
 
 export class FaqRessourceDeleteDtoAfter extends BaseDto {
   @IsDefined()
