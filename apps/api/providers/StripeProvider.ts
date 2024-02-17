@@ -38,7 +38,7 @@ export default class StripeProvider {
   }
 
   public async ready () {
-    if (!!Env.get('NODE_ENV') && Env.get('NODE_ENV') === 'production') {
+    if (!!Env.get('NODE_ENV') && Env.get('NODE_ENV') === 'production' && this.app.environment) {
       await this.stripe.webhookEndpoints.create({
         url: Env.get('APP_URL') + '/webhook/stripe',
         enabled_events: [
@@ -51,7 +51,7 @@ export default class StripeProvider {
   }
 
   public async shutdown () {
-    console.log('shutdown')
+    console.log('removing webhooks')
     this.stripe.webhookEndpoints.list().then((endpoints) => {
       endpoints.data.forEach((endpoint) => {
         this.stripe.webhookEndpoints.del(endpoint.id)

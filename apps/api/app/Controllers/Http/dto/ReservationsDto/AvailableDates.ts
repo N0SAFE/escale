@@ -2,6 +2,7 @@ import {
   IsDefined,
   IsISO8601,
   IsObject,
+  IsOptional,
   ValidateNested,
   ValidationArguments,
 } from 'class-validator'
@@ -43,6 +44,9 @@ export class ReservationsRessourceAvailableDatesQueryDto {
   @Transform(({ value }) => Number(value))
   @EntityExist(Spa)
   public spa: number
+
+  @IsOptional()
+  public parseDateBeforeToday?: boolean
 }
 
 export class ReservationsRessourceAvailableDatesDto extends BaseDto {
@@ -79,6 +83,8 @@ implements AsSameProperties<ReservationsRessourceAvailableDatesQueryDto> {
   @Transform(({ value }) => Spa.findOrFail(value))
   @AwaitPromise
   public spa: Spa
+
+  public parseDateBeforeToday?: boolean
 }
 
 export class ReservationsRessourceAvailableDatesDtoAfter extends BaseDto {

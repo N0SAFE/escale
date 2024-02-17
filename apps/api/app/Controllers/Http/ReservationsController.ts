@@ -115,7 +115,7 @@ export default class ReservationsController {
         .andWhere('date', '>=', query.startAt.toSQLDate()!)
         .andWhere('date', '<=', query.endAt.toSQLDate()!)
         .exec()
-      console.log(bookedDates)
+      // console.log(bookedDates)
       // create an array of day between start and end
       const numberOfDays = query.endAt.diff(query.startAt, 'days').days + 1
       return Array.from({ length: numberOfDays }, (_, i) => {

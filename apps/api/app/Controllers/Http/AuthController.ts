@@ -17,10 +17,12 @@ export default class AuthController {
     try {
       const jwt = await auth.use('jwt').attempt(body.email, body.password)
       response.cookie('access_token', jwt.accessToken, {
-        httpOnly: true,
+        httpOnly: false,
         path: '/',
-        sameSite: 'none',
-        secure: true,
+        sameSite: undefined,
+        secure: undefined,
+        expires: undefined,
+        maxAge: undefined,
       })
       if (body.rememberMe) {
         response.cookie('refresh_token', jwt.refreshToken, {
@@ -109,7 +111,7 @@ export default class AuthController {
   }
 
   public async refresh ({ auth, request, response }: HttpContextContract) {
-    const refreshToken = request.cookie('refresh_token')
+    const refreshToken = request.cookie('refresh_token') || request.header('refresh_token')
     if (!refreshToken) {
       return response.unauthorized({ message: 'no refresh token provided', success: false })
     }
@@ -135,21 +137,17 @@ export default class AuthController {
 
   public async whoami ({ auth, response }: HttpContextContract) {
     try {
-      const jwt = await auth.use('jwt').login(auth.use('jwt').user as User)
       return response.ok({
         user: auth.use('jwt').user,
         payload: auth.use('jwt').payload,
-        isLoggedIn: auth.use('jwt').isAuthenticated,
         ...auth.use('jwt').toJSON(),
-        jwt: jwt,
       })
     } catch (error) {
+      console.log(error)
       return response.ok({
         user: auth.use('jwt').user,
         payload: auth.use('jwt').payload,
-        isLoggedIn: auth.use('jwt').isAuthenticated,
         ...auth.use('jwt').toJSON(),
-        jwt: null,
       })
     }
   }

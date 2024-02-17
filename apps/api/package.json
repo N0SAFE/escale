@@ -8,7 +8,7 @@
     "stop": "node stop.js",
     "start:build": "node build/checkPort.js node build/server.js",
     "stop:build": "node build/stop.js",
-    "build": "node ace build --production && npm --prefix=./build ci --production && node ./post-build.js",
+    "build": "node ace build --production && echo run clean install && npm --prefix=./build ci --production && node ./post-build.js",
     "test": "npm run db:unmigrate && node ace test && npm run db:fresh:seed",
     "lint": "eslint . --ext=.ts --fix",
     "format": "prettier --write .",

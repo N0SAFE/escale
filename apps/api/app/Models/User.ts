@@ -35,4 +35,24 @@ export default class User extends compose(BaseModel, SoftDeletes) {
 
   @hasMany(() => Comment)
   public comments: HasMany<typeof Comment>
+
+  @column({
+    consume: (value: string | undefined) => {
+      if (!value) {
+        return []
+      }
+      try {
+        return JSON.parse(value)
+      } catch {
+        return []
+      }
+    },
+    prepare: (value: string[] | undefined) => {
+      if (!value) {
+        return JSON.stringify([])
+      }
+      return JSON.stringify(value)
+    },
+  })
+  public roles: string[]
 }

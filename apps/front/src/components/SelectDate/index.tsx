@@ -12,7 +12,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DateTime } from "luxon";
 
-type Props = { disabledDate: Set<string>; onMonthChange: (month: Date) => void, defaultValue?: {
+type Props = { disableDateFunction?: (date: Date) => boolean; onMonthChange: (month: Date) => void, defaultValue?: {
     date?: Date | DateRange | undefined;
 } } & (
     | {
@@ -25,7 +25,8 @@ type Props = { disabledDate: Set<string>; onMonthChange: (month: Date) => void, 
       }
 );
 
-export default function SelectDate({ onSelect, className, type, disabledDate, onMonthChange, defaultValue }: Omit<React.HTMLAttributes<HTMLDivElement>, keyof Props> & Props) {
+export default function SelectDate({ onSelect, className, type, onMonthChange, defaultValue, disableDateFunction }: Omit<React.HTMLAttributes<HTMLDivElement>, keyof Props> & Props) {
+    const [isOpen, setIsOpen] = useState(false);
     const [rangeDate, setRangeDate] = useState<DateRange | undefined>(type === 'journey' && defaultValue?.date ? (defaultValue.date as DateRange) : undefined);
     const [date, setDate] = useState<Date | undefined>(type !== 'journey' && defaultValue?.date ? (defaultValue.date as Date) : undefined);
 
@@ -37,17 +38,15 @@ export default function SelectDate({ onSelect, className, type, disabledDate, on
                 onSelect(date, type);
             }
         }
-    }, [date, onSelect, rangeDate, type, disabledDate]);
-    
-    console.log(disabledDate)
+    }, [date, onSelect, rangeDate, type]);
 
     return (
         <div className={cn("grid gap-2", className)}>
-            <Popover>
+            <Popover open={isOpen}>
                 {type === "journey" ? (
                     <div className="flex items-center">
                         <span className="text-nowrap">sélectionner des dates : </span>
-                        <PopoverTrigger asChild>
+                        <PopoverTrigger asChild onClick={() => setIsOpen(!isOpen)}>
                             <Button id="date" variant={"outline"} className={cn("max-w-[300px] w-full justify-start text-left font-normal text-black", !rangeDate && "text-muted-foreground")}>
                                 <CalendarIcon className="mr-2 h-4 w-4" />
                                 {rangeDate?.from ? (
@@ -71,7 +70,7 @@ export default function SelectDate({ onSelect, className, type, disabledDate, on
                                 selected={rangeDate}
                                 onSelect={setRangeDate}
                                 numberOfMonths={2}
-                                disabled={(date) => disabledDate.has((DateTime.fromJSDate(date) as DateTime<true>).toSQLDate())}
+                                disabled={disableDateFunction}
                                 onMonthChange={onMonthChange}
                             />
                         </PopoverContent>
@@ -79,7 +78,7 @@ export default function SelectDate({ onSelect, className, type, disabledDate, on
                 ) : type === "night" || type === "afternoon" ? (
                     <div className="flex items-center">
                         <span className="text-nowrap">sélectionner une date : </span>
-                        <PopoverTrigger asChild>
+                        <PopoverTrigger asChild onClick={() => setIsOpen(!isOpen)}>
                             <Button variant={"outline"} className={cn("w-[240px] justify-start text-left font-normal", !date && "text-muted-foreground")}>
                                 <CalendarIcon className="mr-2 h-4 w-4" />
                                 {date ? format(date, "PPP") : <span>Pick a date</span>}
@@ -88,11 +87,11 @@ export default function SelectDate({ onSelect, className, type, disabledDate, on
                         <PopoverContent className="w-auto p-0" align="start">
                             <Calendar
                                 mode="single"
-                                selected={disabledDate.has((DateTime.fromJSDate(date as Date) as DateTime<true>).toSQLDate()) ? undefined : date}
+                                selected={disableDateFunction && date ? disableDateFunction(date) ? date : undefined : undefined}
                                 onSelect={setDate}
                                 initialFocus
                                 onMonthChange={onMonthChange}
-                                disabled={(date) => disabledDate.has((DateTime.fromJSDate(date) as DateTime<true>).toSQLDate())}
+                                disabled={disableDateFunction}
                             />
                         </PopoverContent>
                     </div>

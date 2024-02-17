@@ -45,9 +45,9 @@ const Reservation = async ({ params }: { params: { id: string } }) => {
                 });
             return response.data.price;
         } else {
-            console.log("date", date);
-            console.log("type", type);
-            console.log("spa", id);
+            // console.log("date", date);
+            // console.log("type", type);
+            // console.log("spa", id);
             const response = await axios.get(`/reservations/price?date=${date}&type=${type}&spa=${id}`).catch((e) => {
                 console.log(e);
                 throw e;
@@ -56,14 +56,15 @@ const Reservation = async ({ params }: { params: { id: string } }) => {
         }
     }
 
-    async function getAvailableDates(startAt: string, endAt: string, type: "night" | "afternoon" | "journey"): Promise<{ date: string; available: boolean }[]> {
+    async function getAvailableDates(startAt: string, endAt: string, type: "night" | "afternoon" | "journey"): Promise<Set<string>> {
         "use server";
 
-        const response = await axios.get(`/reservations/available-dates?startAt=${startAt}&endAt=${endAt}&type=${type}&spa=${id}`).catch((e) => {
-            console.log(e);
+        const response = await axios.get<{ date: string; available: boolean }[]>(`/reservations/available-dates?startAt=${startAt}&endAt=${endAt}&type=${type}&spa=${id}`).catch((e) => {
+            // console.log(e);
             throw e;
         });
-        return response.data;
+        
+        return new Set(response.data.filter((date) => date.available).map(date => date.date))
     }
 
     async function onConfirm(selected: "night" | "afternoon" | "journey" | undefined, date: Date | DateRange | undefined): Promise<string | undefined> {
@@ -111,21 +112,19 @@ const Reservation = async ({ params }: { params: { id: string } }) => {
         }
     }
 
-    const { available: isAvailable } = (await getAvailableDates(DateTime.now().toISODate(), DateTime.now().toISODate(), "night"))[0];
-    console.log(await getAvailableDates(DateTime.now().toISODate(), DateTime.now().toISODate(), "night"));
-    const { defaultDate, defaultType, defaultPrice, defaultMonth, defaultBookedDate } = await (async () => {
+    const { defaultDate, defaultType, defaultPrice, defaultMonth, defaultAvailableDates } = await (async () => {
         const defaultType: "night" | "day" | "journey" = "night";
         const defaultMonth = DateTime.now().month;
         const startAt = DateTime.now().set({ month: defaultMonth, day: 1 });
         const endAt = startAt.plus({ month: 1 }).minus({ day: 1 });
-        const defaultBookedDate = await getAvailableDates(startAt.toISODate(), endAt.toISODate(), defaultType);
-        if (!isAvailable) {
+        const defaultAvailableDates = await getAvailableDates(startAt.toISODate(), endAt.toISODate(), defaultType);
+        if (!defaultAvailableDates.has(DateTime.now().toSQLDate())) {
             return {
                 defaultDate: undefined,
                 defaultType: defaultType,
                 defaultPrice: undefined,
                 defaultMonth: DateTime.now().month,
-                defaultBookedDate: []
+                defaultAvailableDates: new Set<string>()
             };
         } else {
             const defaultPrice = await getPrice(DateTime.now().toISODate(), defaultType);
@@ -134,23 +133,23 @@ const Reservation = async ({ params }: { params: { id: string } }) => {
                 defaultType: defaultType,
                 defaultPrice: defaultPrice,
                 defaultMonth: defaultMonth,
-                defaultBookedDate: defaultBookedDate
+                defaultAvailableDates: defaultAvailableDates
             };
         }
     })();
-
+    
     return (
         <>
             <div className="mx-4 mt-4 text-black">
                 <div className="md:hidden">
                     <DatePickerSmall
                         onConfirm={onConfirm}
-                        getAvailableDates={getAvailableDates}
                         getPrice={getPrice}
+                        getAvailableDates={getAvailableDates}
                         defaultValue={{
                             date: defaultDate,
                             selected: defaultType,
-                            BookedDate: new Set(defaultBookedDate.filter((date) => !date.available).map((date) => date.date)),
+                            availableDates: defaultAvailableDates,
                             price: defaultPrice,
                             month: defaultMonth
                         }}
@@ -167,12 +166,12 @@ const Reservation = async ({ params }: { params: { id: string } }) => {
                             <span className="text-2xl font-bold">à partir de 150 €</span>
                             <DatePicker
                                 onConfirm={onConfirm}
-                                getAvailableDates={getAvailableDates}
                                 getPrice={getPrice}
+                                getAvailableDates={getAvailableDates}
                                 defaultValue={{
                                     date: defaultDate,
                                     selected: defaultType,
-                                    BookedDate: new Set(defaultBookedDate.filter((date) => !date.available).map((date) => date.date)),
+                                    availableDates: defaultAvailableDates,
                                     price: defaultPrice,
                                     month: defaultMonth
                                 }}

@@ -6,6 +6,7 @@ import { EntityExist } from '../Decorator/EntityExist'
 import Spa from 'App/Models/Spa'
 import { DateTime } from 'luxon'
 import { AwaitPromise } from '../Decorator/AwaitPromise'
+import { IsAfterNow } from '../Decorator/IsAfterNow'
 
 export class CheckoutSessionRessourceDayOrNightSpaBodyDto {
   @IsDefined()
@@ -67,6 +68,7 @@ implements AsSameProperties<CheckoutSessionRessourceDayOrNightSpaBodyDto> {
   public cancelUrl: string
 
   @Transform(({ value }) => DateTime.fromISO(value))
+  @IsAfterNow()
   public date: DateTime
 }
 

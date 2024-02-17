@@ -11,8 +11,8 @@ export default class LoadJwtUser {
     try {
       await auth.use('jwt').authenticate()
     } catch (e) {
-      if (request.cookie('refresh_token')) {
-        const refreshToken = request.cookie('refresh_token')
+      if (request.cookie('refresh_token') || request.header('refresh_token')) {
+        const refreshToken = request.cookie('refresh_token') || request.header('refresh_token')
         try {
           const jwt = await auth.use('jwt').loginViaRefreshToken(refreshToken)
           response.cookie('access_token', jwt.accessToken, {

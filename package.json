@@ -7,24 +7,34 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "concurrently -c blue,green -n api,front \"npm run dev:api\" \"npm run dev:front\"",
+    "dev": "concurrently -c blue,green,red -n api,front,admin \"npm run dev:api\" \"npm run dev:front\" \"npm run dev:admin\"",
     "build": "npm ci && node ./build",
-    "start": "concurrently -c blue,green -n api,front \"npm run start:api\" \"npm run start:front\"",
+    "build:ngrok": "npm ci && node ./build -n",
+    "start": "concurrently -c blue,green,red -n api,front \"npm run start:api\" \"npm run start:front\" \"npm run start:admin\"",
     "dev:api": "npm run dev -w apps/api",
     "dev:front": "npm run dev -w apps/front",
+    "dev:admin": "npm run dev -w apps/admin",
     "stop:api": "npm run stop -w apps/api && npm run stop:build -w apps/api",
     "start:api": "npm run start:build -w apps/api",
     "start:front": "npm run start -w apps/front",
+    "start:admin": "npm run start -w apps/admin",
     "build:api": "npm run build -w apps/api",
     "build:front": "npm run build -w apps/front",
+    "build:admin": "npm run build -w apps/admin",
+    "build:front:admin": "concurrently -c green,red -n front,admin \"npm run build:front\" \"npm run build:admin\"",
     "db:migrate:api": "npm run db:migrate:build -w apps/api",
     "db:migrate:front": "npm run db:migrate:build -w apps/front",
-    "preinstall": "npm run create-package-lock -w apps/api" 
+    "preinstall": "npm run create-package-lock -w apps/api"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "concurrently": "^8.2.2"
+    "commander": "^12.0.0",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3"
+  },
+  "devDependencies": {
+    "ngrok": "^5.0.0-beta.2"
   }
 }

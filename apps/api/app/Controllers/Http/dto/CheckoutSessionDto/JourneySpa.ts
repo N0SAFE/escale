@@ -5,6 +5,10 @@ import {
   IsUrl,
   ValidateNested,
   ValidationArguments,
+  ValidationOptions,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+  registerDecorator,
 } from 'class-validator'
 import { BaseDto } from '../BaseDto'
 import { Transform, Type } from 'class-transformer'
@@ -14,6 +18,7 @@ import { DateTime } from 'luxon'
 import { AwaitPromise } from '../Decorator/AwaitPromise'
 import Spa from 'App/Models/Spa'
 import { EntityExist } from '../Decorator/EntityExist'
+import { IsAfterNow } from '../Decorator/IsAfterNow'
 
 function checkDateIsAfter (date1: string, args: ValidationArguments) {
   const [relatedPropertyName] = args.constraints
@@ -82,9 +87,11 @@ implements AsSameProperties<CheckoutSessionRessourceJourneySpaBodyDto> {
   public cancelUrl: string
 
   @Transform(({ value }) => DateTime.fromISO(value))
+  @IsAfterNow()
   public startAt: DateTime
 
   @Transform(({ value }) => DateTime.fromISO(value))
+  @IsAfterNow()
   public endAt: DateTime
 }
 

@@ -10,12 +10,12 @@ import Loader from "@/components/Loader";
 
 type DatePickerProps = {
     onConfirm: (selected: "night" | "afternoon" | "journey" | undefined, date: Date | DateRange | undefined) => Promise<string | undefined> | string | undefined;
-    getAvailableDates: (startAt: string, endAt: string, type: "night" | "afternoon" | "journey") => Promise<{ date: string; available: boolean }[]>;
+    getAvailableDates: (startAt: string, endAt: string, type: "night" | "afternoon" | "journey") => Promise<Set<string>>;
     getPrice: (date: string | { from: string; to: string }, type: "night" | "afternoon" | "journey") => Promise<number | undefined>;
     defaultValue?: {
         date?: Date | DateRange;
         selected?: "night" | "afternoon" | "journey";
-        BookedDate?: Set<string>;
+        availableDates?: Set<string>;
         price?: number;
         month?: number;
     };
@@ -27,8 +27,8 @@ export default function DatePicker({ onConfirm, getAvailableDates, getPrice, def
     const [selected, setSelected] = useState<"journey" | "night" | "afternoon" | undefined>(defaultValue?.selected);
     const [error, setError] = useState<string | undefined>();
     const [selectedMonth, setSelectedMonth] = useState(defaultValue?.month || DateTime.now().month);
-    const [bookedDate, setBookedDate] = useState<Set<string>>(defaultValue?.BookedDate || new Set());
     const [price, setPrice] = useState<number | undefined>(defaultValue?.price);
+    const [availableDates, setAvailableDates] = useState<Set<string>>(defaultValue?.availableDates || new Set());
     // get the date from the first day of the actual month to the last day of the next month
     useEffect(() => {
         if (!selected) return;
@@ -36,7 +36,7 @@ export default function DatePicker({ onConfirm, getAvailableDates, getPrice, def
         const startAt = DateTime.now().set({ month: selectedMonth, day: 1 });
         const endAt = startAt.plus({ month: 1 }).minus({ day: 1 });
         getAvailableDates(startAt.toISODate(), endAt.toISODate(), selected).then((dates) => {
-            setBookedDate(new Set(dates.filter((date) => !date.available).map((date) => date.date)));
+            setAvailableDates(dates);
         });
         if (selected === "journey") {
             getPrice({ from: DateTime.fromJSDate((date as DateRange).from!).toISODate()!, to: DateTime.fromJSDate((date as DateRange).to!).toISODate()! }, selected).then((price) => {
@@ -47,7 +47,7 @@ export default function DatePicker({ onConfirm, getAvailableDates, getPrice, def
                 setPrice(price);
             });
         }
-    }, [getAvailableDates, setBookedDate, selectedMonth, selected, date, getPrice]);
+    }, [getAvailableDates, selectedMonth, selected, date, getPrice]);
 
     console.log("selected", selected);
     return (
@@ -86,7 +86,7 @@ export default function DatePicker({ onConfirm, getAvailableDates, getPrice, def
                 onMonthChange={function (date) {
                     setSelectedMonth((DateTime.fromJSDate(date) as DateTime<true>).month);
                 }}
-                disabledDate={bookedDate}
+                disableDateFunction={(date) => !availableDates.has(DateTime.fromJSDate(date).toSQLDate() as string) || new Date() > date}
                 defaultValue={{ date: date }}
             />
             {price ? <p>le prix est de {price / 100}€</p> : null}
