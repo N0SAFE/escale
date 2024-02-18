@@ -20,11 +20,6 @@ if (buildApi.status !== 0) {
     console.log("API build failed");
     process.exit(1);
 }
-const dbMigrateApi = spawnSync("npm run db:migrate:api", { stdio: "inherit", shell: true });
-if (dbMigrateApi.status !== 0) {
-    console.log("API database migration failed");
-    process.exit(1);
-}
 (async () => {
     const env = await (async () => {
         if (useNgrok) {
@@ -33,6 +28,11 @@ if (dbMigrateApi.status !== 0) {
         }
         return {};
     })()
+    const dbMigrateApi = spawnSync("npm run db:migrate:api", { stdio: "inherit", shell: true, env: env });
+    if (dbMigrateApi.status !== 0) {
+        console.log("API database migration failed");
+        process.exit(1);
+    }
     const api = spawn(`node apps/api/build/server.js`, { stdio: "inherit", shell: true, env: env})
     let front;
     let closeFront = false;

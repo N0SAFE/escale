@@ -26,11 +26,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-export function Test ({ clearSession }: { clearSession: () => void }) {
-  'use client'
-  
-  return (
-    <button onClick={clearSession}>clear session</button>
-  )
-}
