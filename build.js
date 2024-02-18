@@ -9,10 +9,6 @@ program
     
 const { ngrok: useNgrok } = program.opts(process.argv.slice(2));
 
-console.log(process.argv)
-
-console.log(process.env)
-
 process.on("SIGINT", function () {
     api.kill();
     front.kill();
