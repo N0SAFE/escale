@@ -5,10 +5,6 @@ import {
   IsUrl,
   ValidateNested,
   ValidationArguments,
-  ValidationOptions,
-  ValidatorConstraint,
-  ValidatorConstraintInterface,
-  registerDecorator,
 } from 'class-validator'
 import { BaseDto } from '../BaseDto'
 import { Transform, Type } from 'class-transformer'

@@ -15,8 +15,16 @@ process.on("SIGINT", function () {
     process.exit(1);
 });
 
-spawnSync("npm run build:api", { stdio: "inherit", shell: true });
-spawnSync("npm run db:migrate:api", { stdio: "inherit", shell: true });
+const buildApi = spawnSync("npm run build:api", { stdio: "inherit", shell: true });
+if (buildApi.status !== 0) {
+    console.log("API build failed");
+    process.exit(1);
+}
+const dbMigrateApi = spawnSync("npm run db:migrate:api", { stdio: "inherit", shell: true });
+if (dbMigrateApi.status !== 0) {
+    console.log("API database migration failed");
+    process.exit(1);
+}
 (async () => {
     const env = await (async () => {
         if (useNgrok) {

@@ -1,7 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, afterDelete, column, computed } from '@ioc:Adonis/Lucid/Orm'
-import fs from 'fs'
-import Application from '@ioc:Adonis/Core/Application'
+import { BaseModel, column, computed } from '@ioc:Adonis/Lucid/Orm'
 
 export default class File extends BaseModel {
   @column({ isPrimary: true })

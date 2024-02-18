@@ -7,3 +7,4 @@ coverage
 tmp
 .env.production
 logs/*
+package-lock.json

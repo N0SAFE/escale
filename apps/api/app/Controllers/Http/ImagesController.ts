@@ -1,6 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Image from 'App/Models/Image'
-import { ImageRessourceAttachementDto } from './dto/ImageDto/Attachement'
 import Application from '@ioc:Adonis/Core/Application'
 import { ImageRessourcePostDto } from './dto/ImageDto/Post'
 import File from 'App/Models/File'

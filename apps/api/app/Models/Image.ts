@@ -2,11 +2,6 @@ import { DateTime } from 'luxon'
 import {
   BaseModel,
   BelongsTo,
-  ModelQueryBuilderContract,
-  afterCreate,
-  afterSave,
-  beforeFetch,
-  beforeFind,
   belongsTo,
   column,
 } from '@ioc:Adonis/Lucid/Orm'
