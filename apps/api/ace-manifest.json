@@ -70,6 +70,18 @@
         }
       ]
     },
+    "remove:unused:tmp:uploads": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/RemoveUnusedTmpUploads",
+      "commandName": "remove:unused:tmp:uploads",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "dump:rcfile": {
       "settings": {},
       "commandPath": "@adonisjs/core/build/commands/DumpRc",

@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 
 export default class AvailabilitySeeder extends BaseSeeder {
   public async run () {
-    const startDate = DateTime.now().minus({days: 4}).startOf('day')
+    const startDate = DateTime.now().minus({ days: 4 }).startOf('day')
     const endDate = startDate.plus({ days: 34 })
 
     // create a list of days between startDate and endDate

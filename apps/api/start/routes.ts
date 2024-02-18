@@ -47,6 +47,8 @@ Route.group(() => {
   Route.get('whoami', 'AuthController.whoami')
 
   Route.group(() => {
+    Route.get('attachment/image/:id', 'AttachmentsController.imageById')
+    Route.resource('images', 'ImagesController').apiOnly().only(['index', 'show', 'store'])
     Route.resource('faqs', 'FaqsController').apiOnly().only(['index', 'show'])
     Route.resource('rules', 'RulesController').apiOnly().only(['index', 'show'])
     Route.resource('contact', 'ContactsController').apiOnly().only(['store'])

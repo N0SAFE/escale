@@ -4,6 +4,7 @@ import Availability from './Availability'
 import Tag from './Tag'
 import Service from './Service'
 import Reservation from './Reservation'
+import Image from './Image'
 
 export default class Spa extends BaseModel {
   @column({ isPrimary: true })
@@ -21,10 +22,13 @@ export default class Spa extends BaseModel {
   @column()
   public description: string
 
-  @column({
-    prepare: (value: string[]) => JSON.stringify(value),
+  @manyToMany(() => Image, {
+    localKey: 'id',
+    pivotForeignKey: 'spa_id',
+    relatedKey: 'id',
+    pivotRelatedForeignKey: 'image_id',
   })
-  public images: string[]
+  public images: ManyToMany<typeof Image>
 
   @hasMany(() => Reservation)
   public reservations: HasMany<typeof Reservation>
@@ -39,4 +43,10 @@ export default class Spa extends BaseModel {
     pivotTable: 'spa_services',
   })
   public services: ManyToMany<typeof Service>
+
+  @column()
+  public location: string
+
+  @column()
+  public googleMapsLink: string
 }

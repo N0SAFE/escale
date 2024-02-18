@@ -101,15 +101,15 @@ export default function Home() {
     };
 
     return (
-        <main className="flex min-h-screen flex-col items-center justify-between bg-white">
+        <main className="flex min-h-screen flex-col items-center justify-between bg-[#8C6750] text-white">
             <section>
-                <Image src="https://so-spa.fr/wp-content/uploads/2022/07/La-Falaise-web-4-1-scaled.jpg" alt="Picture of the author" className="object-cover h-[800px]" width={1980} height={1080} />
+                <Image src="/20240212_192300.jpg" alt="Picture of the author" className="object-cover h-[800px]" width={1980} height={1080} />
             </section>
-            <section className="py-24 px-4 text-3xl leading-6 text-center text-black md:p-24">
+            <section className="py-24 px-4 text-3xl leading-6 text-center md:p-24">
                 <p>Venez découvrir notre Maison avec spa privatif à seulement 40 minutes de Paris. Séjour idéal pour passer un moment de détente en amoureux ou entre amis</p>
             </section>
-            <section>
-                <video src="https://so-spa.fr/wp-content/uploads/2022/07/WhatsApp-Video-2022-06-26-at-18.53.25-1.mp4" autoPlay loop muted playsInline controlsList="nodownload"></video>
+            <section className="max-w-[60%] my-8">
+                <video src="/video_lescale.mp4" autoPlay loop muted playsInline controlsList="nodownload"></video>
             </section>
 
             <section>

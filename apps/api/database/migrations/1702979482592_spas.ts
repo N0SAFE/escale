@@ -12,9 +12,10 @@ export default class extends BaseSchema {
        */
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
+      table.string('location').notNullable()
+      table.text('google_maps_link').notNullable()
       table.string('title').notNullable()
-      table.string('description').notNullable()
-      table.json('images').notNullable()
+      table.text('description').notNullable()
     })
   }
 

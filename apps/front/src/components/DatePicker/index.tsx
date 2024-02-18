@@ -51,7 +51,7 @@ export default function DatePicker({ onConfirm, getAvailableDates, getPrice, def
 
     console.log("selected", selected);
     return (
-        <div {...props} className={"flex flex-col gap-2 text-black w-full " + props.className}>
+        <div {...props} className={"flex flex-col gap-2 w-full " + props.className}>
             <div className="flex gap-2 items-center">
                 <span className="text-nowrap">réserver pour : </span>
                 <Select
@@ -60,7 +60,7 @@ export default function DatePicker({ onConfirm, getAvailableDates, getPrice, def
                         setSelected(value as "journey" | "night" | "afternoon");
                     }}
                 >
-                    <SelectTrigger className="max-w-[190px] w-full">
+                    <SelectTrigger className="max-w-[190px] w-full bg-white text-black">
                         <SelectValue placeholder="select a reservation time" />
                     </SelectTrigger>
                     <SelectContent>

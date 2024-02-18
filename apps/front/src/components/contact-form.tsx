@@ -37,25 +37,25 @@ export default function ContactForm({ onSubmit }: ContactFormProps) {
               <label className="block text-sm font-medium mb-1" htmlFor="name">
                 Votre nom (obligatoire)
               </label>
-              <Input name="name" id="name" placeholder="Jean Dupont" />
+              <Input name="name" id="name" placeholder="Jean Dupont" className="placeholder:text-white" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1" htmlFor="email">
                 Votre adresse de messagerie (obligatoire)
               </label>
-              <Input name="email" id="email" placeholder="jean.dupont@example.com" type="email" />
+              <Input name="email" id="email" placeholder="jean.dupont@example.com" type="email" className="placeholder:text-white" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1" htmlFor="subject">
                 Objet
               </label>
-              <Input name="subject" id="subject" placeholder="Sujet de votre message" />
+              <Input name="subject" id="subject" placeholder="Sujet de votre message" className="placeholder:text-white" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1" htmlFor="message">
                 Votre message
               </label>
-              <Textarea name="message" className="h-32" id="message" placeholder="Tapez votre message ici." />
+              <Textarea name="message" className="h-32 placeholder:text-white" id="message" placeholder="Tapez votre message ici." />
             </div>
             {success && <p className="text-green-500 mt-4">your question has been transmited</p>}
             {error && <p className="text-red-500 mt-4">{error}</p>}

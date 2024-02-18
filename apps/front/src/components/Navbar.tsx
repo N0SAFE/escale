@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     return (
-        <nav className="bg-[#8B5A3C] md:py-16">
+        <nav className="bg-[#8C6750] md:py-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
                     <div className="flex">
@@ -25,7 +25,7 @@ export default function Navbar() {
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                             aria-controls="mobile-menu"
                             aria-expanded="false"
-                            className="bg-[#8B5A3C] inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white hover:bg-[#7a4d35] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                            className="bg-[#8C6750] inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white hover:bg-[#7a4d35] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
                             type="button"
                         >
                             <span className="sr-only">Open main menu</span>
@@ -35,7 +35,7 @@ export default function Navbar() {
                     </div>
                 </div>
             </div>
-            <div className={`md:hidden absolute w-screen bg-[#8B5A3C] ${isMenuOpen ? "" : "hidden"}`} id="mobile-menu">
+            <div className={`md:hidden absolute w-screen bg-[#8C6750] ${isMenuOpen ? "" : "hidden"}`} id="mobile-menu">
                 <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
                     <Links onClick={() => {setIsMenuOpen(false)}} />
                 </div>

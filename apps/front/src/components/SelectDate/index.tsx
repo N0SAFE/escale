@@ -79,7 +79,7 @@ export default function SelectDate({ onSelect, className, type, onMonthChange, d
                     <div className="flex items-center">
                         <span className="text-nowrap">sélectionner une date : </span>
                         <PopoverTrigger asChild onClick={() => setIsOpen(!isOpen)}>
-                            <Button variant={"outline"} className={cn("w-[240px] justify-start text-left font-normal", !date && "text-muted-foreground")}>
+                            <Button variant={"outline"} className={cn("w-[240px] justify-start text-left font-normal text-black", !date && "text-muted-foreground")}>
                                 <CalendarIcon className="mr-2 h-4 w-4" />
                                 {date ? format(date, "PPP") : <span>Pick a date</span>}
                             </Button>
@@ -87,7 +87,7 @@ export default function SelectDate({ onSelect, className, type, onMonthChange, d
                         <PopoverContent className="w-auto p-0" align="start">
                             <Calendar
                                 mode="single"
-                                selected={disableDateFunction && date ? disableDateFunction(date) ? date : undefined : undefined}
+                                selected={disableDateFunction && date ? !disableDateFunction(date) ? date : undefined : undefined}
                                 onSelect={setDate}
                                 initialFocus
                                 onMonthChange={onMonthChange}

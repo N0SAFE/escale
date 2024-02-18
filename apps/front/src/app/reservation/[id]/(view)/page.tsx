@@ -10,6 +10,8 @@ import { redirect } from "next/navigation";
 import { DateRange } from "react-day-picker";
 
 type Spa = {
+    location: string;
+    google_maps_link: string;
     tags: {
         icon: string;
         label: string;
@@ -17,10 +19,16 @@ type Spa = {
     }[];
     services: {
         label: string;
-        image: string;
+        image: string
     }[];
     id: number;
-    images: string[];
+    images: {
+        id: number,
+        created_at: string,
+        updated_at: string,
+        alt: string,
+        file_id: number
+    }[];
     title: string;
     description: string;
 };
@@ -28,6 +36,9 @@ type Spa = {
 const Reservation = async ({ params }: { params: { id: string } }) => {
     const { id } = params;
     const { data } = await axios<Spa>(`/spas/${id}`);
+    
+    console.log(data);
+
     
     async function getPrice(date: string | { from: string; to: string }, type: "night" | "afternoon" | "journey") {
         "use server";
@@ -45,9 +56,6 @@ const Reservation = async ({ params }: { params: { id: string } }) => {
                 });
             return response.data.price;
         } else {
-            // console.log("date", date);
-            // console.log("type", type);
-            // console.log("spa", id);
             const response = await axios.get(`/reservations/price?date=${date}&type=${type}&spa=${id}`).catch((e) => {
                 console.log(e);
                 throw e;
@@ -140,7 +148,7 @@ const Reservation = async ({ params }: { params: { id: string } }) => {
     
     return (
         <>
-            <div className="mx-4 mt-4 text-black">
+            <div className="mx-4 mt-4">
                 <div className="md:hidden">
                     <DatePickerSmall
                         onConfirm={onConfirm}
@@ -155,8 +163,8 @@ const Reservation = async ({ params }: { params: { id: string } }) => {
                         }}
                     />
                 </div>
-                <ImageCarousel images={data.images} />
-                <div className="xl:ml-66 xl:mr-66 lg:mr-35 lg:ml-36 md:mr-24 md:ml-24 flex gap-8 flex-row py-8">
+                <ImageCarousel images={data.images.map(function(image) { return process.env.NEXT_PUBLIC_API_URL + '/attachment/image/' + image.id })} />
+                <div className="xl:mx-46 lg:mx-24 md:mx-0 flex gap-8 flex-row py-8">
                     <div className="w-full lg:w-2/3 md:w-1/2">
                         <SpaDetails spa={data} />
                     </div>

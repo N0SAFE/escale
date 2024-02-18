@@ -93,6 +93,10 @@ export default class MakeDtoRessource extends BaseCommand {
     return propertyExistDecoratorTemplate()
   }
 
+  public validateFileDecoratorTemplate () {
+    return validateFileDecoratorTemplate()
+  }
+
   public AsSamePropertiesTypeTemplate () {
     return AsSamePropertiesTypeTemplate()
   }
@@ -228,6 +232,20 @@ export default class MakeDtoRessource extends BaseCommand {
       this.logger
         .action('create file')
         .skipped(resolve(relativeDtoDir, 'Decorator', 'PropertyExist.ts'), 'already exist')
+    }
+
+    if (!fs.existsSync(resolve(dtoDir, 'Decorator', 'ValidateFile.ts'))) {
+      fs.writeFileSync(
+        resolve(dtoDir, 'Decorator', 'ValidateFile.ts'),
+        this.validateFileDecoratorTemplate()
+      )
+      this.logger
+        .action('create file')
+        .succeeded(resolve(relativeDtoDir, 'Decorator', 'ValidateFile.ts'))
+    } else {
+      this.logger
+        .action('create file')
+        .skipped(resolve(relativeDtoDir, 'Decorator', 'ValidateFile.ts'), 'already exist')
     }
 
     if (!fs.existsSync(resolve(dtoDir, 'type'))) {
@@ -376,6 +394,82 @@ export function PropertyExist (properties: string | symbol | (string | symbol)[]
 `
 }
 
+export function validateFileDecoratorTemplate () {
+  return `import {
+  registerDecorator,
+  ValidatorConstraint,
+  ValidationArguments,
+  ValidatorConstraintInterface,
+} from 'class-validator'
+import { MultipartFileContract } from '@ioc:Adonis/Core/BodyParser'
+
+type Size = \`\${number}b\` | \`\${number}kb\` | \`\${number}mb\` | \`\${number}gb\`
+
+type Property = {
+  extnames?: string[]
+  mimeTypes?: string[]
+  maxSize?: number | Size
+}
+
+@ValidatorConstraint()
+export class ValidateFileConstraint implements ValidatorConstraintInterface {
+  private getSize (size: number | Size) {
+    if (typeof size === 'number') {
+      return size
+    }
+    const [value, unit] = size.match(/(\d+)(\w+)/) as [string, string]
+    switch (unit) {
+      case 'b':
+        return parseInt(value)
+      case 'kb':
+        return parseInt(value) * 1024
+      case 'mb':
+        return parseInt(value) * 1024 * 1024
+      case 'gb':
+        return parseInt(value) * 1024 * 1024 * 1024
+      default:
+        throw new Error('invalid size')
+    }
+  }
+  public async validate (file: MultipartFileContract, args: ValidationArguments) {
+    const [property] = args.constraints as [Property]
+    if (property.extnames && (!file.extname || !property.extnames.includes(file.extname))) {
+      return false
+    }
+    if (property.mimeTypes && (!file.type || !property.mimeTypes.includes(file.type))) {
+      return false
+    }
+    if (property.maxSize && file.size > this.getSize(property.maxSize)) {
+      return false
+    }
+    return true
+  }
+}
+
+export function ValidateFile (property: Property, options?: { each?: boolean }) {
+  return function (object: Object, propertyName: string) {
+    registerDecorator({
+      name: 'validateFile',
+      target: object.constructor,
+      propertyName: propertyName,
+      constraints: [property],
+      options: {
+        message: () => {
+          if (options?.each) {
+            return \`one of the file for \${propertyName} is invalid\`
+          } else {
+            return \`the file for \${propertyName} is invalid\`
+          }
+        },
+        each: options?.each ?? false,
+      },
+      validator: ValidateFileConstraint,
+    })
+  }
+}
+`
+}
+
 export function AsSamePropertiesTypeTemplate () {
   return `export type AsSameProperties<T> = {
   [key in keyof T]: any
@@ -460,7 +554,7 @@ export class BaseDto {
       this[key] = value
     })
 
-    const duplicate = instanceToInstance(this, { ignoreDecorators: true })
+    const duplicate = instanceToInstance(this, { ignoreDecorators: true, excludePrefixes: ['_', '__'] })
     const transform = instanceToInstance(this)
     transform.customTransform = transform.handleCustomTransform(duplicate)
     return transform
@@ -481,6 +575,9 @@ export class BaseDto {
   public async handleCustomTransform (duplicate): Promise<this> {
     const classValidatorMetadataStorage = getMetadataStorage()
     const rec = (target): Promise<any> => {
+      if (!target) {
+        return Promise.resolve()
+      }
       if (target[customMetadataConsumerSymbol]) {
         return target[customMetadataConsumerSymbol]()
       }
@@ -518,15 +615,18 @@ export function fileTemplate (name, method) {
   IsObject,
   ValidateNested,
 } from 'class-validator'
-import { BaseDto } from '../BaseDto'
+import { RequestBaseDto } from '../RequestBaseDto'
 import { Type } from 'class-transformer'
 import { AsSameProperties } from '../type/AsSameProperties'
+import { RequestContract } from '@ioc:Adonis/Core/Request'
 
 export class ${name}Ressource${method}BodyDto {}
 
 export class ${name}Ressource${method}QueryDto {}
 
-export class ${name}Ressource${method}Dto extends BaseDto {
+export class ${name}Ressource${method}FilesDto {}
+
+export class ${name}Ressource${method}Dto extends RequestBaseDto {
   @IsDefined()
   @IsObject()
   @ValidateNested()
@@ -539,8 +639,18 @@ export class ${name}Ressource${method}Dto extends BaseDto {
   @Type(() => ${name}Ressource${method}QueryDto)
   public query: ${name}Ressource${method}QueryDto
 
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ${name}Ressource${method}FilesDto)
+  public _images: ${name}Ressource${method}FilesDto
+
   public get after () {
     return new ${name}Ressource${method}DtoAfter(this)
+  }
+
+  public static fromRequest (request: RequestContract) {
+    return new this({ body: request.body(), query: request.qs(), _images: request.allFiles() })
   }
 }
 
@@ -548,7 +658,9 @@ export class ${name}Ressource${method}BodyDtoAfter implements AsSameProperties<$
 
 export class ${name}Ressource${method}QueryDtoAfter implements AsSameProperties<${name}Ressource${method}QueryDto> {}
 
-export class ${name}Ressource${method}DtoAfter extends BaseDto {
+export class ${name}Ressource${method}FilesDtoAfter implements AsSameProperties<${name}Ressource${method}FilesDto> {}
+
+export class ${name}Ressource${method}DtoAfter extends RequestBaseDto implements AsSameProperties<Omit<${name}Ressource${method}Dto, 'after'>> {
   @IsDefined()
   @IsObject()
   @ValidateNested()
@@ -560,6 +672,12 @@ export class ${name}Ressource${method}DtoAfter extends BaseDto {
   @ValidateNested()
   @Type(() => ${name}Ressource${method}QueryDtoAfter)
   public query: ${name}Ressource${method}QueryDtoAfter
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ${name}Ressource${method}FilesDtoAfter)
+  public _images: ${name}Ressource${method}FilesDtoAfter
 }
 `
 }

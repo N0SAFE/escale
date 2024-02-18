@@ -1,12 +1,19 @@
-import { ClassTransformOptions, instanceToInstance } from 'class-transformer'
+import { ClassTransformOptions, Exclude, instanceToInstance } from 'class-transformer'
 import { validate, getMetadataStorage } from 'class-validator'
 import { customMetadataConsumerSymbol } from './index'
 
 export const afterSymbol = Symbol('after')
 
+// import isPlainObject from 'putil-isplainobject'
+
 export class BaseDto {
+  @Exclude()
+  public skipTransform: {
+    key: string
+    type: new (...args: any[]) => any | undefined
+  }[]
   public customTransform: Promise<this>
-  constructor (args) {
+  constructor (args, disableCustomTransform = false) {
     // to do add a generic type that is the this
     /**
      * assign all args to this but only if they are defined
@@ -19,34 +26,105 @@ export class BaseDto {
       throw new Error('default argument of a BaseDto instance must be an object')
     }
 
+    this.skipTransform = Reflect.getMetadata('skipTransform', this.constructor) || []
+    const skipTransformPorperties = this.skipTransform.map(function ({key}){
+      return args[key]
+    })
+
     Object.entries(args).forEach(([key, value]) => {
+      if (this.skipTransform.some((skip) => skip.key === key)){
+        return
+      }
       this[key] = value
     })
 
-    const duplicate = instanceToInstance(this, { ignoreDecorators: true })
-    const transform = instanceToInstance(this)
-    transform.customTransform = transform.handleCustomTransform(duplicate)
+    const transform = this.transform()
+    BaseDto.resetProperties(skipTransformPorperties, this.skipTransform, transform)
+    if (disableCustomTransform){
+      transform.customTransform = Promise.resolve(transform)
+      return transform
+    }
+    const duplicate = this.duplicate()
+    transform.customTransform = this.handleCustomTransform(duplicate).then(async (duplicate) => {
+      // Exclude()(duplicate.constructor)
+      BaseDto.resetProperties(skipTransformPorperties, this.skipTransform, duplicate)
+      return duplicate
+    })
+    transform.skipTransform = this.skipTransform
     return transform
   }
 
+  public static removeProperties<T> (
+    props: {
+      key: any
+      type: new (...args: any[]) => any | undefined
+    }[],
+    target: T,
+    callback?: (target: T, key: string | Symbol | number, value: any) => void
+  ) {
+    delete target['skipTransform']
+    props.forEach((prop) => {
+      callback && callback(target, prop.key, target[prop.key])
+      delete target[prop.key]
+    })
+  }
+
+  public static resetProperties<T> (
+    values: any[],
+    props: {
+      key: any
+      type: new (...args: any[]) => any | undefined
+    }[],
+    target: T,
+    callback?: (target: T, keys: any, value: any) => void
+  ) {
+    target['skipTransform'] = props
+    props.forEach((prop, index) => {
+      callback && callback(target, prop.key, values[index])
+      if (prop.type && typeof values[index] === 'object') {
+        target[prop.key] = Object.assign(new prop.type(), values[index])
+        return
+      }
+      target[prop.key] = values[index]
+    })
+  }
+
   public async validate () {
-    return await validate(instanceToInstance(this), { whitelist: true, forbidUnknownValues: false })
+    const newInstance = this.transform()
+    return await validate(newInstance, { whitelist: true, forbidUnknownValues: false })
   }
 
   public transform (options?: ClassTransformOptions) {
-    return instanceToInstance(this, options)
+    const skipTransform = this.skipTransform
+    const skipedProperties: any[] = []
+    BaseDto.removeProperties(skipTransform, this, (_, __, value) => skipedProperties.push(value))
+    const newInstance = instanceToInstance(this, options)
+    BaseDto.resetProperties(skipedProperties, skipTransform, this)
+    BaseDto.resetProperties(skipedProperties, skipTransform, newInstance)
+    return newInstance
   }
 
   public duplicate () {
-    return instanceToInstance(this, { ignoreDecorators: true })
+    const skipTransform = this.skipTransform
+    const skipedProperties: any[] = []
+    BaseDto.removeProperties(skipTransform, this, (_, __, value) => skipedProperties.push(value))
+    const newInstance = instanceToInstance(this)
+    BaseDto.resetProperties(skipedProperties, skipTransform, this)
+    BaseDto.resetProperties(skipedProperties, skipTransform, newInstance)
+    return newInstance
   }
 
   public async handleCustomTransform (duplicate): Promise<this> {
     const classValidatorMetadataStorage = getMetadataStorage()
     const rec = (target): Promise<any> => {
-      if (target[customMetadataConsumerSymbol]) {
-        return target[customMetadataConsumerSymbol]()
+      if (!target) {
+        return Promise.resolve()
       }
+      if (target[customMetadataConsumerSymbol]) {
+        const ret = target[customMetadataConsumerSymbol]()
+        return ret
+      }
+
       const nestedProperties = classValidatorMetadataStorage
         .getTargetValidationMetadatas(target.constructor, '', false, false)
         .filter((metadata) => metadata.type === 'nestedValidation')

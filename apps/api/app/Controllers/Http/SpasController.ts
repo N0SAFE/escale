@@ -4,7 +4,12 @@ import Spa from 'App/Models/Spa'
 
 export default class SpasController {
   public async index ({ response }: HttpContextContract) {
-    return response.ok(await Spa.all())
+    const spas = await Spa.all()
+    spas.forEach(async (spa) => {
+      await spa.load('tags')
+      await spa.load('services')
+    })
+    return response.ok(spas)
   }
 
   public async create ({}: HttpContextContract) {}
@@ -28,6 +33,7 @@ export default class SpasController {
     const spa = await Spa.findOrFail(request.param('id'))
     await spa.load('tags')
     await spa.load('services')
+    await spa.load('images')
     return response.ok(spa)
   }
 

@@ -52,24 +52,24 @@ export default function DatePickerSmall({ onConfirm, getAvailableDates, getPrice
 
     console.log("selected", selected);
     return (
-        <div className="flex justify-between text-black py-4 bg-[#FFFBF2] items-center px-8">
+        <div className="flex justify-between py-4 items-center px-8">
             <div className="w-full">
                 <div>220$</div>
                 <div>a partir de :</div>
             </div>
             <Drawer>
                 <DrawerTrigger asChild>
-                    <Button variant="outline" className="w-full bg-[#E6B022] rounded-full py-4">
+                    <Button variant="outline" className="w-full bg-[#E6B022] rounded-full py-4 outline-[#E6B022]">
                         Reserver
                     </Button>
                 </DrawerTrigger>
-                <DrawerContent className="text-black">
-                    <div className="mx-auto w-full max-w-md">
+                <DrawerContent>
+                    <div className="mx-auto w-full max-w-md text-black">
                         <DrawerHeader>
                             <DrawerTitle>reservation</DrawerTitle>
                             <DrawerDescription>reserver votre spa</DrawerDescription>
                         </DrawerHeader>
-                        <div className="flex flex-col gap-2 text-black">
+                        <div className="flex flex-col gap-2">
                             <div className="flex gap-2 items-center">
                                 <span className="text-nowrap">réserver pour : </span>
                                 <Select
@@ -137,7 +137,7 @@ export default function DatePickerSmall({ onConfirm, getAvailableDates, getPrice
                                     )}
                                 </Button>
                             )}
-                            <DrawerClose asChild className="text-black">
+                            <DrawerClose asChild>
                                 <Button variant="outline">Cancel</Button>
                             </DrawerClose>
                         </DrawerFooter>
