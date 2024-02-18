@@ -9,6 +9,10 @@ program
     
 const { ngrok: useNgrok } = program.opts(process.argv.slice(2));
 
+console.log(process.argv)
+
+console.log(process.env)
+
 process.on("SIGINT", function () {
     api.kill();
     front.kill();
@@ -24,9 +28,11 @@ if (buildApi.status !== 0) {
     const env = await (async () => {
         if (useNgrok) {
             const ngrockForward = await ngrok.connect();
-            return { APP_URL: ngrockForward };
+            return { ...process.env, APP_URL: ngrockForward };
         }
-        return {};
+        return {
+            ...process.env
+        };
     })()
     const dbMigrateApi = spawnSync("npm run db:migrate:api", { stdio: "inherit", shell: true, env: env });
     if (dbMigrateApi.status !== 0) {
