@@ -54,18 +54,14 @@ export default function ImageCarousel({ images }: Props) {
         >
             {images.map((image, index) => (
                 <SwiperSlide key={index} style={{ display: "flex", justifyContent: "center" }}>
-                    <Image
-                        priority
+                    <img
                         src={image}
                         alt="carousel image"
-                        sizes="100%"
                         style={{
                             width: "100%",
                             height: "400px",
                             objectFit: "cover"
                         }}
-                        width={500}
-                        height={400}
                     />
                 </SwiperSlide>
             ))}

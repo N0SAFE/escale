@@ -37,22 +37,42 @@ if (buildApi.status !== 0) {
     }
     const api = spawn(`node apps/api/build/server.js`, { stdio: "inherit", shell: true, env: env})
     let front;
-    let closeFront = false;
+    let admin;
+    let close = false;
     api.on("close", (code) => {
         console.log(`API process exited with code ${code}`);
         try {
             front.kill();
-            closeFront = true;
+            close = true;
+        } catch (e) {}
+        try {
+            admin.kill();
+            close = true;
         } catch (e) {}
     });
     await new Promise((resolve) => setTimeout(resolve, 10000));
-    if (closeFront) return;
-    front = spawn("npm run build:front:admin", { stdio: "inherit", shell: true });
+    if (close) return;
+    console.log("Front build started");
+    front = spawn("npm run build:front", { stdio: "inherit", shell: true });
     front.on("close", (code) => {
         console.log(`Front process exited with code ${code}`);
         if (code === 0) {
-            spawnSync("npm run stop:api", { stdio: "inherit", shell: true });
-            process.exit(0);
+            console.log("Front build successful");
+            if(close) return;
+            console.log("Admin build started");
+            admin = spawn(`npm run build:admin`, { stdio: "inherit", shell: true })
+            admin.on("close", (code) => {
+                console.log(`Admin process exited with code ${code}`);
+                if (code === 0) {
+                    console.log("Admin build successful");
+                    spawnSync("npm run stop:api", { stdio: "inherit", shell: true });
+                    process.exit(0);
+                } else {
+                    console.log("Admin build failed");
+                    spawnSync("npm run stop:api", { stdio: "inherit", shell: true });
+                    process.exit(1);
+                }
+            });
         } else {
             console.log("Front build failed");
             spawnSync("npm run stop:api", { stdio: "inherit", shell: true });
