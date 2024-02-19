@@ -4,6 +4,7 @@ import Spa from 'App/Models/Spa'
 import { v4 as uuid } from 'uuid'
 import fs from 'fs'
 import Application from '@ioc:Adonis/Core/Application'
+import { images } from './data'
 
 export default class SpaSeeder extends BaseSeeder {
   public async run () {
@@ -15,8 +16,6 @@ export default class SpaSeeder extends BaseSeeder {
       location: '19 rue Aimé Besnard Maison n°5 60510 Therdonne',
       googleMapsLink: 'https://www.google.fr/maps/search/19+rue+Aim%C3%A9+Besnard+Maison+n%C2%B05+60510+Therdonne/@49.4246179,2.1335643,19z/data=!3m1!4b1?entry=ttu',
     })
-
-    const images = JSON.parse(fs.readFileSync(__dirname + '/SpaImage.json').toString())
 
     images.forEach(async (i) => {
       const id = uuid()

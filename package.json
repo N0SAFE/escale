@@ -10,7 +10,7 @@
     "dev": "concurrently -c blue,green,red -n api,front,admin \"npm run dev:api\" \"npm run dev:front\" \"npm run dev:admin\"",
     "build": "npm ci && node ./build",
     "build:ngrok": "npm ci && node ./build -n",
-    "start": "concurrently -c blue,green,red -n api,front \"npm run start:api\" \"npm run start:front\" \"npm run start:admin\"",
+    "start": "concurrently -c blue,green,red -n api,front,admin \"npm run start:api\" \"npm run start:front\" \"npm run start:admin\"",
     "dev:api": "npm run dev -w apps/api",
     "dev:front": "npm run dev -w apps/front",
     "dev:admin": "npm run dev -w apps/admin",
