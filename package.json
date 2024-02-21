@@ -25,6 +25,7 @@
     "build:admin": "npm run build -w apps/admin",
     "build:front:admin": "concurrently -c green,red -n front,admin \"npm run build:front\" \"npm run build:admin\"",
     "db:migrate:api": "npm run db:migrate:build -w apps/api",
+    "db:migrate:api:ngrok": "npm run ngrok: -w apps/api npm run db:migrate:build -w apps/api",
     "db:migrate:front": "npm run db:migrate:build -w apps/front",
     "preinstall": "npm run create-package-lock -w apps/api"
   },

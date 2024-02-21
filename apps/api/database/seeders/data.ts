@@ -8,6 +8,7 @@ export const images = [
       data: {
         name: 'Facetune_16-02-2024-08-52-24.jpeg',
         size: 0,
+        extname: 'jpeg',
       },
     },
   },
@@ -20,6 +21,7 @@ export const images = [
       data: {
         name: 'Facetune_16-02-2024-08-55-13.jpeg',
         size: 0,
+        extname: 'jpeg',
       },
     },
   },
@@ -32,6 +34,7 @@ export const images = [
       data: {
         name: 'Facetune_16-02-2024-08-39-46.jpeg',
         size: 0,
+        extname: 'jpeg',
       },
     },
   },
@@ -44,6 +47,7 @@ export const images = [
       data: {
         name: 'Facetune_16-02-2024-08-44-09.jpeg',
         size: 0,
+        extname: 'jpeg',
       },
     },
   },
@@ -56,6 +60,7 @@ export const images = [
       data: {
         name: 'Facetune_16-02-2024-08-46-11.jpeg',
         size: 0,
+        extname: 'jpeg',
       },
     },
   },
@@ -68,6 +73,7 @@ export const images = [
       data: {
         name: 'Facetune_16-02-2024-08-57-07.jpeg',
         size: 0,
+        extname: 'jpeg',
       },
     },
   },
@@ -80,6 +86,7 @@ export const images = [
       data: {
         name: 'Facetune_16-02-2024-08-41-52.jpeg',
         size: 0,
+        extname: 'jpeg',
       },
     },
   },
@@ -92,6 +99,7 @@ export const images = [
       data: {
         name: 'Facetune_16-02-2024-08-42-26.jpeg',
         size: 0,
+        extname: 'jpeg',
       },
     },
   },
@@ -104,6 +112,7 @@ export const images = [
       data: {
         name: 'Facetune_16-02-2024-08-41-26.jpeg',
         size: 0,
+        extname: 'jpeg',
       },
     },
   },
@@ -116,6 +125,7 @@ export const images = [
       data: {
         name: '20240212_192317.jpg',
         size: 0,
+        extname: 'jpg',
       },
     },
   },

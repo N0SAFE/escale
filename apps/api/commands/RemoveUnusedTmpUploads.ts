@@ -31,7 +31,9 @@ export default class RemoveUnusedTmpUploads extends BaseCommand {
   public async run () {
     const File = (await import('App/Models/File')).default
     await Promise.all(fs.readdirSync(this.application.tmpPath('uploads')).map(async (file) => {
-      const f = await File.query().where('uuid', file).first()
+      const fileSplited = file.split('.')
+      const uuid = fileSplited.slice(0, -1).join('.')
+      const f = await File.query().where('uuid', uuid).first()
       if (!f) {
         fs.unlinkSync(this.application.tmpPath('uploads', file))
         this.logger.info(`Removed ${file}`)

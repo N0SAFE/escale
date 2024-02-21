@@ -27,13 +27,14 @@ export default class ImagesController {
     console.log(u)
 
     await files.image.move(Application.tmpPath('uploads'), {
-      name:  u,
+      name:  u + '.' + files.image.extname,
     })
 
     const file = await File.create({
       name: files.image.clientName,
       size: files.image.size,
       uuid: u,
+      extname: files.image.extname,
     })
 
     const image = await Image.create(body)

@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "concurrently -n stripe,adonis -c yellow,blue \"stripe listen --forward-to http://localhost:4444/webhook/stripe\" \"node checkPort.js node ace serve --watch\"",
-    "start": "node checkPort.js node pre-start node server.js false",
-    "start:ngrok": "node checkPort.js node pre-start 'node server.js' true",
+    "start": "node checkPort.js node server.js",
+    "start:ngrok": "npm run ngrok: node checkPort.js node server.js",
     "stop": "node stop.js",
-    "start:build": "node build/checkPort.js node pre-start node build/server.js false",
-    "start:build:ngrok": "node build/checkPort.js node pre-start node build/server.js true",
+    "start:build": "node build/checkPort.js node build/server.js",
+    "start:build:ngrok": "npm run ngrok: node build/checkPort.js node build/server.js",
     "stop:build": "node build/stop.js",
     "build": "node ace build --production && echo run clean install && npm --prefix=./build ci --production && node ./post-build.js",
     "test": "npm run db:unmigrate && node ace test && npm run db:fresh:seed",
@@ -26,7 +26,9 @@
     "db:refresh": "node ace migration:refresh",
     "db:fresh:seed": "node ace migration:fresh --seed",
     "db:fresh": "node ace migration:fresh",
-    "create-package-lock": "npm i --package-lock-only --workspaces=false"
+    "create-package-lock": "npm i --package-lock-only --workspaces=false",
+    "ngrok:": "node useNgrok.js",
+    "build:": "node useBuild.js"
   },
   "eslintConfig": {
     "extends": [

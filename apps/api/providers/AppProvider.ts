@@ -1,6 +1,7 @@
 import type { ApplicationContract } from '@ioc:Adonis/Core/Application'
 import Env from '@ioc:Adonis/Core/Env'
 import { config } from 'dotenv'
+import Application from '@ioc:Adonis/Core/Application'
 config()
 const changedAppUrl = process.env.APP_URL // if a APP_URL is pass in env to the process use this one for the app_url
 
@@ -19,7 +20,9 @@ export default class AppProvider {
   }
 
   public async ready () {
-    // App is ready
+    const appRoot = Application.appRoot
+
+    console.log(appRoot)
   }
 
   public async shutdown () {

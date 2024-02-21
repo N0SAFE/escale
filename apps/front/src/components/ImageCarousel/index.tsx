@@ -20,6 +20,7 @@ type Props = {
 export default function ImageCarousel({ images }: Props) {
     return (
         <Swiper
+            className="select-none"
             // install Swiper modules
             style={{
                 margin: "0"

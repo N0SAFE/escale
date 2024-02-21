@@ -8,3 +8,4 @@ tmp
 .env.production
 logs/*
 package-lock.json
+storage/

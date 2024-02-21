@@ -5,6 +5,7 @@ import { v4 as uuid } from 'uuid'
 import fs from 'fs'
 import Application from '@ioc:Adonis/Core/Application'
 import { images } from './data'
+import Drive from '@ioc:Adonis/Core/Drive'
 
 export default class SpaSeeder extends BaseSeeder {
   public async run () {
@@ -17,6 +18,10 @@ export default class SpaSeeder extends BaseSeeder {
       googleMapsLink: 'https://www.google.fr/maps/search/19+rue+Aim%C3%A9+Besnard+Maison+n%C2%B05+60510+Therdonne/@49.4246179,2.1335643,19z/data=!3m1!4b1?entry=ttu',
     })
 
+    if (!fs.existsSync(Application.tmpPath('uploads'))) {
+      fs.mkdirSync(Application.tmpPath('uploads'), { recursive: true })
+    }
+
     images.forEach(async (i) => {
       const id = uuid()
       const image = await spa.related('images').create({
@@ -25,10 +30,11 @@ export default class SpaSeeder extends BaseSeeder {
       const file = await File.create({
         name: i.file.data.name,
         size: i.file.data.size,
+        extname: i.file.data.extname,
         uuid: id,
       })
       await image.related('file').associate(file)
-      fs.copyFileSync(`${__dirname}/../../../../notes/all/${i.image}`, Application.tmpPath('uploads', id))
+      Drive.put(id + '.' + i.file.data.extname, fs.readFileSync(`${__dirname}/assets${i.image}`))
     })
   }
 }

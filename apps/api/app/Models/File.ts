@@ -15,11 +15,14 @@ export default class File extends BaseModel {
   public updatedAt: DateTime
 
   @column()
+  public extname: string
+
+  @column()
   public name: string
 
   @computed()
   public get path () {
-    return `/tmp/uploads/${this.uuid}`
+    return `${this.uuid}.${this.extname}`
   }
 
   @column()

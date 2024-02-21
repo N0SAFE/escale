@@ -2,24 +2,26 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "./ui/button";
+import { cn } from "@/lib/utils";
+import { sendFlowers } from "@/fonts/index";
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     return (
         <nav className="bg-[#8C6750] md:py-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between h-16">
+                <div className="flex h-16 justify-center">
                     <div className="flex">
                         <div className="-ml-2 mr-6 flex items-center">
-                            <FlowerIcon className="h-8 w-8 text-white" />
+                            <Link href="/" className={cn("text-6xl", sendFlowers.className, 'select-none')}>L&apos;escale</Link>
                         </div>
                         <div className="hidden md:flex items-center space-x-1">
                             <Links />
                         </div>
                     </div>
-                    <div className="flex items-center">
+                    {/* <div className="flex items-center">
                         <FlagIcon className="h-6 w-6 text-white" />
-                    </div>
+                    </div> */}
                     <div className="-mr-2 flex md:hidden items-center">
                         <Button
                             onClick={() => setIsMenuOpen(!isMenuOpen)}

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -7,9 +6,8 @@ import "@/lib/fontAwesome"
 import axios from "axios";
 import { Toaster } from "@/components/ui/toaster";
 import ClientStartup from "@/components/ClientStartup";
+import { inter } from "@/fonts/index";
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
     title: "Create Next App",

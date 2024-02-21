@@ -23,6 +23,7 @@ import Env from '@ioc:Adonis/Core/Env'
 */
 export default class StripeProvider {
   private stripe: Stripe
+  private webhooks: Stripe.WebhookEndpoint[] = []
   constructor (protected app: ApplicationContract) {}
 
   public register () {
@@ -39,23 +40,49 @@ export default class StripeProvider {
 
   public async ready () {
     if (!!Env.get('NODE_ENV') && Env.get('NODE_ENV') === 'production' && this.app.environment) {
-      await this.stripe.webhookEndpoints.create({
-        url: Env.get('APP_URL') + '/webhook/stripe',
-        enabled_events: [
-          'payment_intent.payment_failed',
-          'payment_intent.succeeded',
-          'payment_intent.canceled',
-        ],
-      })
+      this.createWebhooks(this.stripe)
+      // process.on('uncaughtException', this.shutdown)
+      // process.on('unhandledRejection', this.shutdown)
+      // process.on('exit', this.shutdown)
     }
   }
 
   public async shutdown () {
+    this.removeWebhooks(this.stripe, this.webhooks)
+  }
+
+  private async removeWebhooks (stripe: Stripe, webhooks: Stripe.WebhookEndpoint[]) {
     console.log('removing webhooks')
-    this.stripe.webhookEndpoints.list().then((endpoints) => {
-      endpoints.data.forEach((endpoint) => {
-        this.stripe.webhookEndpoints.del(endpoint.id)
-      })
+    webhooks.forEach((endpoint) => {
+      console.log('removing webhook', endpoint.id)
+      stripe.webhookEndpoints.del(endpoint.id)
     })
+  }
+
+  private async createWebhooks (stripe: Stripe) {
+    console.log('creating webhooks')
+    const wehbook = await stripe.webhookEndpoints.create({
+      url: Env.get('APP_URL') + '/webhook/stripe',
+      enabled_events: [
+        'payment_intent.payment_failed',
+        'payment_intent.succeeded',
+        'payment_intent.canceled',
+      ],
+    })
+    console.log('created webhook', wehbook.id)
+    this.webhooks.push(wehbook)
+    const webhooks = this.webhooks
+    const self = this
+    function t () {
+      self.removeWebhooks(stripe, webhooks)
+      // process.off('SIGINT', t)
+      // process.off('SIGQUIT', t)
+      process.off('SIGTERM', t)
+      process.off('exit', t)
+    }
+    // process.on('SIGINT', t) // CTRL+C
+    // process.on('SIGQUIT', t) // Keyboard quit
+    process.on('SIGTERM', t) // `kill` command
+    process.on('exit', t) // on exit
   }
 }
