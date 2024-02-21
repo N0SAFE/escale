@@ -39,11 +39,22 @@ export default class StripeProvider {
   }
 
   public async ready () {
-    if (!!Env.get('NODE_ENV') && Env.get('NODE_ENV') === 'production' && this.app.environment) {
+    const webhooks = this.webhooks
+    const self = this
+    const stripe = this.stripe
+    function t () {
+      self.removeWebhooks(stripe, webhooks)
+      process.off('SIGINT', t)
+      // process.off('SIGQUIT', t)
+      process.off('SIGTERM', t)
+      process.off('exit', t)
+    }
+    process.on('SIGINT', t) // CTRL+C
+    // process.on('SIGQUIT', t) // Keyboard quit
+    process.on('SIGTERM', t) // `kill` command
+    process.on('exit', t) // on exit
+    if (this.app.inProduction && this.app.environment === 'web') {
       this.createWebhooks(this.stripe)
-      // process.on('uncaughtException', this.shutdown)
-      // process.on('unhandledRejection', this.shutdown)
-      // process.on('exit', this.shutdown)
     }
   }
 
@@ -75,12 +86,12 @@ export default class StripeProvider {
     const self = this
     function t () {
       self.removeWebhooks(stripe, webhooks)
-      // process.off('SIGINT', t)
+      process.off('SIGINT', t)
       // process.off('SIGQUIT', t)
       process.off('SIGTERM', t)
       process.off('exit', t)
     }
-    // process.on('SIGINT', t) // CTRL+C
+    process.on('SIGINT', t) // CTRL+C
     // process.on('SIGQUIT', t) // Keyboard quit
     process.on('SIGTERM', t) // `kill` command
     process.on('exit', t) // on exit
