@@ -40,36 +40,32 @@ if (buildApi.status !== 0) {
             close = true;
         } catch (e) {}
     });
-    await new Promise((resolve) => setTimeout(resolve, 10000));
-    // if (close) return;
-    // console.log("Front build started");
-    // front = spawn("npm run build:front", { stdio: "inherit", shell: true });
-    // front.on("close", (code) => {
-    //     console.log(`Front process exited with code ${code}`);
-    //     if (code === 0) {
-    //         console.log("Front build successful");
-    //         if(close) return;
-    //         console.log("Admin build started");
-    //         admin = spawn(`npm run build:admin`, { stdio: "inherit", shell: true })
-    //         admin.on("close", (code) => {
-    //             console.log(`Admin process exited with code ${code}`);
-    //             if (code === 0) {
-    //                 console.log("Admin build successful");
-    //                 spawnSync("npm run stop:api", { stdio: "inherit", shell: true });
-    //                 process.exit(0);
-    //             } else {
-    //                 console.log("Admin build failed");
-    //                 spawnSync("npm run stop:api", { stdio: "inherit", shell: true });
-    //                 process.exit(1);
-    //             }
-    //         });
-    //     } else {
-    //         console.log("Front build failed");
-    //         spawnSync("npm run stop:api", { stdio: "inherit", shell: true });
-    //         process.exit(1);
-    //     }
-    // });
-    console.log("Admin build successful");
-    spawnSync("npm run stop:api", { stdio: "inherit", shell: true });
-    process.exit(0);
+    if (close) return;
+    console.log("Front build started");
+    front = spawn("npm run build:front", { stdio: "inherit", shell: true });
+    front.on("close", (code) => {
+        console.log(`Front process exited with code ${code}`);
+        if (code === 0) {
+            console.log("Front build successful");
+            if(close) return;
+            console.log("Admin build started");
+            admin = spawn(`npm run build:admin`, { stdio: "inherit", shell: true })
+            admin.on("close", (code) => {
+                console.log(`Admin process exited with code ${code}`);
+                if (code === 0) {
+                    console.log("Admin build successful");
+                    spawnSync("npm run stop:api", { stdio: "inherit", shell: true });
+                    process.exit(0);
+                } else {
+                    console.log("Admin build failed");
+                    spawnSync("npm run stop:api", { stdio: "inherit", shell: true });
+                    process.exit(1);
+                }
+            });
+        } else {
+            console.log("Front build failed");
+            spawnSync("npm run stop:api", { stdio: "inherit", shell: true });
+            process.exit(1);
+        }
+    });
 })();
