@@ -1,6 +1,10 @@
+"use client" // @flag color picker
+
 import Comment from "@/components/Comment";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import Image from "next/image";
+import { useState } from "react";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 
@@ -80,10 +84,19 @@ const comments = [
 ];
 
 export default function Home() {
+    const [color, setColor] = useState('#000000') // @flag color picker
+    console.log(color) // @flag color picker
     return (
-        <main className="flex min-h-screen flex-col items-center justify-between bg-[#8C6750] text-white">
+        <main className="flex min-h-screen flex-col items-center justify-between text-white" style={{ backgroundColor: color }}>
+            {/* @flag color picker */}
+             <div className="bg-[#fff] absolute text-black p-4"> 
+                {/* @flag color picker */}
+                <span>changer la couleur ici</span>
+                {/* @flag color picker */}
+                <Input type="color" onChange={(e) => setColor(e.target.value)} />
+            </div>
             <section>
-                <Image src="/20240212_192300.jpg" alt="Picture of the author" className="object-cover h-[800px]" width={1980} height={1080} />
+                <Image src="/lit.jpeg" alt="Picture of the author" className="object-cover h-[800px]" width={1980} height={1080} />
             </section>
             <section className="py-24 px-4 text-3xl leading-6 text-center md:p-24">
                 <p>Venez découvrir notre Maison avec spa privatif à seulement 40 minutes de Paris. Séjour idéal pour passer un moment de détente en amoureux ou entre amis</p>

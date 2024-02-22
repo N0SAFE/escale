@@ -39,19 +39,6 @@ export const images = [
     },
   },
   {
-    image: '/Facetune_16-02-2024-08-44-09.jpeg',
-    data: {
-      alt: 'image 4',
-    },
-    file: {
-      data: {
-        name: 'Facetune_16-02-2024-08-44-09.jpeg',
-        size: 0,
-        extname: 'jpeg',
-      },
-    },
-  },
-  {
     image: '/Facetune_16-02-2024-08-46-11.jpeg',
     data: {
       alt: 'image 5',

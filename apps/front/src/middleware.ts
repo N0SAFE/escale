@@ -19,7 +19,7 @@ export async function middleware(request: NextRequest) {
                 return Response.json({ error: "API is not healthy", data: res }, { status: 500 });
             }
         } catch {
-            return Response.json({ error: "API is not healthy" }, { status: 500 });
+            return Response.json({ error: "API cannot be reach" }, { status: 500 });
         }
     }
 }

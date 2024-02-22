@@ -38,7 +38,7 @@ export default function SpaDetails({ spa }: Props) {
             <div className="mb-4">
                 <Link className="underline underline-offset-4" href={spa.google_maps_link} target="_blank">{spa.location}</Link>
             </div>
-            <div className="grid-cols-3 grid">
+            {/* <div className="grid-cols-3 grid">
                 {spa.tags.map((tag, index) => (
                     <div key={index} className="flex gap-2">
                         <FontAwesomeIcon icon={tag.icon as IconProp} width={30} height={30} />
@@ -47,7 +47,7 @@ export default function SpaDetails({ spa }: Props) {
                         </span>
                     </div>
                 ))}
-            </div>
+            </div> */}
             <div className="py-16">
                 <p dangerouslySetInnerHTML={{ __html: spa.description}}></p>
             </div>

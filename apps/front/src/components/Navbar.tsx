@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { sendFlowers } from "@/fonts/index";
@@ -8,7 +8,7 @@ import { sendFlowers } from "@/fonts/index";
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     return (
-        <nav className="bg-[#8C6750] md:py-16">
+        <nav className="md:py-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 justify-center">
                     <div className="flex">
@@ -16,7 +16,7 @@ export default function Navbar() {
                             <Link href="/" className={cn("text-6xl", sendFlowers.className, 'select-none')}>L&apos;escale</Link>
                         </div>
                         <div className="hidden md:flex items-center space-x-1">
-                            <Links />
+                            <Links className="px-3 py-2" />
                         </div>
                     </div>
                     {/* <div className="flex items-center">
@@ -27,7 +27,7 @@ export default function Navbar() {
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                             aria-controls="mobile-menu"
                             aria-expanded="false"
-                            className="bg-[#8C6750] inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white hover:bg-[#7a4d35] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                            className="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white hover:bg-[#7a4d35] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
                             type="button"
                         >
                             <span className="sr-only">Open main menu</span>
@@ -39,7 +39,7 @@ export default function Navbar() {
             </div>
             <div className={`md:hidden absolute w-screen bg-[#8C6750] ${isMenuOpen ? "" : "hidden"}`} id="mobile-menu">
                 <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
-                    <Links onClick={() => {setIsMenuOpen(false)}} />
+                    <Links onClick={() => {setIsMenuOpen(false)}} className="px-3 py-2" />
                 </div>
             </div>
         </nav>
@@ -89,24 +89,25 @@ function XIcon(props: React.SVGProps<SVGSVGElement>) {
 
 type LinksProps = {
     onClick?: () => void;
+    className?: string;
 };
 
-function Links({onClick}: LinksProps) {
+export function Links({onClick, className}: LinksProps){
     return (
         <>
-            <Link onClick={onClick} aria-current="page" className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/">
+            <Link onClick={onClick} aria-current="page" className={cn("text-white rounded-md text-sm font-medium", className)} href="/">
                 ACCUEIL
             </Link>
-            <Link onClick={onClick} className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/reservation">
+            <Link onClick={onClick} className={cn("text-white rounded-md text-sm font-medium", className)} href="/reservation">
                 RÉSERVEZ VOTRE SÉJOUR
             </Link>
-            <Link onClick={onClick} className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/contact">
+            <Link onClick={onClick} className={cn("text-white rounded-md text-sm font-medium", className)} href="/contact">
                 CONTACT
             </Link>
-            <Link onClick={onClick} className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/faq">
+            <Link onClick={onClick} className={cn("text-white rounded-md text-sm font-medium", className)} href="/faq">
                 FAQ
             </Link>
-            <Link onClick={onClick} className="text-white px-3 py-2 rounded-md text-sm font-medium" href="/reglement">
+            <Link onClick={onClick} className={cn("text-white rounded-md text-sm font-medium", className)} href="/reglement">
                 RÈGLEMENT INTÉRIEUR
             </Link>
         </>

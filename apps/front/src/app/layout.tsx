@@ -7,6 +7,8 @@ import axios from "axios";
 import { Toaster } from "@/components/ui/toaster";
 import ClientStartup from "@/components/ClientStartup";
 import { inter } from "@/fonts/index";
+import { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
 
 export const metadata: Metadata = {
@@ -18,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return (
         <html lang="en" translate="no">
             <body
-                className={`${inter.className} bg-[#8C6750] text-white min-h-screen flex flex-col justify-between`}
+                className={`${inter.className} bg-[#000000] text-white min-h-screen flex flex-col justify-between`}
                 style={{
                     fontFamily: '"Josefin Sans", Sans-serif'
                 }}

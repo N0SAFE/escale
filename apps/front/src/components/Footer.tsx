@@ -4,18 +4,15 @@
  */
 
 import Link from "next/link";
+import { Links } from "./Navbar";
 
 export default function footer() {
     return (
-        <footer className="bg-[#8C6750] py-10 text-white">
+        <footer className="py-10 text-white">
             <div className="max-w-6xl mx-auto px-6 flex justify-between">
                 <div>
                     <h5 className="font-bold uppercase mb-6">Contact</h5>
                     <ul className="space-y-4">
-                        <li className="flex items-center space-x-2">
-                            <LocateIcon className="text-red-600" />
-                            <span>La Falaise (40mn de paris)</span>
-                        </li>
                         <li className="flex items-center space-x-2">
                             <MailIcon className="text-red-600" />
                             <Link href="/contact">
@@ -24,36 +21,28 @@ export default function footer() {
                         </li>
                         <li className="flex items-center space-x-2">
                             <InstagramIcon className="text-red-600" />
-                            <span>Instagram</span>
+                            <Link href="https://www.instagram.com/lescalesuiteandspa/">
+                                <span>Instagram</span>
+                            </Link>
                         </li>
                         <li className="flex items-center space-x-2">
-                            <InstagramIcon className="text-red-600" />
-                            <span>Tiktok</span>
+                            <TiktokIcon className="text-red-600" />
+                            <Link href="https://www.tiktok.com/@lescale.suite.spa?_t=8jvZmLXtqjo&_r=1">
+                                <span>Tiktok</span>
+                            </Link>
                         </li>
                         <li className="flex items-center space-x-2">
-                            <FacebookIcon className="text-red-600" />
-                            <span>Facebook</span>
+                            <SnapchatIcon className="text-red-600" />
+                            <Link href="https://www.facebook.com/lescalesuiteandspa">
+                                <span>Snapchat</span>
+                            </Link>
                         </li>
                     </ul>
                 </div>
                 <div>
                     <h5 className="font-bold uppercase mb-6">Navigation</h5>
-                    <ul className="space-y-4">
-                        <li>
-                            <Link className="hover:underline" href="/">Accueil</Link>
-                        </li>
-                        <li>
-                            <Link className="hover:underline" href="/reservation">Réservations</Link>
-                        </li>
-                        <li>
-                            <Link className="hover:underline" href="/contact">Contact</Link>
-                        </li>
-                        <li>
-                            <Link className="hover:underline" href="/faq">FAQ</Link>
-                        </li>
-                        <li>
-                            <Link className="hover:underline" href="/reglement">Règlement de la maison</Link>
-                        </li>
+                    <ul className="space-y-4 flex flex-col">
+                        <Links />
                     </ul>
                 </div>
             </div>
@@ -92,10 +81,14 @@ function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
     );
 }
 
-function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
+function TiktokIcon (props: React.SVGProps<SVGSVGElement>) {
+    return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M448 209.9a210.1 210.1 0 0 1 -122.8-39.3V349.4A162.6 162.6 0 1 1 185 188.3V278.2a74.6 74.6 0 1 0 52.2 71.2V0l88 0a121.2 121.2 0 0 0 1.9 22.2h0A122.2 122.2 0 0 0 381 102.4a121.4 121.4 0 0 0 67 20.1z"/></svg>
+}
+
+function SnapchatIcon(props: React.SVGProps<SVGSVGElement>) {
     return (
         <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.5 15.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5zm5-5.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm-5 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm-5-5.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-1.12 1.5-1.5 1.5z" />
         </svg>
     );
 }
