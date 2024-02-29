@@ -22,12 +22,14 @@ type Spa = {
         image: string
     }[];
     id: number;
-    images: {
-        id: number,
-        created_at: string,
-        updated_at: string,
-        alt: string,
-        file_id: number
+    spaImages: {
+        image: {
+             id: number,
+            created_at: string,
+            updated_at: string,
+            alt: string,
+            file_id: number
+        }
     }[];
     title: string;
     description: string;
@@ -37,8 +39,7 @@ const Reservation = async ({ params }: { params: { id: string } }) => {
     const { id } = params;
     const { data } = await axios<Spa>(`/spas/${id}`);
     
-    console.log(data);
-
+    // console.log(data);
     
     async function getPrice(date: string | { from: string; to: string }, type: "night" | "afternoon" | "journey") {
         "use server";
@@ -163,7 +164,7 @@ const Reservation = async ({ params }: { params: { id: string } }) => {
                         }}
                     />
                 </div>
-                <ImageCarousel images={data.images.map(function(image) { return process.env.NEXT_PUBLIC_API_URL + '/attachment/image/' + image.id })} />
+                <ImageCarousel images={data.spaImages.map(function(spaImage) { return process.env.NEXT_PUBLIC_API_URL + '/attachment/image/' + spaImage.image.id })} />
                 <div className="xl:mx-46 lg:mx-24 md:mx-0 flex gap-8 flex-row py-8">
                     <div className="w-full lg:w-2/3 md:w-1/2">
                         <SpaDetails spa={data} />

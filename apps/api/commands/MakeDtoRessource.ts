@@ -68,9 +68,15 @@ export default class MakeDtoRessource extends BaseCommand {
   public httpMethodList: string[] = ['Delete', 'Get', 'GetCollection', 'Patch', 'Post', 'Put']
 
   public fileTemplate (method) {
-    const tempName = this.name.replace(/Controller$/, '').replace(/Dto$/, '')
-    const name = tempName.charAt(0).toUpperCase() + tempName.slice(1)
-    return fileTemplate(name, method)
+    const temp = this.name
+      .split('\\')
+      .join('/')
+      .split('/')
+      .map((s) => s.replace(/Controller$/, '').replace(/Dto$/, '')) // .map(s => s.charAt(0).toUpperCase() + s.slice(1))
+      .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    const dtoName = temp.join('')
+    const dirDeep = temp.length
+    return fileTemplate(dtoName, method, dirDeep)
   }
 
   public indexTemplate () {
@@ -269,8 +275,16 @@ export default class MakeDtoRessource extends BaseCommand {
         .skipped(resolve(relativeDtoDir, 'type', 'AsSameProperties.ts'), 'already exist')
     }
 
-    const tempDtoDirName = this.name.replace(/Controller$/, '').replace(/Dto$/, '') + 'Dto'
-    const dtoDirName = tempDtoDirName.charAt(0).toUpperCase() + tempDtoDirName.slice(1)
+    const dtoDirName = this.name
+      .split('\\')
+      .join('/')
+      .split('/')
+      .map((s) => s.replace(/Controller$/, '').replace(/Dto$/, '')) // .map(s => s.charAt(0).toUpperCase() + s.slice(1))
+      .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+      .map((s) => s + 'Dto')
+      .join('/')
+
+    // const dtoDirNameToPascal = tempDtoDirName.split('/').join('')
     if (!fs.existsSync(resolve(dtoDir, dtoDirName))) {
       if (this.reset) {
         fs.rmdirSync(resolve(dtoDir, dtoDirName), { recursive: true })
@@ -609,24 +623,31 @@ export class BaseDto {
 `
 }
 
-export function fileTemplate (name, method) {
-  return `import {
-  IsDefined,
-  IsObject,
-  ValidateNested,
-} from 'class-validator'
-import { RequestBaseDto } from '../RequestBaseDto'
-import { Type } from 'class-transformer'
-import { AsSameProperties } from '../type/AsSameProperties'
+export function createString (length: number, fn: (i: number) => string) {
+  return Array.apply(null, Array(length))
+    .map((_, i) => fn(i))
+    .join('')
+}
+
+export function fileTemplate (name, method, dirDeep) {
+  return `import { IsDefined, IsObject, ValidateNested } from 'class-validator'
+import { Exclude, Type } from 'class-transformer'
+import { AsSameProperties } from '${createString(dirDeep, () => '../')}type/AsSameProperties'
 import { RequestContract } from '@ioc:Adonis/Core/Request'
+import { BaseDto } from '${createString(dirDeep, () => '../')}BaseDto'
+import { SkipTransform } from '${createString(dirDeep, () => '../')}Decorator/SkipTransform'
 
 export class ${name}Ressource${method}BodyDto {}
 
 export class ${name}Ressource${method}QueryDto {}
 
+export class ${name}Ressource${method}ParamsDto {}
+
+@Exclude()
 export class ${name}Ressource${method}FilesDto {}
 
-export class ${name}Ressource${method}Dto extends RequestBaseDto {
+@SkipTransform([['files', ${name}Ressource${method}FilesDto]])
+export class ${name}Ressource${method}Dto extends BaseDto {
   @IsDefined()
   @IsObject()
   @ValidateNested()
@@ -642,25 +663,41 @@ export class ${name}Ressource${method}Dto extends RequestBaseDto {
   @IsDefined()
   @IsObject()
   @ValidateNested()
+  @Type(() => ${name}Ressource${method}ParamsDto)
+  public params: ${name}Ressource${method}ParamsDto
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
   @Type(() => ${name}Ressource${method}FilesDto)
-  public _images: ${name}Ressource${method}FilesDto
+  public files: ${name}Ressource${method}FilesDto
 
   public get after () {
     return new ${name}Ressource${method}DtoAfter(this)
   }
 
   public static fromRequest (request: RequestContract) {
-    return new this({ body: request.body(), query: request.qs(), _images: request.allFiles() })
+    return new this({ body: request.body(), query: request.qs(), params: request.params(), files: request.allFiles() })
   }
 }
 
-export class ${name}Ressource${method}BodyDtoAfter implements AsSameProperties<${name}Ressource${method}BodyDto> {}
+export class ${name}Ressource${method}BodyDtoAfter
+implements AsSameProperties<${name}Ressource${method}BodyDto> {}
 
-export class ${name}Ressource${method}QueryDtoAfter implements AsSameProperties<${name}Ressource${method}QueryDto> {}
+export class ${name}Ressource${method}QueryDtoAfter
+implements AsSameProperties<${name}Ressource${method}QueryDto> {}
 
-export class ${name}Ressource${method}FilesDtoAfter implements AsSameProperties<${name}Ressource${method}FilesDto> {}
+export class ${name}Ressource${method}ParamsDtoAfter
+implements AsSameProperties<${name}Ressource${method}ParamsDto> {}
 
-export class ${name}Ressource${method}DtoAfter extends RequestBaseDto implements AsSameProperties<Omit<${name}Ressource${method}Dto, 'after'>> {
+@Exclude()
+export class ${name}Ressource${method}FilesDtoAfter
+implements AsSameProperties<${name}Ressource${method}FilesDto> {}
+
+@SkipTransform([['files', ${name}Ressource${method}FilesDtoAfter]])
+export class ${name}Ressource${method}DtoAfter
+  extends BaseDto
+  implements AsSameProperties<Omit<${name}Ressource${method}Dto, 'after'>> {
   @IsDefined()
   @IsObject()
   @ValidateNested()
@@ -676,8 +713,14 @@ export class ${name}Ressource${method}DtoAfter extends RequestBaseDto implements
   @IsDefined()
   @IsObject()
   @ValidateNested()
+  @Type(() => ${name}Ressource${method}ParamsDtoAfter)
+  public params: ${name}Ressource${method}ParamsDtoAfter
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
   @Type(() => ${name}Ressource${method}FilesDtoAfter)
-  public _images: ${name}Ressource${method}FilesDtoAfter
+  public files: ${name}Ressource${method}FilesDtoAfter
 }
 `
 }

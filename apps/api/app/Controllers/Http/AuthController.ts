@@ -3,6 +3,7 @@ import Database from '@ioc:Adonis/Lucid/Database'
 import User from 'App/Models/User'
 import AuthLoginDto from './dto/AuthDto/Login'
 import AuthRegisterDto from './dto/AuthDto/Register'
+import { headers } from 'next/headers';
 
 export default class AuthController {
   public async login ({ request, auth, response }: HttpContextContract) {
@@ -16,24 +17,25 @@ export default class AuthController {
 
     try {
       const jwt = await auth.use('jwt').attempt(body.email, body.password)
-      response.cookie('access_token', jwt.accessToken, {
-        httpOnly: false,
-        path: '/',
-        sameSite: undefined,
-        secure: undefined,
-        expires: undefined,
-        maxAge: undefined,
-      })
+      // response.cookie('access_token', jwt.accessToken, {
+      //   httpOnly: false,
+      //   path: '/',
+      //   sameSite: undefined,
+      //   secure: undefined,
+      //   expires: undefined,
+      //   maxAge: undefined,
+      // })
       if (body.rememberMe) {
-        response.cookie('refresh_token', jwt.refreshToken, {
-          httpOnly: true,
-          path: '/',
-          sameSite: 'none',
-          secure: true,
-        })
+        // response.cookie('refresh_token', jwt.refreshToken, {
+        //   httpOnly: true,
+        //   path: '/',
+        //   sameSite: 'none',
+        //   secure: true,
+        // })
       } else {
         response.clearCookie('refresh_token')
       }
+      console.log(jwt.refreshToken)
       return response.ok({ ...jwt.toJSON(), success: true })
     } catch (error) {
       if (
@@ -55,9 +57,11 @@ export default class AuthController {
     }
   }
 
-  public async logout ({ auth, response }: HttpContextContract) {
+  public async logout ({ auth, response, request }: HttpContextContract) {
     response.clearCookie('access_token')
     response.clearCookie('refresh_token')
+    console.log(request.headers())
+    console.log(auth.use('jwt').user)
     if (!auth.use('jwt').user) {
       return response.unauthorized({ message: 'no credentials provided', success: false })
     }
@@ -115,8 +119,10 @@ export default class AuthController {
     if (!refreshToken) {
       return response.unauthorized({ message: 'no refresh token provided', success: false })
     }
+    console.log(refreshToken)
     try {
       const jwt = await auth.use('jwt').loginViaRefreshToken(refreshToken)
+      console.log('io')
       response.cookie('access_token', jwt.accessToken, {
         httpOnly: true,
         path: '/',
@@ -131,6 +137,7 @@ export default class AuthController {
       })
       return response.ok({ ...jwt.toJSON(), success: true })
     } catch (error) {
+      console.log(error)
       return response.unauthorized({ message: 'invalid refresh token', success: false })
     }
   }

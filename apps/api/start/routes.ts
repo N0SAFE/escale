@@ -47,6 +47,11 @@ Route.group(() => {
   Route.get('whoami', 'AuthController.whoami')
 
   Route.group(() => {
+    Route.post('spas/:spa/images', 'SpasController.postImages')
+    Route.get('spas/:spa/images', 'SpasController.getImages')
+    Route.post('spas/:spa/images/sort', 'SpasController.sortImages')
+    Route.delete('spas/:spa/images/:spaImage', 'SpasController.deleteImage')
+    // todo Route.nestedResource('spas/:spa/images', 'SpasController').apiOnly().only(['index']).methodSuffix('images')
     Route.get('attachment/image/:id', 'AttachmentsController.imageById')
     Route.resource('images', 'ImagesController').apiOnly().only(['index', 'show', 'store'])
     Route.resource('faqs', 'FaqsController').apiOnly().only(['index', 'show'])
@@ -60,7 +65,7 @@ Route.group(() => {
     Route.resource('reservations', 'ReservationsController').apiOnly().only(['show'])
     Route.resource('availabilities', 'AvailabilitiesController').apiOnly().only(['index', 'show'])
     Route.resource('spas', 'SpasController').apiOnly().only(['index', 'show'])
-    Route.resource('services', 'ServicesController').apiOnly().only(['index', 'show'])
+    Route.resource('services', 'ServicesController').apiOnly().only(['index', 'show', 'update'])
     Route.resource('tags', 'TagsController').apiOnly().only(['index', 'show'])
     Route.resource('comments', 'CommentsController').apiOnly().only(['index', 'show'])
   })

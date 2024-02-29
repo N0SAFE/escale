@@ -1,4 +1,4 @@
-export const images = [
+export const spaImagesData = [
   {
     image: '/Facetune_16-02-2024-08-52-24.jpeg',
     data: {
@@ -7,7 +7,6 @@ export const images = [
     file: {
       data: {
         name: 'Facetune_16-02-2024-08-52-24.jpeg',
-        size: 0,
         extname: 'jpeg',
       },
     },
@@ -20,7 +19,6 @@ export const images = [
     file: {
       data: {
         name: 'Facetune_16-02-2024-08-55-13.jpeg',
-        size: 0,
         extname: 'jpeg',
       },
     },
@@ -33,7 +31,6 @@ export const images = [
     file: {
       data: {
         name: 'Facetune_16-02-2024-08-39-46.jpeg',
-        size: 0,
         extname: 'jpeg',
       },
     },
@@ -46,7 +43,6 @@ export const images = [
     file: {
       data: {
         name: 'Facetune_16-02-2024-08-46-11.jpeg',
-        size: 0,
         extname: 'jpeg',
       },
     },
@@ -59,7 +55,6 @@ export const images = [
     file: {
       data: {
         name: 'Facetune_16-02-2024-08-57-07.jpeg',
-        size: 0,
         extname: 'jpeg',
       },
     },
@@ -72,7 +67,6 @@ export const images = [
     file: {
       data: {
         name: 'Facetune_16-02-2024-08-41-52.jpeg',
-        size: 0,
         extname: 'jpeg',
       },
     },
@@ -85,7 +79,6 @@ export const images = [
     file: {
       data: {
         name: 'Facetune_16-02-2024-08-42-26.jpeg',
-        size: 0,
         extname: 'jpeg',
       },
     },
@@ -93,12 +86,11 @@ export const images = [
   {
     image: '/Facetune_16-02-2024-08-41-26.jpeg',
     data: {
-      alt: 'image 8',
+      alt: 'image 9',
     },
     file: {
       data: {
         name: 'Facetune_16-02-2024-08-41-26.jpeg',
-        size: 0,
         extname: 'jpeg',
       },
     },
@@ -106,13 +98,111 @@ export const images = [
   {
     image: '/20240212_192317.jpg',
     data: {
-      alt: 'image 8',
+      alt: 'image 10',
     },
     file: {
       data: {
         name: '20240212_192317.jpg',
-        size: 0,
         extname: 'jpg',
+      },
+    },
+  },
+]
+
+export const serviceImagesData = [
+  {
+    image: '/1631711882769.png',
+    data: {
+      alt: 'image 1',
+    },
+    file: {
+      data: {
+        name: '1631711882769.png',
+        extname: 'png',
+      },
+    },
+  },
+  {
+    image: '/16317116268495.png',
+    data: {
+      alt: 'image 2',
+    },
+    file: {
+      data: {
+        name: '16317116268495.png',
+        extname: 'png',
+      },
+    },
+  },
+  {
+    image: '/16317117296737.png',
+    data: {
+      alt: 'image 3',
+    },
+    file: {
+      data: {
+        name: '16317117296737.png',
+        extname: 'png',
+      },
+    },
+  },
+  {
+    image: '/16317117489567.png',
+    data: {
+      alt: 'image 4',
+    },
+    file: {
+      data: {
+        name: '16317117489567.png',
+        extname: 'png',
+      },
+    },
+  },
+  {
+    image: '/16317117791311.png',
+    data: {
+      alt: 'image 5',
+    },
+    file: {
+      data: {
+        name: '16317117791311.png',
+        extname: 'png',
+      },
+    },
+  },
+  {
+    image: '/16317118070204.png',
+    data: {
+      alt: 'image 6',
+    },
+    file: {
+      data: {
+        name: '16317118070204.png',
+        extname: 'png',
+      },
+    },
+  },
+  {
+    image: '/16317118538936.png',
+    data: {
+      alt: 'image 7',
+    },
+    file: {
+      data: {
+        name: '16317118538936.png',
+        extname: 'png',
+      },
+    },
+  },
+  {
+    image: '/16317119059781.png',
+    data: {
+      alt: 'image 8',
+    },
+    file: {
+      data: {
+        name: '16317119059781.png',
+        extname: 'png',
       },
     },
   },

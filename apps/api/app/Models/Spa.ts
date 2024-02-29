@@ -1,10 +1,18 @@
 import { DateTime } from 'luxon'
-import { BaseModel, HasMany, ManyToMany, column, hasMany, manyToMany } from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  HasMany,
+  ManyToMany,
+  beforeFind,
+  column,
+  hasMany,
+  manyToMany,
+} from '@ioc:Adonis/Lucid/Orm'
 import Availability from './Availability'
 import Tag from './Tag'
 import Service from './Service'
 import Reservation from './Reservation'
-import Image from './Image'
+import SpaImage from './SpaImage'
 
 export default class Spa extends BaseModel {
   @column({ isPrimary: true })
@@ -22,13 +30,18 @@ export default class Spa extends BaseModel {
   @column()
   public description: string
 
-  @manyToMany(() => Image, {
-    localKey: 'id',
-    pivotForeignKey: 'spa_id',
-    relatedKey: 'id',
-    pivotRelatedForeignKey: 'image_id',
-  })
-  public images: ManyToMany<typeof Image>
+  @hasMany(() => SpaImage)
+  public spaImages: HasMany<typeof SpaImage>
+
+  // @manyToMany(() => Image, {
+  //   pivotTable: 'image_spa',
+  //   pivotColumns: ['order'],
+  //   pivotTimestamps: true,
+  //   onQuery: (query) => {
+  //     query.orderBy('order', 'asc')
+  //   },
+  // })
+  // public images: ManyToMany<typeof Image>
 
   @hasMany(() => Reservation)
   public reservations: HasMany<typeof Reservation>
@@ -49,4 +62,29 @@ export default class Spa extends BaseModel {
 
   @column()
   public googleMapsLink: string
+
+  // @beforeUpdate()
+  // public static async updateOrder (spa: Spa) {
+  //   console.log(spa.$dirty)
+  //   if (spa.$dirty.images) {
+  //     console.log(spa.$dirty)
+  //     // spa.related('images').pivotQuery().where('spa_id', spa.id).where('image_id').update({ order: 0 })
+  //     // const images = await spa.related('images').query()
+  //     // for (let i = 0; i < images.length; i++) {
+  //     //   images[i].$attributes.order = i
+  //     //   // images[i].pivot.order = i
+  //     //   // await images[i].pivot.save()
+  //     // }
+  //   }
+  // }
+
+  @beforeFind()
+  public static async preloadImages (query) {
+    query.preload('spaImages')
+  }
+
+  // @beforeUpdate()
+  // public static async updateOrder (spa: Spa) {
+  //   console.log(spa.$dirty)
+  // }
 }

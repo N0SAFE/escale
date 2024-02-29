@@ -1,5 +1,10 @@
 import BaseSeeder from '@ioc:Adonis/Lucid/Seeder'
 import Service from 'App/Models/Service'
+import { serviceImagesData } from './data'
+import Image from 'App/Models/Image'
+import File from 'App/Models/File'
+import Drive from '@ioc:Adonis/Core/Drive'
+import fs from 'fs'
 
 export default class ServiceSeeder extends BaseSeeder {
   public async run () {
@@ -7,46 +12,50 @@ export default class ServiceSeeder extends BaseSeeder {
       {
         label: 'Checkin/Checkout autonome',
         description: 'description',
-        image: 'https://supermanager-img.s3.amazonaws.com/forms/16317119059781.png',
       },
       {
         label: 'Ménage professionnel',
         description: 'description',
-        image: 'https://supermanager-img.s3.amazonaws.com/forms/1631711882769.png',
       },
       {
         label: 'Wifi FIBRE',
         description: 'description',
-        image: 'https://supermanager-img.s3.amazonaws.com/forms/16317118538936.png',
       },
       {
         label: 'Savon et Gel Douche',
         description: 'description',
-        image: 'https://supermanager-img.s3.amazonaws.com/forms/16317118070204.png',
       },
       {
         label: 'Literie de qualité',
         description: 'description',
-        image: 'https://supermanager-img.s3.amazonaws.com/forms/16317117791311.png',
       },
       {
         label: 'Cuisine équipée',
         description: 'description',
-        image: 'https://supermanager-img.s3.amazonaws.com/forms/16317117489567.png',
       },
       {
         label: 'Serviettes fournies',
         description: 'description',
-        image: 'https://supermanager-img.s3.amazonaws.com/forms/16317117296737.png',
       },
       {
         label: 'Café/Thé',
         description: 'description',
-        image: 'https://supermanager-img.s3.amazonaws.com/forms/16317116268495.png',
       },
     ])
     await Promise.all(
-      services.map(async (service) => {
+      services.map(async (service, index) => {
+        const i = serviceImagesData[index]
+        const file = await File.create({
+          name: i.file.data.name,
+          size: fs.statSync(`${__dirname}/assets${i.image}`).size,
+          extname: i.file.data.extname,
+        })
+        const image = await Image.create({
+          alt: i.data.alt,
+        })
+        await image.related('file').associate(file)
+        Drive.put(file.uuid + '.' + i.file.data.extname, fs.readFileSync(`${__dirname}/assets${i.image}`))
+        await service.related('image').associate(image)
         await service.related('spa').attach([1])
       })
     )

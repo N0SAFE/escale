@@ -1,4 +1,5 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Separator } from "@/components/ui/separator";
 import axios from "axios";
 
 type Faq = {
@@ -19,7 +20,12 @@ export default async function faq() {
                         {data.map((faq, index) => (
                             <AccordionItem key={index} value={`item-${index}`}>
                                 <AccordionTrigger>{faq.question}</AccordionTrigger>
-                                <AccordionContent>{faq.answer}</AccordionContent>
+                                <AccordionContent>
+                                    {<div className="flex flex-col gap-8 mb-8">
+                                        <Separator />
+                                        <span>{faq.answer}</span>
+                                    </div>}
+                                </AccordionContent>
                             </AccordionItem>
                         ))}
                     </Accordion>

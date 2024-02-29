@@ -9,7 +9,6 @@ process.on('SIGINT', function () {
   front.kill()
   process.exit(1)
 })
-
 ;(async () => {
   const env = await (async () => {
     const ngrockForward = await ngrok.connect()

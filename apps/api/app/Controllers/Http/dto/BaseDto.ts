@@ -27,12 +27,12 @@ export class BaseDto {
     }
 
     this.skipTransform = Reflect.getMetadata('skipTransform', this.constructor) || []
-    const skipTransformPorperties = this.skipTransform.map(function ({key}){
+    const skipTransformPorperties = this.skipTransform.map(function ({ key }) {
       return args[key]
     })
 
     Object.entries(args).forEach(([key, value]) => {
-      if (this.skipTransform.some((skip) => skip.key === key)){
+      if (this.skipTransform.some((skip) => skip.key === key)) {
         return
       }
       this[key] = value
@@ -40,7 +40,7 @@ export class BaseDto {
 
     const transform = this.transform()
     BaseDto.resetProperties(skipTransformPorperties, this.skipTransform, transform)
-    if (disableCustomTransform){
+    if (disableCustomTransform) {
       transform.customTransform = Promise.resolve(transform)
       return transform
     }

@@ -3,9 +3,12 @@ import type { NextRequest } from "next/server";
 
 // This function can be marked `async` if using `await` inside
 export async function middleware(request: NextRequest) {
+    if (request.nextUrl.pathname.startsWith("/_next")){
+        return NextResponse.next();
+    }
     if (process.env.NODE_ENV === "development") {
         try {
-            const res =(
+            const res = (
                 await fetch(process.env.NEXT_PUBLIC_API_URL + "/health", {
                     cache: "force-cache",
                     next: { revalidate: 100 }

@@ -1,37 +1,24 @@
 "use server";
 
-import axios from "axios";
+import { axiosInstance } from "@/utils/axiosInstance";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { cookies } from "next/headers";
-axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
+import { NextRequest, NextResponse } from "next/server";
 
-axios.interceptors.request.use(async (config) => {
-    const session = await getSession();
-    const token = session?.jwt?.token;
-    const refreshToken = session?.jwt?.refreshToken;
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-        config.headers.refresh_token = refreshToken;
-    }
-    return config;
-});
+export type Jwt = {
+    token?: string;
+    type?: string;
+    expires_at: string;
+    refreshToken?: string;
+};
 
-// if the request does not work with the token, try to use the refresh token to get a new token
-axios.interceptors.response.use(
-    (response) => {
-        return response;
-    },
-    async (error) => {
-        const originalRequest = error.config;
-        if (error.response?.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
-            await refreshToken();
-            if ((await getSession())?.isAuthenticated) {
-                return axios(originalRequest);
-            }
-        }
-        return Promise.reject(error);
-    }
-);
+export type User = {
+    email: string;
+    id: number;
+    roles: string[];
+    created_at: string;
+    updated_at: string;
+};
 
 export type Session =
     | {
@@ -39,51 +26,72 @@ export type Session =
           isAuthenticated: true;
           isGuest: false;
           isLoggedIn: true;
-          jwt: {
-              expires_at: string;
-              refreshToken: string;
-              token: string;
-              type: string;
-          };
-          user: {
-              email: string;
-              id: number;
-              roles: string[];
-              created_at: string;
-              updated_at: string;
-          };
+          jwt: Jwt;
+          user: User;
       }
     | {
           authenticationAttempted: true;
           isAuthenticated: false;
           isGuest: true;
           isLoggedIn: false;
-          jwt: null;
+          jwt: null | Jwt;
+          user: null;
       };
 
-async function setSession(session: Session): Promise<Session | null> {
+export async function setSession(session: Session): Promise<Session | null> {
+    const expiresAt = (() => {
+        if (session?.isAuthenticated) {
+            // console.log(session.jwt.expires_at)
+            return new Date(session.jwt.expires_at);
+        } else {
+            return new Date(0);
+        }
+    })();
+
+    // console.log("expiresAt", expiresAt);
+    // console.log(session)
+    // console.log(session?.jwt?.refreshToken)
+    // console.log(response) {
     const cookieStore = cookies();
     cookieStore.set("session", JSON.stringify(session), {
         path: "/",
         httpOnly: false,
         sameSite: "strict",
-        secure: process.env.NODE_ENV === "production"
+        secure: process.env.NODE_ENV === "production",
+        expires: expiresAt
     });
-    return session;
-}
-
-export async function updateSession(session: Session): Promise<Session | null> {
-    const cookieStore = cookies();
-    const oldSession = cookieStore.get("session")?.value;
-    if (!oldSession) return setSession(session);
-    const newSession = JSON.stringify({ ...JSON.parse(oldSession), ...session });
-    cookieStore.set("session", newSession, {
+    cookieStore.set(
+        "jwt",
+        JSON.stringify({
+            token: session?.jwt?.token,
+            type: session?.jwt?.type,
+            expires_at: session?.jwt?.expires_at
+        }) || "",
+        {
+            path: "/",
+            httpOnly: false,
+            sameSite: "strict",
+            secure: process.env.NODE_ENV === "production",
+            expires: expiresAt
+        }
+    );
+    cookieStore.set("refreshToken", session?.jwt?.refreshToken || "", {
         path: "/",
         httpOnly: false,
         sameSite: "strict",
         secure: process.env.NODE_ENV === "production"
     });
+
     return session;
+}
+
+async function getJwt(): Promise<Jwt | null> {
+    return (await getSession())?.jwt || null;
+}
+
+export async function updateSession(session: Partial<Session>): Promise<Session | null> {
+    const oldSession = await getSession();
+    return setSession({ ...oldSession, ...session } as Session);
 }
 
 export async function getSession(): Promise<Session | null> {
@@ -91,12 +99,35 @@ export async function getSession(): Promise<Session | null> {
 
     const cookieStore = cookies();
     const sessionString = cookieStore.get("session")?.value;
-    if (!sessionString) return null;
+    const jwtString = cookieStore.get("token")?.value;
+    const refreshTokenString = cookieStore.get("refreshToken")?.value;
+    if (!sessionString && !refreshTokenString) {
+        return null;
+    }
     try {
-        return JSON.parse(sessionString);
+        const session = sessionString
+            ? JSON.parse(sessionString)
+            : {
+                  authenticationAttempted: false,
+                  isAuthenticated: false,
+                  isGuest: true,
+                  isLoggedIn: false,
+                  jwt: null,
+                  user: null
+              };
+        const jwt = jwtString ? JSON.parse(jwtString) : {};
+        jwt.refreshToken = refreshTokenString;
+        session.jwt = jwt;
+        return session;
     } catch {
         return null;
     }
+}
+
+export async function getUser(): Promise<User | null> {
+    "use server";
+
+    return (await getSession())?.user || null;
 }
 
 export async function cookiesGetAll() {
@@ -105,50 +136,80 @@ export async function cookiesGetAll() {
     return cookies().getAll();
 }
 
-export async function refreshToken() {
+export async function refreshToken(retry?: boolean ): Promise<Session> {
     "use server";
 
-    return axios
-        .post(
-            "/refresh",
-            {},
-            {
-                withCredentials: true,
-                headers: {
-                    refresh_token: (await getSession())?.jwt?.refreshToken
-                }
-            }
-        )
+    console.log("refreshing token");
+    // console.log((await getSession())?.jwt?.refreshToken)
+
+    return axiosInstance
+        .post<any, AxiosResponse<any, { _retry: boolean }>>("/refresh", {}, {
+            withCredentials: true,
+            headers: {
+                refresh_token: (await getSession())?.jwt?.refreshToken
+            },
+            _retry: retry
+        } as any)
         .then(async (res) => {
-            return axios
+            // console.log(res)
+            const jwt = res.data;
+            // console.log("refreshToken", res.data);
+            return axiosInstance
                 .get<Session>("/whoami", {
                     withCredentials: true,
                     headers: {
                         Authorization: `Bearer ${res.data.token}`
                     }
                 })
-                .then((res) => {
-                    setSession(res.data);
-                    return res.data;
+                .then(async (res) => {
+                    // console.log(res)
+                    const session = {
+                        ...res.data,
+                        jwt: jwt
+                    };
+                    await setSession(session);
+                    return session;
                 });
+        })
+        .catch(async function (e) {
+            // console.log("refresh error")
+            // console.log(e) // ! i am here
+            await setSession(
+                {
+                    authenticationAttempted: true,
+                    isAuthenticated: false,
+                    isGuest: true,
+                    isLoggedIn: false,
+                    jwt: null,
+                    user: null
+                }
+            );
+            return {
+                authenticationAttempted: true,
+                isAuthenticated: false,
+                isGuest: true,
+                isLoggedIn: false,
+                jwt: null,
+                user: null
+            };
         });
 }
 
 export async function whoami(): Promise<Session> {
     "use server";
 
-    const token = (await getSession())?.jwt?.token;
-    const whoami = await axios
+    const jwt = (await getSession())?.jwt;
+    const whoami = await axiosInstance
         .get("/whoami", {
             withCredentials: true,
             headers: {
-                Authorization: token && `Bearer ${token}`
+                Authorization: (jwt as any)?.token && `Bearer ${(jwt as any).token}`
             }
         })
         .then((res) => res.data);
     const newSession = whoami;
     if (whoami.isAuthenticated) {
-        newSession.jwt = (await getSession())?.jwt;
+        newSession.jwt = jwt;
         setSession(newSession);
         return newSession;
     } else {
@@ -158,12 +219,10 @@ export async function whoami(): Promise<Session> {
     }
 }
 
-export async function login(email: string, password: string) {
+export async function login(email: string, password: string): Promise<Session | null> {
     "use server";
 
-    console.log(email, password);
-
-    return axios
+    return axiosInstance
         .post(
             "/login",
             {
@@ -174,7 +233,7 @@ export async function login(email: string, password: string) {
         )
         .then(async (res) => {
             const jwt = res.data;
-            return axios
+            return axiosInstance
                 .get<Session>("/whoami", {
                     withCredentials: true,
                     headers: {
@@ -186,31 +245,55 @@ export async function login(email: string, password: string) {
                         ...res.data,
                         jwt: jwt
                     };
+                    console.log(jwt);
+                    console.log(session);
                     setSession(session);
                     return session;
                 });
+        })
+        .catch((e) => {
+            return null;
         });
 }
 
 export async function logout() {
     "use server";
 
-    return axios.post("/logout", {}, { withCredentials: true }).then(async () => {
-        await setSession({
-            authenticationAttempted: true,
-            isAuthenticated: false,
-            isGuest: true,
-            isLoggedIn: false,
-            jwt: null
+    console.log("logout");
+
+    const token = (await getSession())?.jwt?.token;
+    console.log((await getSession()))
+    
+    return axiosInstance
+        .post(
+            "/logout",
+            {},
+            {
+                withCredentials: true,
+                headers: {
+                    Authorization: token && `Bearer ${token}`
+                }
+            }
+        )
+        .then(async () => {
+            console.log('logout successful')
+            await setSession({
+                authenticationAttempted: true,
+                isAuthenticated: false,
+                isGuest: true,
+                isLoggedIn: false,
+                jwt: null,
+                user: null
+            });
         });
-    });
 }
 
 export async function recreteJwt() {
     "use server";
 
-    return axios
-        .get("/recreate-jwt", { // todo
+    return axiosInstance
+        .get("/recreate-jwt", {
+            // todo
             withCredentials: true,
             headers: {
                 Authorization: `Bearer ${(await getSession())?.jwt?.token}`
@@ -218,7 +301,7 @@ export async function recreteJwt() {
         })
         .then(async (res) => {
             const jwt = res.data;
-            return axios
+            return axiosInstance
                 .get<Session>("/whoami", {
                     withCredentials: true,
                     headers: {
@@ -234,4 +317,11 @@ export async function recreteJwt() {
                     return session;
                 });
         });
+}
+
+export async function isLogin(session?: Session) {
+    if (session) {
+        return session?.isAuthenticated
+    }
+    return getSession()?.then((res) => res?.isAuthenticated);
 }

@@ -2,12 +2,17 @@ import { DateTime } from 'luxon'
 import {
   BaseModel,
   BelongsTo,
+  beforeFetch,
+  beforeFind,
   belongsTo,
   column,
 } from '@ioc:Adonis/Lucid/Orm'
 import File from './File'
 
 export default class Image extends BaseModel {
+  @column()
+  public image_id: number
+
   @column({ isPrimary: true })
   public id: number
 
@@ -25,4 +30,10 @@ export default class Image extends BaseModel {
 
   @belongsTo(() => File)
   public file: BelongsTo<typeof File>
+
+  @beforeFind()
+  @beforeFetch()
+  public static async preloadFile (query) {
+    query.preload('file')
+  }
 }

@@ -7,8 +7,8 @@ import Link from "next/link";
 
 type Props = {
     spa: {
-        google_maps_link: string;
         location: string;
+        google_maps_link: string;
         tags: {
             icon: string;
             label: string;
@@ -19,12 +19,14 @@ type Props = {
             image: string
         }[];
         id: number;
-        images: {
-            id: number,
-            created_at: string,
-            updated_at: string,
-            alt: string,
-            file_id: number
+        spaImages: {
+            image: {
+                id: number,
+                created_at: string,
+                updated_at: string,
+                alt: string,
+                file_id: number
+            }
         }[];
         title: string;
         description: string;

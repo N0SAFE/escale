@@ -7,7 +7,7 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "concurrently -c blue,green,red -n api,front,admin \"npm run dev:api\" \"npm run dev:front\" \"npm run dev:admin\"",
+    "dev": "concurrently -c blue,green,red -n api,front,admin \"npm run dev:api\" \"delay 2 && npm run dev:front\" \"delay 2 && npm run dev:admin\"",
     "build": "npm ci && node ./build",
     "build:ngrok": "npm ci && node ./build -n",
     "start": "concurrently -c blue,green,red -n api,front,admin \"npm run start:api\" \"npm run start:front\" \"npm run start:admin\"",
@@ -35,7 +35,8 @@
   "dependencies": {
     "commander": "^12.0.0",
     "concurrently": "^8.2.2",
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "delay-cli": "^2.0.0"
   },
   "devDependencies": {
     "ngrok": "^5.0.0-beta.2"

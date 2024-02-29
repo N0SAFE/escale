@@ -54,8 +54,7 @@ export class ImageRessourcePostDto extends BaseDto {
   }
 }
 
-export class ImageRessourcePostBodyDtoAfter
-implements AsSameProperties<ImageRessourcePostBodyDto> {
+export class ImageRessourcePostBodyDtoAfter implements AsSameProperties<ImageRessourcePostBodyDto> {
   public alt: string
 }
 

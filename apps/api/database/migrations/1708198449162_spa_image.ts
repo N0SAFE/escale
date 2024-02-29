@@ -1,7 +1,7 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 
 export default class extends BaseSchema {
-  protected tableName = 'image_spa'
+  protected tableName = 'spa_image'
 
   public async up () {
     this.schema.createTable(this.tableName, (table) => {
@@ -14,6 +14,7 @@ export default class extends BaseSchema {
       table.timestamp('updated_at', { useTz: true })
       table.integer('spa_id').unsigned().references('id').inTable('spas').onDelete('CASCADE')
       table.integer('image_id').unsigned().references('id').inTable('images').onDelete('CASCADE')
+      table.integer('order').notNullable().defaultTo(0)
       table.unique(['spa_id', 'image_id'])
     })
   }

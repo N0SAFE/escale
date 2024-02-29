@@ -96,7 +96,7 @@ export default function Home() {
                 <Input type="color" onChange={(e) => setColor(e.target.value)} />
             </div>
             <section>
-                <Image src="/lit.jpeg" alt="Picture of the author" className="object-cover h-[800px]" width={1980} height={1080} />
+                <Image src="/20240212_192351.jpg" alt="Picture of the author" className="object-cover h-[600px]" width={1980} height={1080} />
             </section>
             <section className="py-24 px-4 text-3xl leading-6 text-center md:p-24">
                 <p>Venez découvrir notre Maison avec spa privatif à seulement 40 minutes de Paris. Séjour idéal pour passer un moment de détente en amoureux ou entre amis</p>
