@@ -3,7 +3,6 @@ import Database from '@ioc:Adonis/Lucid/Database'
 import User from 'App/Models/User'
 import AuthLoginDto from './dto/AuthDto/Login'
 import AuthRegisterDto from './dto/AuthDto/Register'
-import { headers } from 'next/headers';
 
 export default class AuthController {
   public async login ({ request, auth, response }: HttpContextContract) {

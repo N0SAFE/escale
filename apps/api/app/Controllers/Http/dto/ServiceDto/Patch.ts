@@ -1,4 +1,4 @@
-import { IsDefined, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator'
+import { IsDefined, IsNumber, IsObject, IsOptional, ValidateNested } from 'class-validator'
 import { Exclude, Transform, Type } from 'class-transformer'
 import { AsSameProperties } from '../type/AsSameProperties'
 import { RequestContract } from '@ioc:Adonis/Core/Request'
