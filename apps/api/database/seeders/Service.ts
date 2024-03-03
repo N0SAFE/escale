@@ -54,7 +54,10 @@ export default class ServiceSeeder extends BaseSeeder {
           alt: i.data.alt,
         })
         await image.related('file').associate(file)
-        Drive.put(file.uuid + '.' + i.file.data.extname, fs.readFileSync(`${__dirname}/assets${i.image}`))
+        Drive.put(
+          file.uuid + '.' + i.file.data.extname,
+          fs.readFileSync(`${__dirname}/assets${i.image}`)
+        )
         await service.related('image').associate(image)
         await service.related('spa').attach([1])
       })

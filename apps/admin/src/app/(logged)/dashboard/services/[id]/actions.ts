@@ -1,18 +1,23 @@
-"use server"
+"use server";
 
-import { axiosInstance } from "@/utils/axiosInstance"
-import { Service } from "../actions"
-
-export type MutatedService = Partial<Omit<Service, "id">>
+import { MutatedService } from "@/types/index";
+import { axiosInstance } from "@/utils/axiosInstance";
 
 export async function updateService(id: number, data?: MutatedService) {
-    "use server"
-    
-    if (!data) {
-        return
-    }
-    await axiosInstance.patch(`/services/${id}`, data).catch(function(e) {
-        console.log(e)
-        throw e
-    })
+  "use server";
+
+  if (!data) {
+    return;
+  }
+  const transformedData = {
+    label: data.label,
+    description: data.description,
+    image: data.image?.id,
+  };
+  await axiosInstance
+    .patch(`/services/${id}`, transformedData)
+    .catch(function (e) {
+      console.log(e);
+      throw e;
+    });
 }

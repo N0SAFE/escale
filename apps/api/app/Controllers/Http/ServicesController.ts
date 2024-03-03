@@ -1,6 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Service from 'App/Models/Service'
 import { ServiceRessourcePatchDto } from './dto/ServiceDto/Patch'
+import Image from 'App/Models/Image'
 
 export default class ServicesController {
   public async index ({}: HttpContextContract) {
@@ -20,7 +21,6 @@ export default class ServicesController {
   public async update ({ request, response }: HttpContextContract) {
     const dto = ServiceRessourcePatchDto.fromRequest(request)
     const error = await dto.validate()
-    console.log(error)
     if (error.length > 0) {
       return response.badRequest(error)
     }
@@ -28,10 +28,17 @@ export default class ServicesController {
     const { body, params } = await dto.after.customTransform
 
     const service = params.id
-    service.merge(body)
-    await service.save()
+    service.merge(body, true)
+    if (body.image) {
+      await service.related('image').associate(await Image.findOrFail(body.image))
+    } else {
+      if (body.image === null) {
+        await service.related('image').dissociate()
+      }
+    }
 
-    console.log(service)
+    await service.load('image')
+    await service.save()
 
     return response.ok(service)
   }

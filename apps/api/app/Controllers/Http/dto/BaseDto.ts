@@ -131,16 +131,16 @@ export class BaseDto {
 
       if (nestedProperties.length > 0) {
         return Promise.all(
-          nestedProperties.map((metadata) => {
+          nestedProperties?.map((metadata) => {
             const property = metadata.propertyName
             const value = target[property]
             const each = metadata.each
             if (each) {
-              return Promise.all(value.map((item) => rec(item)))
+              return Promise.all(value?.map((item) => rec(item)) || [])
             } else {
               return rec(value)
             }
-          })
+          }) || []
         )
       }
 

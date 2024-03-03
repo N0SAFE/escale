@@ -11,7 +11,8 @@ export default class RuleSeeder extends BaseSeeder {
         rule: 'Merci d\'enlever vos chaussures lorsque vous entrez dans la suite',
       },
       {
-        rule: 'Merci de ne pas fumer, vapoter dans la suite ( y compris la chicha) une terrasse est à votre disposition pour cela',
+        rule: `Merci de ne pas fumer, vapoter dans la suite ( y compris la chicha)
+une terrasse est à votre disposition pour cela`,
       },
       {
         rule: 'La douche est obligatoire avant l\'utilisation du spa',

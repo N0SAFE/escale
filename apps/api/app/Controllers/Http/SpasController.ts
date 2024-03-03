@@ -8,6 +8,7 @@ import { SpaImageRessourcePostDto } from './dto/SpaDto/ImageDto/Post'
 import SpaImage from 'App/Models/SpaImage'
 import { SpaImageRessourceSortDto } from './dto/SpaDto/ImageDto/Sort'
 import { SpaImageRessourceDeleteDto } from './dto/SpaDto/ImageDto/Delete'
+import { SpaRessourcePatchDto } from './dto/SpaDto/Patch'
 
 export default class SpasController {
   public async index ({ response }: HttpContextContract) {
@@ -44,7 +45,35 @@ export default class SpasController {
 
   public async edit ({}: HttpContextContract) {}
 
-  public async update ({}: HttpContextContract) {}
+  public async update ({ request, response }: HttpContextContract) {
+    const dto = SpaRessourcePatchDto.fromRequest(request)
+    const error = await dto.validate()
+    if (error.length > 0) {
+      return response.badRequest(error)
+    }
+
+    const { body, params } = await dto.after.customTransform
+
+    const spa = params.id
+    spa.merge(body, true)
+    console.log(body)
+    if (body.spaImages) {
+      await spa.spaImages.map(async (spaImage) => {
+        await spaImage.delete()
+      })
+      await spa.related('spaImages').saveMany(
+        await Promise.all(
+          body.spaImages.map(async (spaImage) => {
+            const s = await spa.related('spaImages').create({
+              order: spaImage.order,
+            })
+            await s.related('image').associate(await Image.findOrFail(spaImage.image))
+            return s
+          })
+        )
+      )
+    }
+  }
 
   public async destroy ({}: HttpContextContract) {}
 

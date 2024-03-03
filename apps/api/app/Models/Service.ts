@@ -1,5 +1,14 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, ManyToMany, beforeFetch, belongsTo, column, manyToMany } from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  BelongsTo,
+  ManyToMany,
+  beforeFetch,
+  beforeFind,
+  belongsTo,
+  column,
+  manyToMany,
+} from '@ioc:Adonis/Lucid/Orm'
 import Spa from './Spa'
 import Image from './Image'
 
@@ -30,6 +39,7 @@ export default class Service extends BaseModel {
   @belongsTo(() => Image)
   public image: BelongsTo<typeof Image>
 
+  @beforeFind()
   @beforeFetch()
   public static async preloadImage (query) {
     query.preload('image')

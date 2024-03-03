@@ -14,6 +14,12 @@ export class ServiceRessourcePatchBodyDto {
 
   @IsOptional()
   public description?: string
+
+  @IsOptional()
+  @EntityExist(Service, {
+    nullable: true,
+  })
+  public image?: number | null
 }
 
 export class ServiceRessourcePatchQueryDto {}
@@ -60,7 +66,12 @@ export class ServiceRessourcePatchDto extends BaseDto {
   }
 
   public static fromRequest (request: RequestContract) {
-    return new this({ body: request.body(), query: request.qs(), params: request.params(), files: request.allFiles() })
+    return new this({
+      body: request.body(),
+      query: request.qs(),
+      params: request.params(),
+      files: request.allFiles(),
+    })
   }
 }
 
@@ -68,6 +79,7 @@ export class ServiceRessourcePatchBodyDtoAfter
 implements AsSameProperties<ServiceRessourcePatchBodyDto> {
   public label?: string
   public description?: string
+  public image?: number | null
 }
 
 export class ServiceRessourcePatchQueryDtoAfter

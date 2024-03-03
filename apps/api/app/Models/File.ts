@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import { BaseModel, beforeCreate, column, computed } from '@ioc:Adonis/Lucid/Orm'
-import { v4 as uuid } from 'uuid';
+import { v4 as uuid } from 'uuid'
 
 export default class File extends BaseModel {
   @column({ isPrimary: true })

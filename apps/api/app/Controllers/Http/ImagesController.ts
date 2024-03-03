@@ -4,6 +4,8 @@ import Application from '@ioc:Adonis/Core/Application'
 import { ImageRessourcePostDto } from './dto/ImageDto/Post'
 import File from 'App/Models/File'
 import { v4 as uuid } from 'uuid'
+import { ImageRessourceGetDto } from './dto/ImageDto/Get'
+import { ImageRessourcePatchDto } from './dto/ImageDto/Patch'
 
 export default class ImagesController {
   public async index ({}: HttpContextContract) {
@@ -12,19 +14,17 @@ export default class ImagesController {
 
   public async create ({}: HttpContextContract) {}
 
-  public async store ({ request }: HttpContextContract) {
+  public async store ({ request, response }: HttpContextContract) {
     const dto = ImageRessourcePostDto.fromRequest(request)
 
     const error = await dto.validate()
     if (error.length > 0) {
-      return error
+      return response.badRequest(error)
     }
 
     const { files, body } = dto
 
     const u = uuid()
-
-    console.log(u)
 
     await files.image.move(Application.tmpPath('uploads'), {
       name: u + '.' + files.image.extname,
@@ -41,14 +41,37 @@ export default class ImagesController {
     await image.related('file').associate(file)
     await image.load('file')
 
-    return image
+    return response.ok(image)
   }
 
-  public async show ({}: HttpContextContract) {}
+  public async show ({ request, response }: HttpContextContract) {
+    const dto = ImageRessourceGetDto.fromRequest(request)
+    const error = await dto.validate()
+    if (error.length > 0) {
+      return response.badRequest(error)
+    }
+
+    const { params } = await dto.after.customTransform
+    return response.ok(params.id)
+  }
 
   public async edit ({}: HttpContextContract) {}
 
-  public async update ({}: HttpContextContract) {}
+  public async update ({ request, response }: HttpContextContract) {
+    const dto = ImageRessourcePatchDto.fromRequest(request)
+    const error = await dto.validate()
+    if (error.length > 0) {
+      return response.badRequest(error)
+    }
+
+    const { params, body } = await dto.after.customTransform
+    const image = params.id
+
+    await image.merge(body, true).save()
+    image.file?.merge(body, true).save()
+    await image.load('file')
+    return response.ok(image)
+  }
 
   public async destroy ({}: HttpContextContract) {}
 }

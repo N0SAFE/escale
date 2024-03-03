@@ -335,25 +335,34 @@ export function entityExistDecoratorTemplate () {
   return `import { registerDecorator, ValidatorConstraint, ValidationArguments } from 'class-validator'
 import { BaseModel } from '@ioc:Adonis/Lucid/Orm'
 
+type CustomOptions = {
+  each?: boolean
+  nullable?: boolean
+}
+
+type CustomOptionsConstraint = {
+  nullable: boolean
+}
+
 @ValidatorConstraint({ async: true })
 export class EntityExistConstraint {
-  public async validate(value: number | number[], args: ValidationArguments) {
-    const [relatedModel] = args.constraints
-    if (!Array.isArray(value)) {
-      value = [value]
+  public async validate (value: number, args: ValidationArguments) {
+    const [relatedModel, options] = args.constraints as [typeof BaseModel, CustomOptionsConstraint]
+    if (options.nullable && value === null) {
+      return true
     }
-    const relatedModelInstance = await relatedModel.findMany(value)
-    return relatedModelInstance.length === value.length
+    const relatedModelInstance = await relatedModel.find(value)
+    return relatedModelInstance !== null
   }
 }
 
-export function EntityExist(model: typeof BaseModel) {
+export function EntityExist (model: typeof BaseModel, options?: CustomOptions) {
   return function (object: Object, propertyName: string) {
     registerDecorator({
       name: 'entityExist',
       target: object.constructor,
       propertyName: propertyName,
-      constraints: [model],
+      constraints: [model, {nullable: options?.nullable ?? false}],
       options: {
         message: (validationArguments) => {
           if (!Array.isArray(validationArguments.value)) {
@@ -363,6 +372,7 @@ export function EntityExist(model: typeof BaseModel) {
             ', '
           )}] does not exist\`
         },
+        each: options?.each ?? false,
       },
       validator: EntityExistConstraint,
     })

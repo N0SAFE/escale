@@ -1,22 +1,34 @@
 import { registerDecorator, ValidatorConstraint, ValidationArguments } from 'class-validator'
 import { BaseModel } from '@ioc:Adonis/Lucid/Orm'
 
+type CustomOptions = {
+  each?: boolean
+  nullable?: boolean
+}
+
+type CustomOptionsConstraint = {
+  nullable: boolean
+}
+
 @ValidatorConstraint({ async: true })
 export class EntityExistConstraint {
   public async validate (value: number, args: ValidationArguments) {
-    const [relatedModel] = args.constraints as [typeof BaseModel]
+    const [relatedModel, options] = args.constraints as [typeof BaseModel, CustomOptionsConstraint]
+    if (options.nullable && value === null) {
+      return true
+    }
     const relatedModelInstance = await relatedModel.find(value)
     return relatedModelInstance !== null
   }
 }
 
-export function EntityExist (model: typeof BaseModel, options?: { each?: boolean }) {
+export function EntityExist (model: typeof BaseModel, options?: CustomOptions) {
   return function (object: Object, propertyName: string) {
     registerDecorator({
       name: 'entityExist',
       target: object.constructor,
       propertyName: propertyName,
-      constraints: [model],
+      constraints: [model, { nullable: options?.nullable ?? false }],
       options: {
         message: (validationArguments) => {
           if (!Array.isArray(validationArguments.value)) {

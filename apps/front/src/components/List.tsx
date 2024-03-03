@@ -4,15 +4,17 @@
  */
 
 type ListProps = {
-  items: string[]
-}
+  items: string[];
+};
 
 export function List({ items }: ListProps) {
-    return (
-        <div className="mx-auto p-6">
-            <ul className="list-none pl-5 space-y-2">
-                {items.map((item, key) => <li key={key}>- {item}</li>)}
-            </ul>
-        </div>
-    );
+  return (
+    <div className="mx-auto p-6">
+      <ul className="list-none pl-5 space-y-2">
+        {items.map((item, key) => (
+          <li key={key}>- {item}</li>
+        ))}
+      </ul>
+    </div>
+  );
 }

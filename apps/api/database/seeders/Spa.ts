@@ -24,7 +24,9 @@ export default class SpaSeeder extends BaseSeeder {
       const image = await Image.create({
         alt: i.data.alt,
       })
-      const spaImage = await spa.related('spaImages').create({})
+      const spaImage = await spa.related('spaImages').create({
+        order: index + 1,
+      })
       await spaImage.related('image').associate(image)
       const file = await File.create({
         name: i.file.data.name,
@@ -32,7 +34,10 @@ export default class SpaSeeder extends BaseSeeder {
         extname: i.file.data.extname,
       })
       await image.related('file').associate(file)
-      Drive.put(file.uuid + '.' + i.file.data.extname, fs.readFileSync(`${__dirname}/assets${i.image}`))
+      Drive.put(
+        file.uuid + '.' + i.file.data.extname,
+        fs.readFileSync(`${__dirname}/assets${i.image}`)
+      )
     }
 
     // images.forEach(async (i, index) => {

@@ -55,17 +55,6 @@ export default class SpaImage extends BaseModel {
   //   // }
   // }
 
-  @beforeCreate()
-  public static async setOrder (spaImage: SpaImage) {
-    const count = await SpaImage.query().where('spa_id', spaImage.spaId).max('order')
-    if (count[0]['$extras']['max(`order`)'] === null) {
-      spaImage.order = 1
-      return
-    } else {
-      spaImage.order = count[0]['$extras']['max(`order`)'] + 1
-    }
-  }
-
   @beforeFetch()
   public static async preloadImage (query) {
     query.orderBy('order', 'asc').preload('image')
