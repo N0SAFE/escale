@@ -12,10 +12,10 @@ export default class extends BaseSchema {
        */
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
-      table.timestamp('start_at', { useTz: true })
-      table.timestamp('end_at', { useTz: true })
       table.integer('spa_id').unsigned().references('id').inTable('spas').onDelete('CASCADE')
       table.integer('user_id').unsigned().references('id').inTable('users').onDelete('CASCADE')
+      table.date('start_at').notNullable()
+      table.date('end_at').notNullable()
       table.string('email').nullable()
     })
   }

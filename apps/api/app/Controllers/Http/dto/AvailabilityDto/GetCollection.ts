@@ -1,12 +1,61 @@
-import { IsDefined, IsObject, ValidateNested } from 'class-validator'
-import { BaseDto } from '../BaseDto'
-import { Type } from 'class-transformer'
+import {
+  IsDateString,
+  IsDefined,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  ValidateNested,
+  ValidationArguments,
+} from 'class-validator'
+import { Exclude, Transform, Type } from 'class-transformer'
 import { AsSameProperties } from '../type/AsSameProperties'
+import { RequestContract } from '@ioc:Adonis/Core/Request'
+import { BaseDto } from '../BaseDto'
+import { SkipTransform } from '../Decorator/SkipTransform'
+import { PropertyExist } from '../Decorator/PropertyExist'
+import { Custom } from '../Decorator/Custom'
+import { DateTime } from 'luxon'
+
+function checkDateIsAfter (date1: string, args: ValidationArguments) {
+  const [relatedPropertyName] = args.constraints
+  const self = args.object
+  const date2 = self[relatedPropertyName]
+  return DateTime.fromISO(date1).toMillis() <= DateTime.fromISO(date2).toMillis()
+}
 
 export class AvailabilityRessourceGetCollectionBodyDto {}
 
-export class AvailabilityRessourceGetCollectionQueryDto {}
+export class AvailabilityRessourceGetCollectionQueryDto {
+  @IsDateString()
+  @IsOptional()
+  @PropertyExist('endAt')
+  @Custom('endAt', {
+    function: checkDateIsAfter,
+    message: 'startAt must be before endAt',
+  })
+  public startAt?: string
 
+  @IsDateString()
+  @IsOptional()
+  @PropertyExist('startAt')
+  public endAt?: string
+
+  @IsNumber()
+  @IsOptional()
+  public page?: number
+
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  public limit?: number
+}
+
+export class AvailabilityRessourceGetCollectionParamsDto {}
+
+@Exclude()
+export class AvailabilityRessourceGetCollectionFilesDto {}
+
+@SkipTransform([['files', AvailabilityRessourceGetCollectionFilesDto]])
 export class AvailabilityRessourceGetCollectionDto extends BaseDto {
   @IsDefined()
   @IsObject()
@@ -20,9 +69,29 @@ export class AvailabilityRessourceGetCollectionDto extends BaseDto {
   @Type(() => AvailabilityRessourceGetCollectionQueryDto)
   public query: AvailabilityRessourceGetCollectionQueryDto
 
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => AvailabilityRessourceGetCollectionParamsDto)
+  public params: AvailabilityRessourceGetCollectionParamsDto
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => AvailabilityRessourceGetCollectionFilesDto)
+  public files: AvailabilityRessourceGetCollectionFilesDto
+
   public get after () {
-    const dto = new AvailabilityRessourceGetCollectionDtoAfter(this)
-    return dto.transform({ groups: ['after'] })
+    return new AvailabilityRessourceGetCollectionDtoAfter(this)
+  }
+
+  public static fromRequest (request: RequestContract) {
+    return new this({
+      body: request.body(),
+      query: request.qs(),
+      params: request.params(),
+      files: request.allFiles(),
+    })
   }
 }
 
@@ -30,9 +99,28 @@ export class AvailabilityRessourceGetCollectionBodyDtoAfter
 implements AsSameProperties<AvailabilityRessourceGetCollectionBodyDto> {}
 
 export class AvailabilityRessourceGetCollectionQueryDtoAfter
-implements AsSameProperties<AvailabilityRessourceGetCollectionQueryDto> {}
+implements AsSameProperties<AvailabilityRessourceGetCollectionQueryDto> {
+  @Transform(({ value }) => DateTime.fromISO(value))
+  public startAt?: DateTime
 
-export class AvailabilityRessourceGetCollectionDtoAfter extends BaseDto {
+  @Transform(({ value }) => DateTime.fromISO(value))
+  public endAt?: DateTime
+
+  public page?: number
+  public limit?: number
+}
+
+export class AvailabilityRessourceGetCollectionParamsDtoAfter
+implements AsSameProperties<AvailabilityRessourceGetCollectionParamsDto> {}
+
+@Exclude()
+export class AvailabilityRessourceGetCollectionFilesDtoAfter
+implements AsSameProperties<AvailabilityRessourceGetCollectionFilesDto> {}
+
+@SkipTransform([['files', AvailabilityRessourceGetCollectionFilesDtoAfter]])
+export class AvailabilityRessourceGetCollectionDtoAfter
+  extends BaseDto
+  implements AsSameProperties<Omit<AvailabilityRessourceGetCollectionDto, 'after'>> {
   @IsDefined()
   @IsObject()
   @ValidateNested()
@@ -44,4 +132,16 @@ export class AvailabilityRessourceGetCollectionDtoAfter extends BaseDto {
   @ValidateNested()
   @Type(() => AvailabilityRessourceGetCollectionQueryDtoAfter)
   public query: AvailabilityRessourceGetCollectionQueryDtoAfter
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => AvailabilityRessourceGetCollectionParamsDtoAfter)
+  public params: AvailabilityRessourceGetCollectionParamsDtoAfter
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => AvailabilityRessourceGetCollectionFilesDtoAfter)
+  public files: AvailabilityRessourceGetCollectionFilesDtoAfter
 }

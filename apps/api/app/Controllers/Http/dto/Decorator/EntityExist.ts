@@ -17,6 +17,9 @@ export class EntityExistConstraint {
     if (options.nullable && value === null) {
       return true
     }
+    if (!value) {
+      return false
+    }
     const relatedModelInstance = await relatedModel.find(value)
     return relatedModelInstance !== null
   }

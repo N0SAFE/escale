@@ -34,7 +34,7 @@ export default class AuthController {
       } else {
         response.clearCookie('refresh_token')
       }
-      console.log(jwt.refreshToken)
+      // console.log(jwt.refreshToken)
       return response.ok({ ...jwt.toJSON(), success: true })
     } catch (error) {
       if (
@@ -56,11 +56,11 @@ export default class AuthController {
     }
   }
 
-  public async logout ({ auth, response, request }: HttpContextContract) {
+  public async logout ({ auth, response }: HttpContextContract) {
     response.clearCookie('access_token')
     response.clearCookie('refresh_token')
-    console.log(request.headers())
-    console.log(auth.use('jwt').user)
+    // console.log(request.headers())
+    // console.log(auth.use('jwt').user)
     if (!auth.use('jwt').user) {
       return response.unauthorized({ message: 'no credentials provided', success: false })
     }
@@ -118,10 +118,10 @@ export default class AuthController {
     if (!refreshToken) {
       return response.unauthorized({ message: 'no refresh token provided', success: false })
     }
-    console.log(refreshToken)
+    // console.log(refreshToken)
     try {
       const jwt = await auth.use('jwt').loginViaRefreshToken(refreshToken)
-      console.log('io')
+      // console.log('io')
       response.cookie('access_token', jwt.accessToken, {
         httpOnly: true,
         path: '/',
@@ -136,7 +136,7 @@ export default class AuthController {
       })
       return response.ok({ ...jwt.toJSON(), success: true })
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       return response.unauthorized({ message: 'invalid refresh token', success: false })
     }
   }
@@ -149,7 +149,7 @@ export default class AuthController {
         ...auth.use('jwt').toJSON(),
       })
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       return response.ok({
         user: auth.use('jwt').user,
         payload: auth.use('jwt').payload,

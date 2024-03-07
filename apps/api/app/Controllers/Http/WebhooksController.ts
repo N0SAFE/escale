@@ -1,5 +1,4 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Reservation from 'App/Models/Reservation'
 import Spa from 'App/Models/Spa'
 import { DateTime } from 'luxon'
 
@@ -22,17 +21,14 @@ export default class WebhooksController {
 
   public async handleSuceessPayment (body: any) {
     const paymentIntent = body.data.object
-    const { type, spaId } = paymentIntent.metadata
-    if (type === 'night') {
-      const spa = await Spa.findOrFail(spaId)
-      const reservation = await Reservation.create({
-        email: 'email', // @flag add email to the stripe session
-      })
-      await reservation.related('nightReservation').create({
-        date: DateTime.fromISO(body.data.object.metadata.date),
-      })
-      await reservation.related('spa').associate(spa)
-      console.log('Night reservation created')
-    }
+    const { spaId, startAt, endAt } = paymentIntent.metadata
+    const spa = await Spa.findOrFail(spaId)
+    console.log(paymentIntent.metadata)
+    await spa.related('reservations').create({
+      email: 'email', // @flag add email to the stripe session
+      startAt: DateTime.fromISO(startAt),
+      endAt: DateTime.fromISO(endAt),
+    })
+    console.log('reservation created')
   }
 }

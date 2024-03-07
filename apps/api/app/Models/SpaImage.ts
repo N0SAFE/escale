@@ -1,12 +1,5 @@
 import { DateTime } from 'luxon'
-import {
-  BaseModel,
-  BelongsTo,
-  beforeCreate,
-  beforeFetch,
-  belongsTo,
-  column,
-} from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, beforeFetch, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import Spa from './Spa'
 import Image from './Image'
 

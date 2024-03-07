@@ -1,7 +1,7 @@
-"use server";
+'use server'
 
-import { redirect } from "next/navigation";
+import { redirect } from 'next/navigation'
 
-export async function navigate(data: FormData) {
-  redirect(`/posts/${data.get("id")}`);
+export const navigate: typeof redirect = (...args) => {
+    redirect(...args)
 }

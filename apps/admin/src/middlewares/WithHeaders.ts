@@ -1,12 +1,12 @@
-import { NextFetchEvent, NextMiddleware, NextRequest } from "next/server";
-import { MiddlewareFactory } from "./types";
+import { NextFetchEvent, NextMiddleware, NextRequest } from 'next/server'
+import { MiddlewareFactory } from './types'
 
 export const withHeaders: MiddlewareFactory = (next: NextMiddleware) => {
-  return async (request: NextRequest, _next: NextFetchEvent) => {
-    const res = await next(request, _next);
-    if (res) {
-      res.headers.set("x-pathname", request.nextUrl.pathname);
+    return async (request: NextRequest, _next: NextFetchEvent) => {
+        const res = await next(request, _next)
+        if (res) {
+            res.headers.set('x-pathname', request.nextUrl.pathname)
+        }
+        return res
     }
-    return res;
-  };
-};
+}

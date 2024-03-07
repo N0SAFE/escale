@@ -2,14 +2,14 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import stripe from '@ioc:Stripe'
 import { inject } from '@adonisjs/fold'
 import ReservationService from 'App/Service/ReservationService'
-import { CheckoutSessionRessourceDayOrNightSpaDto } from './dto/CheckoutSessionDto/DayOrNightSpa'
+import { CheckoutSessionRessourceReservationDto } from './dto/CheckoutSessionDto/Reservation'
 
 @inject()
 export default class CheckoutSessionsController {
   constructor (protected reservationService: ReservationService) {}
 
   public async dayOrNightSpa ({ request, response }: HttpContextContract) {
-    const dto = new CheckoutSessionRessourceDayOrNightSpaDto({
+    const dto = new CheckoutSessionRessourceReservationDto({
       body: request.body(),
       query: request.qs(),
     })
@@ -19,29 +19,23 @@ export default class CheckoutSessionsController {
       return response.badRequest(error)
     }
 
-    const { body, query } = await dto.after.customTransform
+    const { body } = await dto.after.customTransform
+
+    const { price } = await this.reservationService.calculatePrice(
+      body.spa,
+      body.startAt,
+      body.endAt
+    )
+
+    console.log(body.startAt, body.endAt)
 
     try {
-      const res = await this.reservationService.getReservationByDate(body.date, body.spa)
-
-      console.log(res)
-
-      if (res) {
-        return response.badRequest({ message: 'this day is already reserved' })
-      }
-
-      const availability = await this.reservationService.getAvailabilitieByDate(body.date, body.spa)
-
-      if (!availability) {
-        return response.badRequest({ message: 'this day is not available' })
-      }
-
       const session = await stripe.checkout.sessions.create({
         payment_intent_data: {
           metadata: {
             spaId: body.spa.id,
-            date: body.date.toISO(),
-            type: query.type,
+            startAt: body.startAt.toISO(),
+            endAt: body.endAt.toISO(),
           },
         },
         payment_method_types: ['card', 'paypal'],
@@ -54,7 +48,7 @@ export default class CheckoutSessionsController {
               },
               // unit_amount: query.type === 'day' ? availability.dayPrice : availability.nightPrice,
               // @flag enable night and journey
-              unit_amount: availability.nightPrice,
+              unit_amount: price,
             },
             quantity: 1,
           },
@@ -65,7 +59,6 @@ export default class CheckoutSessionsController {
       })
       return response.ok({ url: session.url })
     } catch (error) {
-      console.log(error)
       return response.badRequest({ message: 'an error occured' })
     }
   }

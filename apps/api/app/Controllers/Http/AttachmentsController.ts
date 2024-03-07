@@ -9,8 +9,8 @@ export default class AttachmentsController {
     const image = await Image.findOrFail(id)
     await image.load('file')
     // console.log(Application.appRoot + image.file.path)
-    console.log(image.file.path)
-    console.log(await Drive.exists(image.file.path))
+    // console.log(image.file.path)
+    // console.log(await Drive.exists(image.file.path))
     if (!(await Drive.exists(image.file.path))) {
       return response.status(404).send('Image not found')
     }

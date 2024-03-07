@@ -1,9 +1,37 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { AvailabilityRessourcePostDto } from './dto/AvailabilityDto/Post'
 import Availability from 'App/Models/Availability'
+import { AvailabilityRessourceGetCollectionDto } from './dto/AvailabilityDto/GetCollection'
 
 export default class AvailabilitiesController {
-  public async index ({}: HttpContextContract) {}
+  public async index ({ response, request }: HttpContextContract) {
+    const dto = AvailabilityRessourceGetCollectionDto.fromRequest(request)
+
+    const error = await dto.validate()
+    if (error.length > 0) {
+      return response.badRequest(error)
+    }
+
+    const { query } = await dto.after.customTransform
+
+    const availabilityQuery = Availability.query()
+
+    if (query?.startAt) {
+      availabilityQuery.where('start_at', '>=', query.startAt.toSQLDate()!)
+    }
+
+    if (query?.endAt) {
+      availabilityQuery.where('end_at', '<=', query.endAt.toSQLDate()!)
+    }
+
+    if (query?.page || query?.limit) {
+      availabilityQuery.paginate(query?.page || 1, query?.limit || 10)
+    }
+
+    const reservations = await availabilityQuery.exec()
+
+    return response.ok(reservations)
+  }
 
   public async create ({}: HttpContextContract) {}
 

@@ -3,9 +3,9 @@ import Image from 'App/Models/Image'
 import Application from '@ioc:Adonis/Core/Application'
 import { ImageRessourcePostDto } from './dto/ImageDto/Post'
 import File from 'App/Models/File'
-import { v4 as uuid } from 'uuid'
 import { ImageRessourceGetDto } from './dto/ImageDto/Get'
 import { ImageRessourcePatchDto } from './dto/ImageDto/Patch'
+import { ImageRessourceDeleteDto } from './dto/ImageDto/Delete'
 
 export default class ImagesController {
   public async index ({}: HttpContextContract) {
@@ -24,17 +24,14 @@ export default class ImagesController {
 
     const { files, body } = dto
 
-    const u = uuid()
-
-    await files.image.move(Application.tmpPath('uploads'), {
-      name: u + '.' + files.image.extname,
+    const file = await File.create({
+      name: body.name || files.image.clientName,
+      size: files.image.size,
+      extname: files.image.extname,
     })
 
-    const file = await File.create({
-      name: files.image.clientName,
-      size: files.image.size,
-      uuid: u,
-      extname: files.image.extname,
+    await files.image.move(Application.tmpPath('uploads'), {
+      name: file.uuid + '.' + file.extname,
     })
 
     const image = await Image.create(body)
@@ -73,5 +70,18 @@ export default class ImagesController {
     return response.ok(image)
   }
 
-  public async destroy ({}: HttpContextContract) {}
+  public async destroy ({ request, response }: HttpContextContract) {
+    const dto = ImageRessourceDeleteDto.fromRequest(request)
+    const error = await dto.validate()
+    if (error.length > 0) {
+      return response.badRequest(error)
+    }
+
+    const { params } = await dto.after.customTransform
+
+    const image = params.id
+    await image.delete()
+
+    return response.ok({ message: 'Image deleted' })
+  }
 }

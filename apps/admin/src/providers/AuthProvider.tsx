@@ -1,11 +1,11 @@
-"use client";
+'use client'
 
-import React, { createContext } from "react";
+import React, { createContext } from 'react'
 
-const AuthContext = createContext({});
+const AuthContext = createContext({})
 
 export default function ThemeProvider({
-  children,
+    children,
 }: React.PropsWithChildren<{}>) {
-  return <AuthContext.Provider value="dark">{children}</AuthContext.Provider>;
+    return <AuthContext.Provider value="dark">{children}</AuthContext.Provider>
 }

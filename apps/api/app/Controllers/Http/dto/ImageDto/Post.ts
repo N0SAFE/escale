@@ -1,4 +1,4 @@
-import { IsDefined, IsObject, ValidateNested } from 'class-validator'
+import { IsDefined, IsObject, IsOptional, ValidateNested } from 'class-validator'
 import { Exclude, Type } from 'class-transformer'
 import { AsSameProperties } from '../type/AsSameProperties'
 import { MultipartFileContract } from '@ioc:Adonis/Core/BodyParser'
@@ -10,6 +10,9 @@ import { SkipTransform } from '../Decorator/SkipTransform'
 export class ImageRessourcePostBodyDto {
   @IsDefined()
   public alt: string
+
+  @IsOptional()
+  public name?: string
 }
 
 export class ImageRessourcePostQueryDto {}
@@ -56,6 +59,7 @@ export class ImageRessourcePostDto extends BaseDto {
 
 export class ImageRessourcePostBodyDtoAfter implements AsSameProperties<ImageRessourcePostBodyDto> {
   public alt: string
+  public name?: string
 }
 
 export class ImageRessourcePostQueryDtoAfter

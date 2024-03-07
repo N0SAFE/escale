@@ -1,24 +1,19 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { ReservationsRessourcePostDto } from './dto/ReservationsDto/Post'
+import { ReservationsRessourcePostDto } from './dto/ReservationDto/Post'
 import Reservation from 'App/Models/Reservation'
 import { DateTime } from 'luxon'
-import { ReservationsRessourceGetCollectionDto } from './dto/ReservationsDto/GetCollection'
+import { ReservationRessourceGetCollectionDto } from './dto/ReservationDto/GetCollection'
 import { inject } from '@adonisjs/core/build/standalone'
 import ReservationService from 'App/Service/ReservationService'
-import { ReservationsRessourceAvailableDatesDto } from './dto/ReservationsDto/AvailableDates'
-import BookedDate from 'App/Models/BookedDate'
-import { ReservationsRessourcePriceDto } from './dto/ReservationsDto/Price'
-import { ReservationsRessourceJourneyPriceDto } from './dto/ReservationsDto/JourneyPrice'
+import { ReservationsRessourceAvailableDatesDto } from './dto/ReservationDto/AvailableDates'
+import { ReservationRessourcePriceDto } from './dto/ReservationDto/Price'
 
 @inject()
 export default class ReservationsController {
   constructor (protected reservationService: ReservationService) {}
 
   public async index ({ request, response }: HttpContextContract) {
-    const dto = new ReservationsRessourceGetCollectionDto({
-      body: request.body(),
-      query: request.qs(),
-    })
+    const dto = ReservationRessourceGetCollectionDto.fromRequest(request)
 
     const error = await dto.validate()
     if (error.length > 0) {
@@ -103,160 +98,57 @@ export default class ReservationsController {
       query.spa
     )
 
-    if (query.type === 'night') {
-      const bookedDates = await BookedDate.query()
-        .join('reservations', function (builder) {
-          builder
-            .on('reservations.id', 'booked_dates.reservation_id')
-            .andOnIn('reservations.spa_id', [String(query.spa.id)])
-        })
-        .where('type', 'night')
-        .orWhere('type', 'journey')
-        .andWhere('date', '>=', query.startAt.toSQLDate()!)
-        .andWhere('date', '<=', query.endAt.toSQLDate()!)
-        .exec()
-      // console.log(bookedDates)
-      // create an array of day between start and end
-      const numberOfDays = query.endAt.diff(query.startAt, 'days').days + 1
-      return Array.from({ length: numberOfDays }, (_, i) => {
-        const date = query.startAt.plus({ days: i })
-        const isBooked = !!bookedDates.find((bookedDate) => {
-          return bookedDate.date.hasSame(date, 'day')
-        })
-        const isAvailable = !!availabilities.find((availability) => {
-          // check if the date is between the start and end of the availability
-          return date >= availability.startAt && date <= availability.endAt
-        })
-
-        return {
-          date: date.toISODate(),
-          available: !isBooked && isAvailable,
-        }
-      })
-    } else if (query.type === 'day') {
-      const bookedDates = await BookedDate.query()
-        .join('reservations', function (builder) {
-          builder
-            .on('reservations.id', 'booked_dates.reservation_id')
-            .andOnIn('reservations.spa_id', [String(query.spa.id)])
-        })
-        .where('type', 'day')
-        .orWhere('type', 'journey')
-        .andWhere('date', '>=', query.startAt.toSQLDate()!)
-        .andWhere('date', '<=', query.endAt.toSQLDate()!)
-        .exec()
-      // create an array of day between start and end
-      const numberOfDays = query.endAt.diff(query.startAt, 'days').days + 1
-      return Array.from({ length: numberOfDays }, (_, i) => {
-        const date = query.startAt.plus({ days: i })
-        const isBooked = !!bookedDates.find((bookedDate) => {
-          return bookedDate.date.hasSame(date, 'day')
-        })
-        const isAvailable = !!availabilities.find((availability) => {
-          // check if the date is between the start and end of the availability
-          return date >= availability.startAt && date <= availability.endAt
-        })
-
-        return {
-          date: date.toISODate(),
-          available: !isBooked && isAvailable,
-        }
-      })
-    } else if (query.type === 'journey') {
-      const bookedDates = await BookedDate.query()
-        .join('reservations', function (builder) {
-          builder
-            .on('reservations.id', 'booked_dates.reservation_id')
-            .andOnIn('reservations.spa_id', [String(query.spa.id)])
-        })
-        .where('type', 'journey')
-        .orWhere('type', 'day')
-        .orWhere('type', 'night')
-        .andWhere('date', '>=', query.startAt.toSQLDate()!)
-        .andWhere('date', '<=', query.endAt.toSQLDate()!)
-        .exec()
-      // create an array of day between start and end
-      const numberOfDays = query.endAt.diff(query.startAt, 'days').days + 1
-      return Array.from({ length: numberOfDays }, (_, i) => {
-        const date = query.startAt.plus({ days: i })
-        const isBooked = !!bookedDates.find((bookedDate) => {
-          return bookedDate.date.hasSame(date, 'day')
-        })
-
-        const isAvailable = !!availabilities.find((availability) => {
-          // check if the date is between the start and end of the availability
-          return date >= availability.startAt && date <= availability.endAt
-        })
-
-        return {
-          date: date.toISODate(),
-          available: !isBooked && isAvailable,
-        }
-      })
-    }
-  }
-
-  public async price ({ request, response }: HttpContextContract) {
-    const dto = new ReservationsRessourcePriceDto({
-      body: request.body(),
-      query: request.qs(),
-    })
-
-    const error = await dto.validate()
-    if (error.length > 0) {
-      return response.badRequest(error)
-    }
-
-    const { query } = await dto.after.customTransform
-
-    const availability = await this.reservationService.getAvailabilitieByDate(query.date, query.spa)
-
-    if (!availability) {
-      return response.badRequest({ message: 'this day is not available' })
-    }
-
-    return response.ok({
-      price: query.type === 'night' ? availability.nightPrice : availability.dayPrice,
-    })
-  }
-
-  public async journeyPrice ({ request, response }: HttpContextContract) {
-    const dto = new ReservationsRessourceJourneyPriceDto({
-      body: request.body(),
-      query: request.qs(),
-    })
-
-    const error = await dto.validate()
-    if (error.length > 0) {
-      return response.badRequest(error)
-    }
-
-    const { query } = await dto.after.customTransform
-
-    const res = await this.reservationService.datesIsAvailable(
+    const reservations = await this.reservationService.getReservationsBetweenDate(
       query.startAt,
       query.endAt,
       query.spa
     )
 
-    if (!res.state) {
-      return response.badRequest({ message: res.message })
+    console.log(reservations)
+
+    const numberOfDays = query.endAt.diff(query.startAt, 'days').days + 1
+    return Array.from({ length: numberOfDays }, (_, i) => {
+      const date = query.startAt.plus({ days: i })
+      const isBooked = !!reservations.find((reservation) => {
+        return date >= reservation.startAt && date < reservation.endAt
+      })
+
+      const isAvailable = !!availabilities.find((availability) => {
+        // check if the date is between the start and end of the availability
+        return date >= availability.startAt && date <= availability.endAt
+      })
+
+      return {
+        date: date.toISODate(),
+        available: !isBooked && isAvailable,
+      }
+    })
+  }
+
+  public async price ({ request, response }: HttpContextContract) {
+    const dto = ReservationRessourcePriceDto.fromRequest(request)
+
+    const error = await dto.validate()
+    if (error.length > 0) {
+      return response.badRequest(error)
     }
 
-    const availabilities = res.availability
+    const { query } = await dto.after.customTransform
 
-    const price = availabilities.reduce((acc, availability) => {
-      const startAt = query.startAt
-      const endAt = query.endAt
-      const availabilityStartAt = availability.startAt
-      const availabilityEndAt = availability.endAt
-      const intersectionDuration = Math.min(
-        endAt.diff(availabilityStartAt, 'days').days + 1,
-        availabilityEndAt.diff(startAt, 'days').days + 1
-      )
-      return acc + intersectionDuration * availability.journeyPrice
-    }, 0)
+    const { price, details } = await this.reservationService.calculatePrice(
+      query.spa,
+      query.startAt,
+      query.endAt
+    )
 
-    return response.ok({ price })
+    return response.ok({
+      price,
+      details: {
+        toPrice: Array.from(details.toPrice.entries()).map(([price, number]) => ({
+          price,
+          number,
+        })),
+      },
+    })
   }
 }

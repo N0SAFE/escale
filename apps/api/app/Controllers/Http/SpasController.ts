@@ -9,6 +9,8 @@ import SpaImage from 'App/Models/SpaImage'
 import { SpaImageRessourceSortDto } from './dto/SpaDto/ImageDto/Sort'
 import { SpaImageRessourceDeleteDto } from './dto/SpaDto/ImageDto/Delete'
 import { SpaRessourcePatchDto } from './dto/SpaDto/Patch'
+import { SpaRessourceGetDto } from './dto/SpaDto/Get'
+import { SpaRessourceDeleteDto } from './dto/SpaDto/Delete'
 
 export default class SpasController {
   public async index ({ response }: HttpContextContract) {
@@ -17,29 +19,56 @@ export default class SpasController {
       await spa.load('tags')
       await spa.load('services')
     })
-    // console.log(spas)
     return response.ok(spas)
   }
 
   public async create ({}: HttpContextContract) {}
 
   public async store ({ request, response }: HttpContextContract) {
-    const dto = new SpaRessourcePostDto({ body: request.body(), query: request.qs() })
+    const dto = SpaRessourcePostDto.fromRequest(request)
+    const error = await dto.validate()
+    console.log(JSON.stringify(error, null, 4))
+    if (error.length > 0) {
+      return response.badRequest(error)
+    }
+    const { body } = await dto.after.customTransform
+    console.log(body)
+    const spa = await Spa.create(body)
+    if (body.spaImages) {
+      await spa.related('spaImages').saveMany(
+        await Promise.all(
+          body.spaImages.map(async (spaImage) => {
+            const s = await spa.related('spaImages').create({
+              order: spaImage.order,
+            })
+            await s.related('image').associate(await Image.findOrFail(spaImage.image))
+            return s
+          })
+        )
+      )
+      await spa.load('spaImages')
+    }
+    if (body.services) {
+      await spa.related('services').attach(body.services)
+    }
+    console.log(spa)
+    return response.ok(spa)
+  }
 
+  public async show ({ response, request }: HttpContextContract) {
+    const dto = SpaRessourceGetDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
       return response.badRequest(error)
     }
 
-    const { body } = dto.after
+    const { params } = await dto.after.customTransform
 
-    const spa = await Spa.create(body)
+    const spa = params.id
 
-    return response.ok(spa)
-  }
+    await spa.load('tags')
+    await spa.load('services')
 
-  public async show ({ response }: HttpContextContract) {
-    const spa = await Spa.query().preload('tags').preload('services').firstOrFail()
     return response.ok(spa)
   }
 
@@ -73,9 +102,26 @@ export default class SpasController {
         )
       )
     }
+    if (body.services) {
+      await spa.related('services').detach()
+      await spa.related('services').attach(body.services)
+    }
   }
 
-  public async destroy ({}: HttpContextContract) {}
+  public async destroy ({ response, request }: HttpContextContract) {
+    const dto = SpaRessourceDeleteDto.fromRequest(request)
+    const error = await dto.validate()
+    if (error.length > 0) {
+      return response.badRequest(error)
+    }
+
+    const { params } = await dto.after.customTransform
+    const spa = params.id
+
+    await spa.delete()
+
+    return response.ok({ message: 'Spa deleted' })
+  }
 
   public async getImages ({ request }: HttpContextContract) {
     console.log(request.params())

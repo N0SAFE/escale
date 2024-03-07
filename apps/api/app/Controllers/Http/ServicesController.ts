@@ -2,6 +2,8 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Service from 'App/Models/Service'
 import { ServiceRessourcePatchDto } from './dto/ServiceDto/Patch'
 import Image from 'App/Models/Image'
+import { ServiceRessourcePostDto } from './dto/ServiceDto/Post'
+import { ServiceRessourceDeleteDto } from './dto/ServiceDto/Delete'
 
 export default class ServicesController {
   public async index ({}: HttpContextContract) {
@@ -10,7 +12,19 @@ export default class ServicesController {
 
   public async create ({}: HttpContextContract) {}
 
-  public async store ({}: HttpContextContract) {}
+  public async store ({ response, request }: HttpContextContract) {
+    const dto = ServiceRessourcePostDto.fromRequest(request)
+    const error = await dto.validate()
+    if (error.length > 0) {
+      return response.badRequest(error)
+    }
+
+    const { body } = await dto.after.customTransform
+    const service = await Service.create(body)
+    await service.related('image').associate(body.image)
+    await service.load('image')
+    return response.ok(service)
+  }
 
   public async show ({}: HttpContextContract) {
     return Service.findOrFail(1)
@@ -43,5 +57,17 @@ export default class ServicesController {
     return response.ok(service)
   }
 
-  public async destroy ({}: HttpContextContract) {}
+  public async destroy ({ response, request }: HttpContextContract) {
+    const dto = ServiceRessourceDeleteDto.fromRequest(request)
+    const error = await dto.validate()
+    if (error.length > 0) {
+      return response.badRequest(error)
+    }
+
+    const { params } = await dto.after.customTransform
+    const service = params.id
+
+    await service.delete()
+    return response.ok({ message: 'Service deleted' })
+  }
 }

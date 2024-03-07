@@ -37,6 +37,11 @@ export class SpaRessourcePatchBodyDto {
 
   @IsOptional()
   public google_maps_link?: string
+
+  @IsOptional()
+  @IsNumber({}, { each: true })
+  @EntityExist(Service, { each: true })
+  public services: number[]
 }
 
 export class SpaRessourcePatchQueryDto {}
@@ -98,6 +103,7 @@ export class SpaRessourcePatchBodyDtoAfter implements AsSameProperties<SpaRessou
   public spaImages?: SpaImages[]
   public location?: string
   public google_maps_link?: string
+  public services: number[]
 }
 
 export class SpaRessourcePatchQueryDtoAfter
