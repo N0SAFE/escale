@@ -101,7 +101,8 @@ export async function getSession(): Promise<Session | null> {
 
     const cookieStore = cookies()
     const sessionString = cookieStore.get('session')?.value
-    const jwtString = cookieStore.get('token')?.value
+    const jwtString = cookieStore.get('jwt')?.value
+    console.log(jwtString)
     const refreshTokenString = cookieStore.get('refreshToken')?.value
     if (!sessionString && !refreshTokenString) {
         return null
@@ -118,6 +119,7 @@ export async function getSession(): Promise<Session | null> {
                   user: null,
               }
         const jwt = jwtString ? JSON.parse(jwtString) : {}
+        console.log(jwt)
         jwt.refreshToken = refreshTokenString
         session.jwt = jwt
         return session

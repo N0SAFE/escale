@@ -43,4 +43,5 @@ Server.middleware.registerNamed({
   auth: () => import('App/Middleware/Auth'),
   connected: () => import('App/Middleware/Connected'),
   loadJwtUser: () => import('App/Middleware/LoadJwtUser'),
+  hasRole: () => import('App/Middleware/HasRole'),
 })

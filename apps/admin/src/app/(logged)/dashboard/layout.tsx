@@ -38,6 +38,7 @@ import ClickHandler from '@/components/ClickHandler'
 import { redirect, usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
+import { axiosInstance } from '@/utils/axiosInstance'
 
 type RouteLink = {
     name: string
@@ -61,6 +62,11 @@ export default function Layout({
 }: Readonly<{
     children: React.ReactNode
 }>) {
+    const tryAdmin = async () => {
+        const response = await axiosInstance.get('/try/admin')
+        console.log(response)
+    }
+    
     const [isOpen, setIsOpen] = useState(false)
     const routes: RouteType[] = [
         {
@@ -128,8 +134,6 @@ export default function Layout({
     if (route) {
         route.active = true
     }
-
-    console.log(isOpen)
 
     // get the path after the last slash
     return (
@@ -217,7 +221,7 @@ export default function Layout({
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <Button className="w-full" size="sm">
+                                <Button className="w-full" size="sm" onClick={tryAdmin}>
                                     Upgrade
                                 </Button>
                             </CardContent>
