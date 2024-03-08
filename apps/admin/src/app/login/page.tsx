@@ -48,7 +48,9 @@ export default function Login() {
 
     if (searchParams.has('error')) {
         setTimeout(() => {
-            toast.error(searchParams.get('error')!)
+            if (searchParams.get('redirectPath') !== '/') {
+                toast.error(searchParams.get('error')!)
+            }
         }, 1000)
         const params = new URLSearchParams(searchParams.toString())
         params.delete('error')
