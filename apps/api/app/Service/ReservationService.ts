@@ -31,7 +31,6 @@ export default class ReservationService {
     endAt: DateTime,
     spa?: Spa
   ): Promise<Availability[]> {
-    console.log(startAt, endAt)
     const availabilitiesQueryBuilder = Availability.query()
       .where('start_at', '<=', endAt.toSQL()!)
       .andWhere('end_at', '>=', startAt.toSQL()!)

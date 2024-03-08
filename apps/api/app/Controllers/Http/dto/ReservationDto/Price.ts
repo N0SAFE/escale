@@ -39,9 +39,6 @@ export class ReservationRessourcePriceQueryDto {
   public endAt: string
 
   @IsDefined()
-  public type: 'night' | 'afternoon' | 'journey'
-
-  @IsDefined()
   @EntityExist(Spa)
   public spa: number
 }
@@ -101,8 +98,6 @@ implements AsSameProperties<ReservationRessourcePriceQueryDto> {
 
   @Transform(({ value }) => DateTime.fromISO(value))
   public endAt: DateTime
-
-  public type: 'night' | 'afternoon' | 'journey'
 
   @Transform(({ value }) => Spa.findOrFail(value))
   @AwaitPromise

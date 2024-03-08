@@ -8,11 +8,8 @@ import { CheckoutSessionRessourceReservationDto } from './dto/CheckoutSessionDto
 export default class CheckoutSessionsController {
   constructor (protected reservationService: ReservationService) {}
 
-  public async dayOrNightSpa ({ request, response }: HttpContextContract) {
-    const dto = new CheckoutSessionRessourceReservationDto({
-      body: request.body(),
-      query: request.qs(),
-    })
+  public async spa ({ request, response }: HttpContextContract) {
+    const dto = CheckoutSessionRessourceReservationDto.fromRequest(request)
 
     const error = await dto.validate()
     if (error.length > 0) {

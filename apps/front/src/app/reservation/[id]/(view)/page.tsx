@@ -2,7 +2,7 @@
 
 import ImageCarousel from '@/components/ImageCarousel/index'
 import { Separator } from '@/components/ui/separator'
-import { DateTime } from 'luxon'
+import { DateTime, Settings } from 'luxon'
 import { DateRange } from 'react-day-picker'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import {
@@ -36,6 +36,8 @@ import {
     CollapsibleTrigger,
 } from '@/components/ui/collapsible'
 
+Settings.defaultZone = 'utc'
+
 const Reservation = ({ params }: { params: { id: string } }) => {
     const { id } = params
 
@@ -50,9 +52,10 @@ const Reservation = ({ params }: { params: { id: string } }) => {
     // const [price, setPrice] = useState<number | undefined>();
 
     // startAt is the first day of the month inside selectedMonth
-    const startAt = DateTime.now()
+    const startAt = DateTime.utc()
         .set({ day: 1, hour: 0, minute: 0, second: 0, millisecond: 0 })
         .minus({ month: 1 })
+        console.log(startAt)
     const endAt = startAt.plus({ month: 3 }).minus({ day: 1 })
     const {
         data: spa,
@@ -204,7 +207,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
             }
         })
         return array.reduce((acc, date) => {
-            if (date.available === false) {
+            if (date.available === true) {
                 acc.add(date.date)
             }
             return acc
@@ -255,6 +258,8 @@ const Reservation = ({ params }: { params: { id: string } }) => {
             </div>
         )
     }
+    
+    // console.log(availableDates)
 
     if (!spa || !availableDates) {
         return (
@@ -377,7 +382,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                                         )
                                     }}
                                     disableDateFunction={(date) =>
-                                        availableDates.has(
+                                        !availableDates.has(
                                             DateTime.fromJSDate(
                                                 date
                                             ).toSQLDate() as string

@@ -12,16 +12,10 @@ export default class Availability extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
-  @column.dateTime({
-    consume: (value: Date | undefined) => value && DateTime.fromISO(value.toISOString()),
-    prepare: (value: DateTime) => value?.toISODate(),
-  })
+  @column.date()
   public startAt: DateTime
 
-  @column.dateTime({
-    consume: (value: Date | undefined) => value && DateTime.fromISO(value.toISOString()),
-    prepare: (value: DateTime) => value?.toISODate(),
-  })
+  @column.date()
   public endAt: DateTime
 
   @column()

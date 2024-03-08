@@ -28,15 +28,9 @@ export default class Reservation extends BaseModel {
   @belongsTo(() => User)
   public user: BelongsTo<typeof User>
 
-  @column.dateTime({
-    consume: (value: Date) => DateTime.fromISO(value.toISOString()),
-    prepare: (value: DateTime) => value.toISODate(),
-  })
+  @column.date()
   public startAt: DateTime
 
-  @column.dateTime({
-    consume: (value: Date) => DateTime.fromISO(value.toISOString()),
-    prepare: (value: DateTime) => value.toISODate(),
-  })
+  @column.date()
   public endAt: DateTime
 }

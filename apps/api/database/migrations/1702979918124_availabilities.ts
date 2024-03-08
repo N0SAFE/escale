@@ -12,8 +12,8 @@ export default class extends BaseSchema {
        */
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
-      table.timestamp('start_at', {})
-      table.timestamp('end_at', {})
+      table.timestamp('start_at')
+      table.timestamp('end_at')
       table.integer('spa_id').unsigned().references('id').inTable('spas').onDelete('CASCADE')
       table.integer('day_price').unsigned()
       table.integer('night_price').unsigned()

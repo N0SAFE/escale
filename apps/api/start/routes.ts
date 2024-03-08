@@ -31,8 +31,8 @@ Route.get('health', async ({ response }) => {
 })
 
 Route.group(() => {
-  Route.post('checkout-session/spa/journey', 'CheckoutSessionController.journeySpa')
-  Route.post('checkout-session/spa', 'CheckoutSessionController.dayOrNightSpa')
+  // Route.post('checkout-session/spa/journey', 'CheckoutSessionController.journeySpa')
+  Route.post('checkout-session/spa', 'CheckoutSessionController.spa')
 })
 
 Route.group(() => {
