@@ -1,6 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Image from 'App/Models/Image'
-import Application from '@ioc:Adonis/Core/Application'
 import { ImageRessourcePostDto } from './dto/ImageDto/Post'
 import File from 'App/Models/File'
 import { ImageRessourceGetDto } from './dto/ImageDto/Get'
@@ -30,13 +29,11 @@ export default class ImagesController {
       extname: files.image.extname,
     })
 
-    await files.image.move(Application.tmpPath('uploads'), {
-      name: file.uuid + '.' + file.extname,
-    })
-
     const image = await Image.create(body)
     await image.related('file').associate(file)
     await image.load('file')
+
+    await files.image.moveToDisk(image.directory, {name: image.serverFileName!})
 
     return response.ok(image)
   }

@@ -6,6 +6,7 @@ import {
   beforeFind,
   belongsTo,
   column,
+  computed,
 } from '@ioc:Adonis/Lucid/Orm'
 import File from './File'
 
@@ -30,6 +31,27 @@ export default class Image extends BaseModel {
 
   @belongsTo(() => File)
   public file: BelongsTo<typeof File>
+
+  @computed()
+  public get path () {
+    if (!this.file) {
+      return null
+    }
+    return `${this.directory}/${this.serverFileName}`
+  }
+
+  @computed()
+  public get directory () {
+    return 'images'
+  }
+
+  @computed()
+  public get serverFileName () {
+    if (!this.file) {
+      return null
+    }
+    return `${this.file.uuid}.${this.file.extname}`
+  }
 
   @beforeFind()
   @beforeFetch()

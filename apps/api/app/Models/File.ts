@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, column, computed } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, beforeCreate, column } from '@ioc:Adonis/Lucid/Orm'
 import { v4 as uuid } from 'uuid'
 
 export default class File extends BaseModel {
@@ -20,11 +20,6 @@ export default class File extends BaseModel {
 
   @column()
   public name: string
-
-  @computed()
-  public get path () {
-    return `${this.uuid}.${this.extname}`
-  }
 
   @column()
   public size: number

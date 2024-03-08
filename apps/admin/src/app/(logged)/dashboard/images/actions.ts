@@ -31,7 +31,7 @@ export async function getImage(id: number) {
 export async function createImage(data: FormData) {
     'use server'
 
-    console.log(Array.from(data.entries()))
+    // console.log(Array.from(data.entries()))
 
     await axiosInstance.post<CreateImage>('/images', data)
 }
