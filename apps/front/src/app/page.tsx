@@ -84,23 +84,10 @@ const comments = [
 ]
 
 export default function Home() {
-    const [color, setColor] = useState('#000000') // @flag color picker
-    console.log(color) // @flag color picker
     return (
         <main
             className="flex min-h-screen flex-col items-center justify-between text-white"
-            style={{ backgroundColor: color }}
         >
-            {/* @flag color picker */}
-            <div className="bg-[#fff] absolute text-black p-4">
-                {/* @flag color picker */}
-                <span>changer la couleur ici</span>
-                {/* @flag color picker */}
-                <Input
-                    type="color"
-                    onChange={(e) => setColor(e.target.value)}
-                />
-            </div>
             <section>
                 <Image
                     src="/20240212_192351.jpg"
