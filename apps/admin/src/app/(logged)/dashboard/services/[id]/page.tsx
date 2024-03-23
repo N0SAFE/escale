@@ -7,5 +7,5 @@ export default async function ServiceView({
 }) {
     const service = await getService(+params.id)
     console.log(service)
-    return <div>{JSON.stringify(service?.data)}</div>
+    return <div>{JSON.stringify(service)}</div>
 }

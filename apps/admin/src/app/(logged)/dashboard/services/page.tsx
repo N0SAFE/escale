@@ -132,12 +132,8 @@ const columns: ColumnDef<Service>[] = [
         accessorKey: 'image',
         header: 'Image',
         cell: ({ row }) => (
-            <Image
-                src={
-                    process.env.NEXT_PUBLIC_API_URL +
-                    '/attachment/image/' +
-                    row.getValue<ImageType>('image')?.id
-                }
+            <ApiImage
+                identifier={row.original.image?.id!}
                 width={50}
                 height={50}
                 alt={row.getValue<ImageType>('image')?.alt}
@@ -246,7 +242,7 @@ export default function ServicesTable() {
     console.log({ data, error, isFetched })
 
     const table = useReactTable({
-        data: data?.data ?? [],
+        data: data ?? [],
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
@@ -498,20 +494,10 @@ function CreateService({ isLoading, onSubmit }: CreateSpaProps) {
     })
     const fileSelectItems = React.useMemo(
         () =>
-            images?.data?.map((image) => {
+            images?.map((image) => {
                 return {
-                    component: (
-                        <span>
-                            <ApiImage
-                                identifier={image.id}
-                                width={50}
-                                height={50}
-                                alt={'test'}
-                            />
-                        </span>
-                    ),
                     label: image.file.name,
-                    value: image.id,
+                    value: image,
                 }
             }),
         [images]
@@ -563,16 +549,26 @@ function CreateService({ isLoading, onSubmit }: CreateSpaProps) {
                         image
                     </Label>
                     <Combobox
+                        onRender={(image) => (
+                            <div>
+                                <ApiImage
+                                    identifier={image.id}
+                                    width={50}
+                                    height={50}
+                                    alt={'test'}
+                                />
+                            </div>
+                        )}
                         className="col-span-3"
                         items={fileSelectItems || []}
                         isLoading={!isImagesFetched}
                         defaultPreviewText="Select an image..."
-                        value={serviceState?.image?.id}
-                        onSelect={(id) =>
+                        value={serviceState?.image || undefined}
+                        onSelect={(image) =>
                             setServiceState({
                                 ...serviceState!,
-                                image: id
-                                    ? images?.data?.find((i) => id === i.id)!
+                                image: image
+                                    ? images?.find((i) => image.id === i.id)!
                                     : null,
                             })
                         }

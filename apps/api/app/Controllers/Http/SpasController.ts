@@ -13,13 +13,10 @@ import { SpaRessourceGetDto } from './dto/SpaDto/Get'
 import { SpaRessourceDeleteDto } from './dto/SpaDto/Delete'
 
 export default class SpasController {
-  public async index ({ response }: HttpContextContract) {
-    const spas = await Spa.all()
-    spas.forEach(async (spa) => {
-      await spa.load('tags')
-      await spa.load('services')
-    })
-    return response.ok(spas)
+  public async index ({ response, request }: HttpContextContract) {
+    // const spasQuery = Spa.query().preload('spaImages').preload('tags').preload('services')
+    // return response.ok(await spasQuery.exec())
+    return response.ok(await Spa.filter(request.qs()).exec())
   }
 
   public async create ({}: HttpContextContract) {}

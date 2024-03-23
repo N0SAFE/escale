@@ -1,9 +1,15 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import User from './User'
 import Spa from './Spa'
+import AppBaseModel from './AppBaseModel'
+import { Filterable } from '@ioc:Adonis/Addons/LucidFilter'
+import { compose } from '@ioc:Adonis/Core/Helpers'
+import ReservationFilter from './Filters/ReservationFilter'
 
-export default class Reservation extends BaseModel {
+export default class Reservation extends compose(AppBaseModel, Filterable) {
+  public static $filter = () => ReservationFilter
+
   @column({ isPrimary: true })
   public id: number
 

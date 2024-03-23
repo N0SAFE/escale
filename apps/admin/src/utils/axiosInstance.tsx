@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { getSession, isLogin, refreshToken } from '@/lib/auth'
+import { redirect } from 'next/navigation'
 
 // You need to be careful in next.js for adding cookies.
 // You could be on the server or a client. This code will work for the client assuming you will use it on the client side.
@@ -30,16 +31,21 @@ axiosInstance.interceptors.response.use(
         const originalRequest = error.config
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true
-            // console.log('401 error, refreshing token...')
+            console.log('401 error, refreshing token...')
+            // console.log(await getSession())
+            if (!(await getSession())?.jwt?.refreshToken) {
+                console.log('no session')
+                return Promise.reject(redirect('/login'))
+            }
             const session = await refreshToken(true)
             if (await isLogin(session!)) {
-                // console.log('token as been refreshed')
+                console.log('token as been refreshed')
                 const tokenType = session?.jwt?.type
                 const token = session?.jwt?.token
                 originalRequest.headers.Authorization = `${tokenType} ${token}`
                 return axios(originalRequest)
-            }else {
-                // console.log('token can\'t be refreshed')
+            } else {
+                console.log("token can't be refreshed")
             }
         }
         return Promise.reject(error)

@@ -7,8 +7,8 @@ import { ImageRessourcePatchDto } from './dto/ImageDto/Patch'
 import { ImageRessourceDeleteDto } from './dto/ImageDto/Delete'
 
 export default class ImagesController {
-  public async index ({}: HttpContextContract) {
-    return Image.all()
+  public async index ({ request }: HttpContextContract) {
+    return Image.filter(request.qs()).exec()
   }
 
   public async create ({}: HttpContextContract) {}
@@ -33,7 +33,7 @@ export default class ImagesController {
     await image.related('file').associate(file)
     await image.load('file')
 
-    await files.image.moveToDisk(image.directory, {name: image.serverFileName!})
+    await files.image.moveToDisk(image.directory, { name: image.serverFileName! })
 
     return response.ok(image)
   }

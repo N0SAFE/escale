@@ -37,7 +37,7 @@ export default function SpasEdit() {
         queryKey: ['images'],
         queryFn: async () => getImages(),
     })
-    const { data: spaData } = useQuery({
+    const { data: spaData, isFetched: isSpaDateFetched } = useQuery({
         queryKey: ['spa', +params.id],
         queryFn: async () => getSpa(+params.id),
     })
@@ -55,7 +55,7 @@ export default function SpasEdit() {
     })
 
     useEffect(() => {
-        setSpaState(spaData?.data)
+        setSpaState(spaData)
     }, [spaData])
 
     const renderItem = (item: SpaImageType) => (
@@ -85,7 +85,7 @@ export default function SpasEdit() {
             maxOrder++
             return {
                 order: maxOrder,
-                image: images?.data?.find((i) => i.id === id)!,
+                image: images?.find((i) => i.id === id)!,
             } as SpaImageType
         })
 
@@ -102,7 +102,7 @@ export default function SpasEdit() {
 
     const fileSelectItems = useMemo(
         () =>
-            images?.data?.map((image) => {
+            images?.map((image) => {
                 return {
                     component: (
                         <span>
@@ -123,7 +123,7 @@ export default function SpasEdit() {
 
     const serviceSelectItems = useMemo(
         () =>
-            services?.data?.map((service) => {
+            services?.map((service) => {
                 return {
                     label: service.label,
                     value: service.id,
@@ -132,7 +132,7 @@ export default function SpasEdit() {
         [services]
     )
 
-    console.log(spaState?.spaImages)
+    console.log(spaState)
 
     return (
         <>
@@ -190,6 +190,9 @@ export default function SpasEdit() {
                                                 }}
                                                 data={spaState?.description}
                                                 onChange={(event, editor) => {
+                                                    if (isSpaDateFetched) {
+                                                        return
+                                                    }
                                                     setSpaState({
                                                         ...spaState,
                                                         description:
@@ -204,22 +207,27 @@ export default function SpasEdit() {
                                             </Label>
                                             <Combobox
                                                 multiple
-                                                items={serviceSelectItems || []}
-                                                isLoading={!isServicesFetched}
-                                                defaultPreviewText="Select an service..."
-                                                defaultSearchText="Search for a service..."
-                                                value={spaState?.services?.map(
-                                                    (i) => i.id
+                                                items={services?.map(
+                                                    (service) => {
+                                                        return {
+                                                            label: service.label,
+                                                            value: service,
+                                                        }
+                                                    }
                                                 )}
-                                                onSelect={(ids) =>
+                                                isLoading={!isServicesFetched}
+                                                defaultPreviewText="Select an sercice..."
+                                                defaultSearchText="Search for a sercice..."
+                                                value={spaState?.services}
+                                                onSelect={(sers) =>
                                                     setSpaState({
                                                         ...spaState,
-                                                        services: ids.map(
-                                                            (id) =>
-                                                                services?.data?.find(
-                                                                    (s) =>
-                                                                        s.id ===
-                                                                        id
+                                                        services: sers.map(
+                                                            (service) =>
+                                                                services?.find(
+                                                                    (subs) =>
+                                                                        subs.id ===
+                                                                        service.id
                                                                 )!
                                                         ),
                                                     })
@@ -234,16 +242,44 @@ export default function SpasEdit() {
                                                 description
                                             </Label>
                                             <Combobox
+                                                className="w-full"
                                                 multiple
-                                                items={fileSelectItems || []}
+                                                items={images?.map((image) => {
+                                                    return {
+                                                        label: image.file.name,
+                                                        value: image,
+                                                    }
+                                                })}
                                                 isLoading={!isImagesFetched}
                                                 defaultPreviewText="Select an image..."
                                                 defaultSearchText="Search for an image..."
                                                 value={spaState?.spaImages?.map(
-                                                    (i) => i.image.id
+                                                    (i) => i.image
                                                 )}
-                                                onSelect={onImageSelect}
+                                                onSelect={(images) =>
+                                                    onImageSelect(
+                                                        images.map(function (
+                                                            i
+                                                        ) {
+                                                            return i.id
+                                                        })
+                                                    )
+                                                }
                                                 keepOpen
+                                                onRender={(val) => {
+                                                    return (
+                                                        <span>
+                                                            <ApiImage
+                                                                identifier={
+                                                                    val.id
+                                                                }
+                                                                width={50}
+                                                                height={50}
+                                                                alt={'test'}
+                                                            />
+                                                        </span>
+                                                    )
+                                                }}
                                             />
                                             <ScrollArea className="h-96">
                                                 <Reorder.Group

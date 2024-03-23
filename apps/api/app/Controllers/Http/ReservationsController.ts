@@ -1,7 +1,6 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { ReservationsRessourcePostDto } from './dto/ReservationDto/Post'
+import { ReservationRessourcePostDto } from './dto/ReservationDto/Post'
 import Reservation from 'App/Models/Reservation'
-import { DateTime } from 'luxon'
 import { ReservationRessourceGetCollectionDto } from './dto/ReservationDto/GetCollection'
 import { inject } from '@adonisjs/core/build/standalone'
 import ReservationService from 'App/Service/ReservationService'
@@ -20,42 +19,36 @@ export default class ReservationsController {
       return response.badRequest(error)
     }
 
-    const { query } = dto
+    const { query } = await dto.after.customTransform
 
-    const reservationQuery = Reservation.query()
+    const { page, limit, ...rest } = query
 
-    if (query.startAt) {
-      reservationQuery.where('start_at', '>=', DateTime.fromISO(query.startAt).toSQLDate()!)
+    const reservationQuery = Reservation.filter(rest)
+
+    if (page || limit) {
+      await reservationQuery.paginate(page || 1, limit || 10)
     }
 
-    if (query.endAt) {
-      reservationQuery.where('end_at', '<=', DateTime.fromISO(query.endAt).toSQLDate()!)
-    }
+    reservationQuery.orderBy('start_at', 'asc')
 
-    if (query.page || query.limit) {
-      reservationQuery.paginate(query.page || 1, query.limit || 10)
-    }
-
-    const reservations = await reservationQuery.exec()
-
-    return response.ok(reservations)
+    return response.ok(await reservationQuery.exec())
   }
 
   public async create ({}: HttpContextContract) {}
 
   public async store ({ request, response }: HttpContextContract) {
-    const dto = new ReservationsRessourcePostDto({ body: request.body(), query: request.qs() })
+    const dto = ReservationRessourcePostDto.fromRequest(request)
     console.log(dto)
     const error = await dto.validate()
     if (error.length > 0) {
       return response.badRequest(error)
     }
 
-    const { body } = dto
+    const { body } = await dto.after.customTransform
 
     const exist = await Reservation.query()
-      .where('start_at', '<=', DateTime.fromISO(body.endAt).toSQLDate()!)
-      .andWhere('end_at', '>=', DateTime.fromISO(body.startAt).toSQLDate()!)
+      .where('start_at', '<=', body.endAt.toSQLDate()!)
+      .andWhere('end_at', '>=', body.startAt.toSQLDate()!)
       .first()
       .then((reservation) => !!reservation)
 
@@ -63,12 +56,13 @@ export default class ReservationsController {
       return response.badRequest({ message: 'reservation already exist' })
     }
 
-    // const reservation = await Reservation.create({
-    //   startAt: DateTime.fromISO(body.startAt),
-    //   endAt: DateTime.fromISO(body.endAt),
-    // })
+    const reservation = await Reservation.create({
+      startAt: body.startAt,
+      endAt: body.endAt,
+      spaId: body.spa.id,
+    })
 
-    // return response.ok(reservation)
+    return response.ok(reservation)
   }
 
   public async show ({}: HttpContextContract) {}
@@ -126,20 +120,26 @@ export default class ReservationsController {
   }
 
   public async price ({ request, response }: HttpContextContract) {
+    console.log('validate request')
     const dto = ReservationRessourcePriceDto.fromRequest(request)
 
     const error = await dto.validate()
     if (error.length > 0) {
       return response.badRequest(error)
     }
+    console.log('no error in the request')
 
     const { query } = await dto.after.customTransform
+
+    console.log('calculate price')
 
     const { price, details } = await this.reservationService.calculatePrice(
       query.spa,
       query.startAt,
       query.endAt
     )
+
+    console.log('price is : ' + price)
 
     return response.ok({
       price,

@@ -2,6 +2,6 @@
 
 import { redirect } from 'next/navigation'
 
-export async function navigate(path: string) {
-    return redirect(path)
+export const navigate: typeof redirect = (...args) => {
+    redirect(...args)
 }

@@ -1,40 +1,14 @@
-import {
-  IsArray,
-  IsDateString,
-  IsDefined,
-  IsNumber,
-  IsObject,
-  IsOptional,
-  ValidateNested,
-} from 'class-validator'
-import { Exclude, Transform, Type } from 'class-transformer'
+import { IsDefined, IsNumber, IsObject, IsOptional, ValidateNested } from 'class-validator'
+import { Exclude, Type } from 'class-transformer'
 import { AsSameProperties } from '../type/AsSameProperties'
 import { RequestContract } from '@ioc:Adonis/Core/Request'
 import { BaseDto } from '../BaseDto'
 import { SkipTransform } from '../Decorator/SkipTransform'
-import { PropertyExist } from '../Decorator/PropertyExist'
-import { EntityExist } from '../Decorator/EntityExist'
-import Reservation from 'App/Models/Reservation'
-import { DateTime } from 'luxon'
 
 export class ReservationRessourceGetCollectionBodyDto {}
 
 export class ReservationRessourceGetCollectionQueryDto {
-  @IsDateString()
-  @IsOptional()
-  @PropertyExist('endAt')
-  public startAt?: string
-
-  @IsDateString()
-  @IsOptional()
-  @PropertyExist('startAt')
-  public endAt?: string
-
-  @IsArray()
-  @IsOptional()
-  @EntityExist(Reservation)
-  public ids?: number[]
-
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
   public page?: number
@@ -95,13 +69,6 @@ implements AsSameProperties<ReservationRessourceGetCollectionBodyDto> {}
 
 export class ReservationRessourceGetCollectionQueryDtoAfter
 implements AsSameProperties<ReservationRessourceGetCollectionQueryDto> {
-  @Transform(({ value }) => DateTime.fromISO(value))
-  public startAt?: DateTime
-
-  @Transform(({ value }) => DateTime.fromISO(value))
-  public endAt?: DateTime
-
-  public ids?: number[]
   public page?: number
   public limit?: number
 }

@@ -40,7 +40,7 @@ export type Spa<T extends boolean = false> = {
     title: string
     description: string
     location: string
-    google_maps_link: string
+    googleMapsLink: string
 } & (T extends true ? { spaImages: SpaImage[]; services: Service[] } : {})
 
 export type CreateSpa = Omit<Spa<true>, 'id'>
@@ -64,7 +64,45 @@ export type UpdateService = Partial<Omit<Service, 'id' | 'image'>> & {
 
 export type Reservation<T extends boolean = false> = {
     id: number
-    start: string
-    end: string
+    startAt: string
+    endAt: string
     spa: Spa
+}
+
+export type UpdateReservation = Partial<
+    Omit<Reservation, 'id' | 'spa'> & { spa: number }
+>
+
+export type CreateReservation = Omit<Reservation, 'id' | 'spa'> & {
+    spa: number
+}
+
+export type Price = {
+    day: number
+    night: number
+    journey: number
+}
+
+export type Availability<T extends boolean = false> = {
+    id: number
+    startAt: string
+    endAt: string
+    spa: Spa
+    monPrice: Price
+    tuePrice: Price
+    wedPrice: Price
+    thuPrice: Price
+    friPrice: Price
+    satPrice: Price
+    sunPrice: Price
+}
+
+export type UpdateAvailability = Partial<
+    Omit<Availability, 'id' | 'spa'> & {
+        spa: number
+    }
+>
+
+export type CreateAvailability = Omit<Availability, 'id' | 'spa'> & {
+    spa: number
 }

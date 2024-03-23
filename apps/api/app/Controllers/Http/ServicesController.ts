@@ -6,8 +6,9 @@ import { ServiceRessourcePostDto } from './dto/ServiceDto/Post'
 import { ServiceRessourceDeleteDto } from './dto/ServiceDto/Delete'
 
 export default class ServicesController {
-  public async index ({}: HttpContextContract) {
-    return Service.query()
+  public async index ({ response }: HttpContextContract) {
+    return response.ok(await Service.query().exec())
+    // return Service.query()
   }
 
   public async create ({}: HttpContextContract) {}

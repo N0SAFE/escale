@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon'
 import {
-  BaseModel,
   BelongsTo,
   beforeFetch,
   beforeFind,
@@ -9,8 +8,14 @@ import {
   computed,
 } from '@ioc:Adonis/Lucid/Orm'
 import File from './File'
+import { Filterable } from '@ioc:Adonis/Addons/LucidFilter'
+import { compose } from '@ioc:Adonis/Core/Helpers'
+import ImageFilter from './Filters/ImageFilter'
+import AppBaseModel from './AppBaseModel'
 
-export default class Image extends BaseModel {
+export default class Image extends compose(AppBaseModel, Filterable) {
+  public static $filter = () => ImageFilter
+
   @column()
   public image_id: number
 
@@ -35,7 +40,7 @@ export default class Image extends BaseModel {
   @computed()
   public get path () {
     if (!this.file) {
-      return null
+      return undefined
     }
     return `${this.directory}/${this.serverFileName}`
   }
@@ -48,7 +53,7 @@ export default class Image extends BaseModel {
   @computed()
   public get serverFileName () {
     if (!this.file) {
-      return null
+      return undefined
     }
     return `${this.file.uuid}.${this.file.extname}`
   }
@@ -56,6 +61,28 @@ export default class Image extends BaseModel {
   @beforeFind()
   @beforeFetch()
   public static async preloadFile (query) {
-    query.preload('file')
+    query.preloadChain('file')
   }
+
+  // @afterFind()
+  // @afterFetch()
+  // public static async preloadFile (modelInstance: Image) {
+  //   // console.log(modelInstance)
+  //   // console.log(modelInstance.file)
+  //   // console.log(query.knexQuery._statements)
+  //   // if (query.knexQuery._statements.length === 0) {
+  //   //   console.log('preloadFile')
+  //   //   console.log('preloadFile')
+  //   //   query.preload('file')
+  //   // }else {
+  //   //   query.knexQuery._statements.forEach((statement) => {
+  //   //     console.log(statement)
+  //   //     console.log(statement.value.includes('file_id'))
+  //   //     if (statement.value.includes('file_id')) {
+  //   //       console.log('preloadFile 2')
+  //   //       query.preload('file')
+  //   //     }
+  //   //   })
+  //   // }
+  // }
 }

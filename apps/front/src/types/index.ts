@@ -27,7 +27,7 @@ export type Spa<T extends boolean = false> = {
     title: string
     description: string
     location: string
-    google_maps_link: string
+    googleMapsLink: string
 } & (T extends true ? { spaImages: SpaImage[]; services: Service[] } : {})
 
 export type Service<T extends boolean = false> = {
@@ -39,14 +39,14 @@ export type Service<T extends boolean = false> = {
 
 export type Reservation<T extends boolean = false> = {
     id: number
-    start_at: string
-    end_at: string
+    startAt: string
+    endAt: string
     spa: Spa
 }
 
 export type Availability<T extends boolean = false> = {
     id: number
-    start_at: string
-    end_at: string
+    startAt: string
+    endAt: string
     spa: Spa
 }

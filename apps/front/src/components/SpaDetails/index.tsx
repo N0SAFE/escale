@@ -18,7 +18,7 @@ export default function SpaDetails({ spa }: Props) {
             <div className="mb-4">
                 <Link
                     className="underline underline-offset-4"
-                    href={spa.google_maps_link}
+                    href={spa.googleMapsLink}
                     target="_blank"
                 >
                     {spa.location}

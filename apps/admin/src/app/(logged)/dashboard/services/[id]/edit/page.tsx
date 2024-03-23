@@ -45,25 +45,15 @@ export default function ServiceEdit() {
     })
 
     useEffect(() => {
-        setServiceState(service?.data)
+        setServiceState(service)
     }, [service])
 
     const fileSelectItems = useMemo(
         () =>
-            images?.data?.map((image) => {
+            images?.map((image) => {
                 return {
-                    component: (
-                        <div>
-                            <ApiImage
-                                identifier={image.id}
-                                width={50}
-                                height={50}
-                                alt={'test'}
-                            />
-                        </div>
-                    ),
                     label: image.file.name,
-                    value: image.id,
+                    value: image,
                 }
             }),
         [images]
@@ -76,7 +66,7 @@ export default function ServiceEdit() {
             </div>
         )
     }
-    console.log(service?.data)
+    console.log(service)
 
     return (
         <div className="flex flex-col gap-16 min-h-full justify-between">
@@ -84,7 +74,7 @@ export default function ServiceEdit() {
                 <div className="flex flex-col w-full">
                     <Label htmlFor="label">label</Label>
                     <Input
-                        defaultValue={service?.data?.label}
+                        defaultValue={service?.label}
                         onChange={(e) =>
                             setServiceState({
                                 ...serviceState!,
@@ -96,7 +86,7 @@ export default function ServiceEdit() {
                 <div className="flex flex-col w-full">
                     <Label htmlFor="description">description</Label>
                     <Input
-                        defaultValue={service?.data?.description}
+                        defaultValue={service?.description}
                         onChange={(e) =>
                             setServiceState({
                                 ...serviceState!,
@@ -108,15 +98,25 @@ export default function ServiceEdit() {
                 <div className="flex flex-col w-full">
                     <Label htmlFor="description">description</Label>
                     <Combobox
+                        onRender={(image) => (
+                            <div>
+                                <ApiImage
+                                    identifier={image.id}
+                                    width={50}
+                                    height={50}
+                                    alt={'test'}
+                                />
+                            </div>
+                        )}
                         items={fileSelectItems || []}
                         isLoading={!isImagesFetched}
                         defaultPreviewText="Select an image..."
-                        value={serviceState?.image?.id}
-                        onSelect={(id) =>
+                        value={serviceState?.image || undefined}
+                        onSelect={(image) =>
                             setServiceState({
                                 ...serviceState!,
-                                image: id
-                                    ? images?.data?.find((i) => id === i.id)
+                                image: image
+                                    ? images?.find((i) => image.id === i.id)
                                     : null,
                             })
                         }

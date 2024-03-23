@@ -1,3 +1,6 @@
+import MillionLint from '@million/lint'
+import million from 'million/compiler'
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: false,
@@ -11,4 +14,10 @@ const nextConfig = {
     },
 }
 
-export default nextConfig
+const millionConfig = {}
+
+// export default MillionLint.next({ rsc: true })(
+//     million.next(nextConfig, millionConfig)
+// )
+
+export default million.next(nextConfig, millionConfig)

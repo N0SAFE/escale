@@ -184,7 +184,12 @@ const columns: ColumnDef<Spa>[] = [
 ]
 
 export default function SpasTable() {
-    const { data, error, isFetched, refetch } = useQuery({
+    const {
+        data: spas,
+        error,
+        isFetched,
+        refetch,
+    } = useQuery({
         queryKey: ['spas'],
         queryFn: async () => getSpas(),
     })
@@ -225,7 +230,7 @@ export default function SpasTable() {
     const [isDeletDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
 
     const table = useReactTable({
-        data: data?.data ?? [],
+        data: spas ?? [],
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
@@ -484,7 +489,7 @@ function CreateSpa({ isLoading, onSubmit }: CreateSpaProps) {
     })
     const fileSelectItems = React.useMemo(
         () =>
-            images?.data?.map((image) => {
+            images?.map((image) => {
                 return {
                     component: (
                         <span>
@@ -504,7 +509,7 @@ function CreateSpa({ isLoading, onSubmit }: CreateSpaProps) {
     )
     const serviceSelectItems = React.useMemo(
         () =>
-            services?.data?.map((service) => {
+            services?.map((service) => {
                 return {
                     label: service.label,
                     value: service.id,
@@ -525,7 +530,7 @@ function CreateSpa({ isLoading, onSubmit }: CreateSpaProps) {
             maxOrder++
             return {
                 order: maxOrder,
-                image: images?.data?.find((i) => i.id === id)!,
+                image: images?.find((i) => i.id === id)!,
             } as SpaImageType
         })
 
@@ -543,7 +548,7 @@ function CreateSpa({ isLoading, onSubmit }: CreateSpaProps) {
         title: '',
         description: '',
         location: '',
-        google_maps_link: '',
+        googleMapsLink: '',
         spaImages: [],
         services: [],
     })
@@ -593,12 +598,12 @@ function CreateSpa({ isLoading, onSubmit }: CreateSpaProps) {
                         </Label>
                         <Input
                             id="google_maps_link"
-                            value={spaState.google_maps_link}
+                            value={spaState.googleMapsLink}
                             className="col-span-3"
                             onChange={(e) =>
                                 setSpaState({
                                     ...spaState,
-                                    google_maps_link: e.target.value,
+                                    googleMapsLink: e.target.value,
                                 })
                             }
                         />
@@ -611,15 +616,36 @@ function CreateSpa({ isLoading, onSubmit }: CreateSpaProps) {
                             <Combobox
                                 className="w-full"
                                 multiple
-                                items={fileSelectItems || []}
+                                items={images?.map((image) => {
+                                    return {
+                                        label: image.file.name,
+                                        value: image,
+                                    }
+                                })}
                                 isLoading={!isImagesFetched}
                                 defaultPreviewText="Select an image..."
                                 defaultSearchText="Search for an image..."
-                                value={spaState?.spaImages?.map(
-                                    (i) => i.image.id
-                                )}
-                                onSelect={onImageSelect}
+                                value={spaState?.spaImages?.map((i) => i.image)}
+                                onSelect={(images) =>
+                                    onImageSelect(
+                                        images.map(function (i) {
+                                            return i.id
+                                        })
+                                    )
+                                }
                                 keepOpen
+                                onRender={(val) => {
+                                    return (
+                                        <span>
+                                            <ApiImage
+                                                identifier={val.id}
+                                                width={50}
+                                                height={50}
+                                                alt={'test'}
+                                            />
+                                        </span>
+                                    )
+                                }}
                             />
                             <ScrollArea className="h-96">
                                 <Reorder.Group
@@ -689,18 +715,23 @@ function CreateSpa({ isLoading, onSubmit }: CreateSpaProps) {
                         <Label htmlFor="location">Services</Label>
                         <Combobox
                             multiple
-                            items={serviceSelectItems || []}
+                            items={services?.map((service) => {
+                                return {
+                                    label: service.label,
+                                    value: service,
+                                }
+                            })}
                             isLoading={!isServicesFetched}
                             defaultPreviewText="Select an sercice..."
                             defaultSearchText="Search for a sercice..."
-                            value={spaState?.services?.map((i) => i.id)}
+                            value={spaState?.services}
                             onSelect={(sers) =>
                                 setSpaState({
                                     ...spaState,
                                     services: sers.map(
-                                        (id) =>
-                                            services?.data?.find(
-                                                (subs) => subs.id === id
+                                        (service) =>
+                                            services?.find(
+                                                (subs) => subs.id === service.id
                                             )!
                                     ),
                                 })

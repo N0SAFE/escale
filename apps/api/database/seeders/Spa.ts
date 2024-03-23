@@ -35,10 +35,7 @@ export default class SpaSeeder extends BaseSeeder {
       })
       await image.related('file').associate(file)
       await image.load('file')
-      Drive.put(
-        image.path!,
-        fs.readFileSync(`${__dirname}/assets${i.image}`)
-      )
+      Drive.put(image.path!, fs.readFileSync(`${__dirname}/assets${i.image}`))
     }
 
     // images.forEach(async (i, index) => {

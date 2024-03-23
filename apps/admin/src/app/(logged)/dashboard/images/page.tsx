@@ -69,6 +69,7 @@ import {
 import { toast } from 'sonner'
 import { Label } from '@/components/ui/label'
 import FileInput from '@/components/FileInput'
+import ApiImage from '@/components/ApiImage'
 
 type Size = `${number}b` | `${number}kb` | `${number}mb` | `${number}gb`
 
@@ -114,12 +115,8 @@ const columns: ColumnDef<ImageType>[] = [
         accessorKey: 'image',
         header: 'Image',
         cell: ({ row }) => (
-            <Image
-                src={
-                    process.env.NEXT_PUBLIC_API_URL +
-                    '/attachment/image/' +
-                    row.original.id
-                }
+            <ApiImage
+                identifier={row.original.id}
                 width={50}
                 height={50}
                 alt={row.original.alt}
@@ -260,7 +257,7 @@ export default function ServicesTable() {
     console.log({ data, error, isFetched })
 
     const table = useReactTable({
-        data: data?.data ?? [],
+        data: data ?? [],
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,

@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, beforeFetch, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { BelongsTo, beforeFetch, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import Spa from './Spa'
 import Image from './Image'
+import AppBaseModel from './AppBaseModel'
 
-export default class SpaImage extends BaseModel {
+export default class SpaImage extends AppBaseModel {
   public static table = 'spa_image'
 
   @column({ isPrimary: true })

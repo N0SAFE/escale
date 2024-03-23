@@ -1,44 +1,40 @@
 'use server'
 
+import { GroupsFilter, PaginationFilter, SearchFilter } from '@/types/filters'
 import { CreateSpa, Spa, SpaImage, UpdateSpa } from '@/types/index'
 import { axiosInstance } from '@/utils/axiosInstance'
 
-export async function getSpas() {
+export async function getSpas(
+    filter: GroupsFilter & SearchFilter & PaginationFilter = {}
+) {
     'use server'
 
-    try {
-        // console.log(axiosInstance.defaults.baseURL)
-        const { data } = await axiosInstance.get<Spa[]>('/spas')
-        // console.log('data')
-        // console.log(data)
-        return { data }
-    } catch (error) {
-        return { error }
-    }
+    // console.log(axiosInstance.defaults.baseURL)
+    const { data } = await axiosInstance.get<Spa[]>('/spas', {
+        params: {
+            ...filter.search,
+            groups: filter.groups,
+            page: filter.page,
+            limit: filter.limit,
+        },
+    })
+    // console.log('data')
+    // console.log(data)
+    return data
 }
 
 export async function getSpa(id: number) {
     'use server'
 
-    try {
-        const { data } = await axiosInstance.get<Spa>(`/spas/${id}`)
-        return { data }
-    } catch (error) {
-        return { error }
-    }
+    const { data } = await axiosInstance.get<Spa>(`/spas/${id}`)
+    return data
 }
 
 export async function getImagesBySpa(id: number) {
     'use server'
 
-    try {
-        const { data } = await axiosInstance.get<SpaImage[]>(
-            `/spas/${id}/images`
-        )
-        return { data }
-    } catch (error) {
-        return { error }
-    }
+    const { data } = await axiosInstance.get<SpaImage[]>(`/spas/${id}/images`)
+    return data
 }
 
 export async function createSpa(data: CreateSpa) {
@@ -48,7 +44,7 @@ export async function createSpa(data: CreateSpa) {
         title: data.title,
         description: data.description,
         location: data.location,
-        googleMapsLink: data.google_maps_link,
+        googleMapsLink: data.googleMapsLink,
         spaImages:
             data.spaImages?.map((spaImage) => ({
                 image: spaImage.image.id,
@@ -69,7 +65,7 @@ export async function updateSpa(id: number, data?: UpdateSpa) {
         title: data.title,
         description: data.description,
         location: data.location,
-        google_maps_link: data.google_maps_link,
+        googleMapsLink: data.googleMapsLink,
         spaImages:
             data.spaImages?.map((spaImage) => ({
                 image: spaImage.image.id,

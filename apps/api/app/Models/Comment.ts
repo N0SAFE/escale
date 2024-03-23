@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, HasOne, belongsTo, column, hasOne } from '@ioc:Adonis/Lucid/Orm'
+import { BelongsTo, HasOne, belongsTo, column, hasOne } from '@ioc:Adonis/Lucid/Orm'
 import User from './User'
 import Spa from './Spa'
+import AppBaseModel from './AppBaseModel'
 
-export default class Comment extends BaseModel {
+export default class Comment extends AppBaseModel {
   @column({ isPrimary: true })
   public id: number
 

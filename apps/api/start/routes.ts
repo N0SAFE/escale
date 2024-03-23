@@ -23,8 +23,6 @@ import HealthCheck from '@ioc:Adonis/Core/HealthCheck'
 
 // check db connection
 Route.get('health', async ({ response }) => {
-  console.log('checking health')
-
   const report = await HealthCheck.getReport()
 
   return report.healthy ? response.ok(report) : response.badRequest(report)
@@ -45,6 +43,7 @@ Route.group(() => {
   Route.post('register', 'AuthController.register')
   Route.post('refresh', 'AuthController.refresh')
   Route.get('whoami', 'AuthController.whoami')
+  Route.post('try/ical', 'IcalsController.parse')
 
   Route.group(() => {
     Route.delete('spas/:spa/images/:spaImage', 'SpasController.deleteImage')
@@ -62,7 +61,7 @@ Route.group(() => {
       .only(['store', 'update', 'destroy'])
     Route.resource('availabilities', 'AvailabilitiesController')
       .apiOnly()
-      .only(['store', 'update', 'destroy'])
+      .only(['store', 'update', 'destroy', 'update'])
     Route.resource('spas', 'SpasController').apiOnly().only(['update', 'store', 'destroy'])
     Route.resource('services', 'ServicesController').apiOnly().only(['update', 'store', 'destroy'])
     Route.resource('tags', 'TagsController').apiOnly().only(['store', 'update', 'destroy'])

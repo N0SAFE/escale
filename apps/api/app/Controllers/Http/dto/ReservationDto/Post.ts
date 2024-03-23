@@ -1,74 +1,141 @@
 import {
-  IsDateString,
-  // IsDate,
   IsDefined,
-  IsNotEmpty,
-  IsNumber,
+  IsISO8601,
   IsObject,
   ValidateNested,
+  ValidationArguments,
 } from 'class-validator'
+import { Exclude, Transform, Type } from 'class-transformer'
+import { AsSameProperties } from '../type/AsSameProperties'
+import { RequestContract } from '@ioc:Adonis/Core/Request'
 import { BaseDto } from '../BaseDto'
-import { Type, instanceToInstance } from 'class-transformer'
+import { SkipTransform } from '../Decorator/SkipTransform'
 import { EntityExist } from '../Decorator/EntityExist'
-import User from 'App/Models/User'
+import { Custom } from '../Decorator/Custom'
+import { DateTime } from 'luxon'
+import Spa from 'App/Models/Spa'
+import { AwaitPromise } from '../Decorator/AwaitPromise'
 
-export class ReservationsRessourcePostBodyDto extends BaseDto {
-  constructor (args) {
-    super(args)
-  }
+function checkDateIsAfter (date1: string, args: ValidationArguments) {
+  const [relatedPropertyName] = args.constraints
+  const self = args.object
+  const date2 = self[relatedPropertyName]
+  return DateTime.fromISO(date1).toMillis() <= DateTime.fromISO(date2).toMillis()
+}
 
-  @IsNumber()
-  @IsNotEmpty()
-  @EntityExist(User)
-  public userId: number
+export class ReservationRessourcePostBodyDto {
+  @IsDefined()
+  @EntityExist(Spa)
+  public spa: number
 
-  @IsDateString()
-  @IsNotEmpty()
+  @IsDefined()
+  @IsISO8601()
+  @Custom('endAt', {
+    function: checkDateIsAfter,
+    message: 'startAt must be before endAt',
+  })
   public startAt: string
 
-  @IsDateString()
-  @IsNotEmpty()
+  @IsDefined()
+  @IsISO8601()
   public endAt: string
 }
 
-export class ReservationsRessourcePostQueryDto extends BaseDto {}
+export class ReservationRessourcePostQueryDto {}
 
-export class ReservationsRessourcePostDto extends BaseDto {
-  constructor (args: any) {
-    super(args)
-    if (!args) {
-      return
-    }
-    this.body = args.body
-    this.query = args.query
-    return instanceToInstance(this)
-  }
+export class ReservationRessourcePostParamsDto {}
+
+@Exclude()
+export class ReservationRessourcePostFilesDto {}
+
+@SkipTransform([['files', ReservationRessourcePostFilesDto]])
+export class ReservationRessourcePostDto extends BaseDto {
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ReservationRessourcePostBodyDto)
+  public body: ReservationRessourcePostBodyDto
 
   @IsDefined()
   @IsObject()
   @ValidateNested()
-  @Type(() => ReservationsRessourcePostBodyDto)
-  private _body: ReservationsRessourcePostBodyDto = {} as ReservationsRessourcePostBodyDto
-
-  public get body (): ReservationsRessourcePostBodyDto {
-    return this._body || new ReservationsRessourcePostBodyDto({})
-  }
-
-  public set body (value: ReservationsRessourcePostBodyDto | undefined) {
-    this._body = new ReservationsRessourcePostBodyDto(value || {})
-  }
+  @Type(() => ReservationRessourcePostQueryDto)
+  public query: ReservationRessourcePostQueryDto
 
   @IsDefined()
   @IsObject()
   @ValidateNested()
-  @Type(() => ReservationsRessourcePostQueryDto)
-  private _query: ReservationsRessourcePostQueryDto = {} as ReservationsRessourcePostQueryDto
+  @Type(() => ReservationRessourcePostParamsDto)
+  public params: ReservationRessourcePostParamsDto
 
-  public get query (): ReservationsRessourcePostQueryDto {
-    return this._query || new ReservationsRessourcePostQueryDto({})
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ReservationRessourcePostFilesDto)
+  public files: ReservationRessourcePostFilesDto
+
+  public get after () {
+    return new ReservationRessourcePostDtoAfter(this)
   }
 
-  public set query (value: ReservationsRessourcePostQueryDto | undefined) {
-    this._query = new ReservationsRessourcePostQueryDto(value || {})
+  public static fromRequest (request: RequestContract) {
+    return new this({
+      body: request.body(),
+      query: request.qs(),
+      params: request.params(),
+      files: request.allFiles(),
+    })
   }
+}
+
+export class ReservationRessourcePostBodyDtoAfter
+implements AsSameProperties<ReservationRessourcePostBodyDto> {
+  @Transform(async ({ value }) => await Spa.findOrFail(value))
+  @AwaitPromise
+  public spa: Spa
+
+  @Transform(({ value }) => DateTime.fromISO(value))
+  public startAt: DateTime
+
+  @Transform(({ value }) => DateTime.fromISO(value))
+  public endAt: DateTime
+}
+
+export class ReservationRessourcePostQueryDtoAfter
+implements AsSameProperties<ReservationRessourcePostQueryDto> {}
+
+export class ReservationRessourcePostParamsDtoAfter
+implements AsSameProperties<ReservationRessourcePostParamsDto> {}
+
+@Exclude()
+export class ReservationRessourcePostFilesDtoAfter
+implements AsSameProperties<ReservationRessourcePostFilesDto> {}
+
+@SkipTransform([['files', ReservationRessourcePostFilesDtoAfter]])
+export class ReservationRessourcePostDtoAfter
+  extends BaseDto
+  implements AsSameProperties<Omit<ReservationRessourcePostDto, 'after'>> {
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ReservationRessourcePostBodyDtoAfter)
+  public body: ReservationRessourcePostBodyDtoAfter
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ReservationRessourcePostQueryDtoAfter)
+  public query: ReservationRessourcePostQueryDtoAfter
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ReservationRessourcePostParamsDtoAfter)
+  public params: ReservationRessourcePostParamsDtoAfter
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ReservationRessourcePostFilesDtoAfter)
+  public files: ReservationRessourcePostFilesDtoAfter
 }

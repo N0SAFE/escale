@@ -55,7 +55,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
     const startAt = DateTime.utc()
         .set({ day: 1, hour: 0, minute: 0, second: 0, millisecond: 0 })
         .minus({ month: 1 })
-        console.log(startAt)
+    console.log(startAt)
     const endAt = startAt.plus({ month: 3 }).minus({ day: 1 })
     const {
         data: spa,
@@ -167,16 +167,16 @@ const Reservation = ({ params }: { params: { id: string } }) => {
             if (selectedDate?.from && !selectedDate?.to) {
                 const isBooked = !!reservations.find((reservation) => {
                     return (
-                        date > DateTime.fromISO(reservation.start_at) &&
-                        date < DateTime.fromISO(reservation.end_at)
+                        date > DateTime.fromISO(reservation.startAt) &&
+                        date < DateTime.fromISO(reservation.endAt)
                     )
                 })
 
                 const isAvailable = !!availabilities.find((availability) => {
                     // check if the date is between the start and end of the availability
                     return (
-                        date >= DateTime.fromISO(availability.start_at) &&
-                        date <= DateTime.fromISO(availability.end_at)
+                        date >= DateTime.fromISO(availability.startAt) &&
+                        date <= DateTime.fromISO(availability.endAt)
                     )
                 })
 
@@ -188,16 +188,16 @@ const Reservation = ({ params }: { params: { id: string } }) => {
 
             const isBooked = !!reservations.find((reservation) => {
                 return (
-                    date >= DateTime.fromISO(reservation.start_at) &&
-                    date < DateTime.fromISO(reservation.end_at)
+                    date >= DateTime.fromISO(reservation.startAt) &&
+                    date < DateTime.fromISO(reservation.endAt)
                 )
             })
 
             const isAvailable = !!availabilities.find((availability) => {
                 // check if the date is between the start and end of the availability
                 return (
-                    date >= DateTime.fromISO(availability.start_at) &&
-                    date <= DateTime.fromISO(availability.end_at)
+                    date >= DateTime.fromISO(availability.startAt) &&
+                    date <= DateTime.fromISO(availability.endAt)
                 )
             })
 
@@ -258,7 +258,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
             </div>
         )
     }
-    
+
     // console.log(availableDates)
 
     if (!spa || !availableDates) {
@@ -293,7 +293,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                             <div className="mb-4">
                                 <Link
                                     className="underline underline-offset-4"
-                                    href={spa.google_maps_link}
+                                    href={spa.googleMapsLink}
                                     target="_blank"
                                 >
                                     {spa.location}

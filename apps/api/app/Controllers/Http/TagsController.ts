@@ -3,7 +3,7 @@ import Tag from 'App/Models/Tag'
 
 export default class TagsController {
   public async index ({}: HttpContextContract) {
-    return Tag.query()
+    return await Tag.query().preload('spa').exec()
   }
 
   public async create ({}: HttpContextContract) {}

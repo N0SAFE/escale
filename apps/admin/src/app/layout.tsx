@@ -40,7 +40,7 @@ export default async function RootLayout({
                     </Suspense>
                 </ReactQueryProviders>
             </body>
-            <Toaster richColors />
+            <Toaster richColors position="bottom-left" />
         </html>
     )
 }

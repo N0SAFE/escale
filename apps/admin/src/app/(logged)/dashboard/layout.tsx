@@ -66,7 +66,7 @@ export default function Layout({
         const response = await axiosInstance.get('/try/admin')
         console.log(response)
     }
-    
+
     const [isOpen, setIsOpen] = useState(false)
     const routes: RouteType[] = [
         {
@@ -221,7 +221,11 @@ export default function Layout({
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <Button className="w-full" size="sm" onClick={tryAdmin}>
+                                <Button
+                                    className="w-full"
+                                    size="sm"
+                                    onClick={tryAdmin}
+                                >
                                     Upgrade
                                 </Button>
                             </CardContent>

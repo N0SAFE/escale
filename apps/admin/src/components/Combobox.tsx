@@ -31,25 +31,28 @@ type ComboboxMultipleProps<T> = {
 type ComboboxSingleProps<T> = {
     defaultValue?: T
     value?: T
-    onSelect?: (value: T) => void
+    onSelect?: (value: T | undefined) => void
     preview?: (value: T) => React.ReactNode
     multiple?: false
 }
 
-type ComboboxProps<T> = (ComboboxMultipleProps<T> | ComboboxSingleProps<T>) & {
-    items: {
-        value: T
+type ComboboxProps<T extends { id: number }> = (
+    | ComboboxMultipleProps<T>
+    | ComboboxSingleProps<T>
+) & {
+    items?: {
         label: string
-        component?: JSX.Element
+        value: T
     }[]
     notFoundText?: string
     defaultPreviewText?: string
     defaultSearchText?: string
     isLoading: boolean
     keepOpen?: boolean
+    onRender?: (item: T) => React.ReactNode
 }
 
-export default function Combobox<T>({
+export default function Combobox<T extends { id: number }>({
     items,
     isLoading,
     defaultValue,
@@ -62,12 +65,13 @@ export default function Combobox<T>({
     keepOpen,
     defaultSearchText,
     className,
+    onRender,
 }: ComboboxProps<T> &
     Omit<React.ComponentProps<typeof Button>, keyof ComboboxProps<T>>) {
     const [open, setOpen] = React.useState(false)
     const [val, setVal] = React.useState(defaultValue)
 
-    console.log(val)
+    console.log('val', val)
     React.useEffect(() => {
         setVal(value)
     }, [value])
@@ -103,10 +107,10 @@ export default function Combobox<T>({
                                     {val
                                         ? preview
                                             ? preview(val as T)
-                                            : items.find(
+                                            : items?.find(
                                                   (framework) =>
                                                       framework.value === val
-                                              )?.label
+                                              )?.label || defaultPreviewText
                                         : defaultPreviewText}
                                 </span>
                             )}
@@ -132,7 +136,7 @@ export default function Combobox<T>({
                     <CommandGroup>
                         <ScrollArea className="h-[300px]">
                             {multiple === true
-                                ? items.map((item) => {
+                                ? items?.map((item) => {
                                       const lastValue = val as T[] | undefined
                                       return (
                                           <CommandItem
@@ -153,7 +157,10 @@ export default function Combobox<T>({
                                                                     []),
                                                                 item.value,
                                                             ]
-                                                  console.log(newValue)
+                                                  console.log(
+                                                      'newValue',
+                                                      newValue
+                                                  )
                                                   setVal(newValue)
                                                   if (!keepOpen) {
                                                       setOpen(false)
@@ -161,7 +168,8 @@ export default function Combobox<T>({
                                                   onSelect?.(newValue)
                                               }}
                                           >
-                                              {item.component || item.label}
+                                              {onRender?.(item.value) ||
+                                                  item.label}
                                               <Check
                                                   className={cn(
                                                       'ml-auto h-4 w-4',
@@ -175,13 +183,13 @@ export default function Combobox<T>({
                                           </CommandItem>
                                       )
                                   })
-                                : items.map((item) => {
+                                : items?.map((item) => {
                                       const lastValue = val as T | undefined
                                       return (
                                           <CommandItem
                                               key={item.label}
                                               value={item.label}
-                                              onSelect={() => {
+                                              onSelect={(newValue) => {
                                                   setVal(
                                                       item.value === lastValue
                                                           ? undefined
@@ -190,10 +198,15 @@ export default function Combobox<T>({
                                                   if (!keepOpen) {
                                                       setOpen(false)
                                                   }
-                                                  onSelect?.(item.value)
+                                                  onSelect?.(
+                                                      item.value === lastValue
+                                                          ? undefined
+                                                          : item.value
+                                                  )
                                               }}
                                           >
-                                              {item.component || item.label}
+                                              {onRender?.(item.value) ||
+                                                  item.label}
                                               <Check
                                                   className={cn(
                                                       'ml-auto h-4 w-4',

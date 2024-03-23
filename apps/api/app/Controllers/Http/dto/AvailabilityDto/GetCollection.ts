@@ -1,45 +1,14 @@
-import {
-  IsDateString,
-  IsDefined,
-  IsNumber,
-  IsObject,
-  IsOptional,
-  ValidateNested,
-  ValidationArguments,
-} from 'class-validator'
-import { Exclude, Transform, Type } from 'class-transformer'
+import { IsDefined, IsNumber, IsObject, IsOptional, ValidateNested } from 'class-validator'
+import { Exclude, Type } from 'class-transformer'
 import { AsSameProperties } from '../type/AsSameProperties'
 import { RequestContract } from '@ioc:Adonis/Core/Request'
 import { BaseDto } from '../BaseDto'
 import { SkipTransform } from '../Decorator/SkipTransform'
-import { PropertyExist } from '../Decorator/PropertyExist'
-import { Custom } from '../Decorator/Custom'
-import { DateTime } from 'luxon'
-
-function checkDateIsAfter (date1: string, args: ValidationArguments) {
-  const [relatedPropertyName] = args.constraints
-  const self = args.object
-  const date2 = self[relatedPropertyName]
-  return DateTime.fromISO(date1).toMillis() <= DateTime.fromISO(date2).toMillis()
-}
 
 export class AvailabilityRessourceGetCollectionBodyDto {}
 
 export class AvailabilityRessourceGetCollectionQueryDto {
-  @IsDateString()
-  @IsOptional()
-  @PropertyExist('endAt')
-  @Custom('endAt', {
-    function: checkDateIsAfter,
-    message: 'startAt must be before endAt',
-  })
-  public startAt?: string
-
-  @IsDateString()
-  @IsOptional()
-  @PropertyExist('startAt')
-  public endAt?: string
-
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
   public page?: number
@@ -100,12 +69,6 @@ implements AsSameProperties<AvailabilityRessourceGetCollectionBodyDto> {}
 
 export class AvailabilityRessourceGetCollectionQueryDtoAfter
 implements AsSameProperties<AvailabilityRessourceGetCollectionQueryDto> {
-  @Transform(({ value }) => DateTime.fromISO(value))
-  public startAt?: DateTime
-
-  @Transform(({ value }) => DateTime.fromISO(value))
-  public endAt?: DateTime
-
   public page?: number
   public limit?: number
 }

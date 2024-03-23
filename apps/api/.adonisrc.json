@@ -27,7 +27,8 @@
     "adonis5-jwt",
     "@stouder-io/adonis-scheduler",
     "adonis-lucid-soft-deletes",
-    "./providers/StripeProvider"
+    "./providers/StripeProvider",
+    "./providers/ModelQueryBuilderPreloadProvider"
   ],
   "aceProviders": ["@adonisjs/repl"],
   "tests": {

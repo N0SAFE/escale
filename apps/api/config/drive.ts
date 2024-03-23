@@ -53,9 +53,7 @@ export default driveConfig({
       | files.
       |
       */
-      root: Application.inProduction
-        ? Application.appRoot + '/../storage'
-        : Application.tmpPath(),
+      root: Application.inProduction ? Application.appRoot + '/../storage' : Application.tmpPath(),
 
       /*
       |--------------------------------------------------------------------------

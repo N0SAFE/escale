@@ -85,9 +85,7 @@ const comments = [
 
 export default function Home() {
     return (
-        <main
-            className="flex min-h-screen flex-col items-center justify-between text-white"
-        >
+        <main className="flex min-h-screen flex-col items-center justify-between text-white">
             <section>
                 <Image
                     src="/20240212_192351.jpg"

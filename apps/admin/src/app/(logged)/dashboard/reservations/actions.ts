@@ -1,65 +1,126 @@
 'use server'
 
-import { CreateService, Service, UpdateService } from '@/types/index'
+import {
+    DatesFilter,
+    GroupsFilter,
+    SearchFilter,
+    OrderFilter,
+} from '@/types/filters'
+import {
+    CreateReservation,
+    Reservation,
+    UpdateReservation,
+} from '@/types/index'
 import { axiosInstance } from '@/utils/axiosInstance'
 
-export async function getServices() {
+export async function getReservations(
+    filter: GroupsFilter & SearchFilter & DatesFilter = {},
+    signal?: AbortSignal
+) {
+    'use server'
+
+    console.log(filter)
+
+    const { data } = await axiosInstance.get<Reservation[]>('/reservations', {
+        params: {
+            groups: filter.groups,
+            ...filter.search,
+            ...filter.dates,
+        },
+        signal,
+    })
+    console.log(data.length)
+    return data
+}
+
+export async function getClosestReservations(
+    date: string,
+    filter: GroupsFilter & SearchFilter & OrderFilter = {}
+) {
+    'use server'
+
+    const [upResponse, downResponse] = await Promise.all([
+        axiosInstance.get<Reservation[]>('/reservations', {
+            params: {
+                groups: filter.groups,
+                ...filter.search,
+                endAt: {
+                    ...(filter.search?.endAt as any),
+                    strictly_before: date,
+                },
+                limit: 1,
+                order: {
+                    ...filter?.order,
+                    startAt: 'desc',
+                },
+            },
+        }),
+        axiosInstance.get<Reservation[]>('/reservations', {
+            params: {
+                groups: filter.groups,
+                ...filter.search,
+                startAt: {
+                    ...(filter.search?.startAt as any),
+                    strictly_after: date,
+                },
+                limit: 1,
+            },
+        }),
+    ])
+    return {
+        data: {
+            up: upResponse.data?.[0],
+            down: downResponse.data?.[0],
+        },
+    }
+}
+
+export async function getReservation(id: number) {
     'use server'
 
     try {
-        // console.log(axiosInstance.defaults.baseURL)
-        const { data } = await axiosInstance.get<Service[]>('/services')
-        // console.log('data')
-        // console.log(data)
+        const { data } = await axiosInstance.get<Reservation>(
+            `/reservations/${id}`
+        )
         return { data }
     } catch (error) {
         return { error }
     }
 }
 
-export async function getService(id: number) {
+export async function createReservation(data: CreateReservation) {
     'use server'
 
-    try {
-        const { data } = await axiosInstance.get<Service>(`/services/${id}`)
-        return { data }
-    } catch (error) {
-        return { error }
-    }
+    // console.log(Array.from(data.entries()))
+
+    console.log(data)
+
+    await axiosInstance
+        .post<CreateReservation>('/reservations', data)
+        .catch((e) => {
+            console.log(e.response.data)
+        })
 }
 
-export async function createService(data: CreateService) {
-    'use server'
-
-    const transformedData = {
-        label: data.label,
-        description: data.description,
-        image: data.image?.id,
-    }
-    await axiosInstance.post<CreateService>('/services', transformedData)
-}
-
-export async function updateService(id: number, data?: UpdateService) {
+export async function updateReservation(id: number, data?: UpdateReservation) {
     'use server'
 
     if (!data) {
         return
     }
     const transformedData = {
-        label: data.label,
-        description: data.description,
-        image: data.image?.id,
+        ...data,
     }
+    console.log(transformedData)
     await axiosInstance
-        .patch(`/services/${id}`, transformedData)
+        .patch(`/reservations/${id}`, transformedData)
         .catch(function (e) {
-            console.log(e)
             throw e
         })
 }
 
-export async function deleteService(id: number) {
+export async function deleteReservation(id: number) {
     'use server'
 
-    await axiosInstance.delete(`/services/${id}`)
+    await axiosInstance.delete(`/reservations/${id}`)
 }

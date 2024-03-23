@@ -91,6 +91,8 @@ export default class ReservationService {
       endAt = endAt.minus({ days: 1 })
     }
 
+    console.log(availabilities)
+
     return availabilities.reduce(
       (acc, availability) => {
         const availabilityStartAt = availability.startAt
@@ -101,17 +103,46 @@ export default class ReservationService {
           availabilityEndAt.diff(availabilityStartAt, 'days').days + 1,
           endAt.diff(startAt, 'days').days + 1
         )
+
         const details = acc.details
-        if (details.toPrice.has(availability.nightPrice)) {
-          details.toPrice.set(
-            availability.nightPrice,
-            details.toPrice.get(availability.nightPrice)! + intersectionDuration
-          )
-        } else {
-          details.toPrice.set(availability.nightPrice, intersectionDuration)
+
+        console.log('intersectionDuration', intersectionDuration)
+
+        for (let i = 0; i < intersectionDuration; i++) {
+          const currentDay = startAt.plus({ days: i })
+          const weekday = currentDay.weekday
+          const price = (() => {
+            switch (weekday) {
+              case 1:
+                return availability.monPrice
+              case 2:
+                return availability.tuePrice
+              case 3:
+                return availability.wedPrice
+              case 4:
+                return availability.thuPrice
+              case 5:
+                return availability.friPrice
+              case 6:
+                return availability.satPrice
+              case 7:
+                return availability.sunPrice
+              default:
+                return undefined
+            }
+          })()
+
+          // console.log('price', price)
+          if (details.toPrice.has(price?.night!)) {
+            details.toPrice.set(price?.night!, details.toPrice.get(price?.night!)! + 1)
+          } else {
+            details.toPrice.set(price?.night!, 1)
+          }
         }
         return {
-          price: acc.price + intersectionDuration * availability.nightPrice,
+          price: Array.from(acc.details.toPrice).reduce((acc, [price, quantity]) => {
+            return acc + price * quantity
+          }, 0),
           details: details,
           // TODO: change to price per day of per afternoon
         }
@@ -119,7 +150,7 @@ export default class ReservationService {
       {
         price: 0,
         details: {
-          toPrice: new Map(),
+          toPrice: new Map<number, number>(),
         },
       }
     )

@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon'
 import {
-  BaseModel,
   BelongsTo,
   ManyToMany,
   beforeFetch,
@@ -11,8 +10,9 @@ import {
 } from '@ioc:Adonis/Lucid/Orm'
 import Spa from './Spa'
 import Image from './Image'
+import AppBaseModel from './AppBaseModel'
 
-export default class Service extends BaseModel {
+export default class Service extends AppBaseModel {
   @column({ isPrimary: true })
   public id: number
 

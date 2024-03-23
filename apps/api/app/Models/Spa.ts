@@ -1,8 +1,8 @@
 import { DateTime } from 'luxon'
 import {
-  BaseModel,
   HasMany,
   ManyToMany,
+  beforeFetch,
   beforeFind,
   column,
   hasMany,
@@ -13,8 +13,14 @@ import Tag from './Tag'
 import Service from './Service'
 import Reservation from './Reservation'
 import SpaImage from './SpaImage'
+import { compose } from '@ioc:Adonis/Core/Helpers'
+import { Filterable } from '@ioc:Adonis/Addons/LucidFilter'
+import SpaFilter from './Filters/SpaFilter'
+import AppBaseModel from './AppBaseModel'
 
-export default class Spa extends BaseModel {
+export default class Spa extends compose(AppBaseModel, Filterable) {
+  public static $filter = () => SpaFilter
+
   @column({ isPrimary: true })
   public id: number
 
@@ -79,6 +85,7 @@ export default class Spa extends BaseModel {
   // }
 
   @beforeFind()
+  @beforeFetch()
   public static async preloadImages (query) {
     query.preload('spaImages')
   }
