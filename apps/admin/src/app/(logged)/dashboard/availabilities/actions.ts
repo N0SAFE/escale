@@ -72,8 +72,8 @@ export async function getClosestAvailabilities(
     ])
     return {
         data: {
-            up: upResponse.data?.[0],
-            down: downResponse.data?.[0],
+            up: upResponse.data?.[0] as Availability | undefined,
+            down: downResponse.data?.[0] as Availability | undefined,
         },
     }
 }
@@ -98,11 +98,7 @@ export async function createAvailability(data: CreateAvailability) {
 
     console.log(data)
 
-    await axiosInstance
-        .post<CreateAvailability>('/availabilities', data)
-        .catch((e) => {
-            console.log(e.response.data)
-        })
+    await axiosInstance.post<CreateAvailability>('/availabilities', data)
 }
 
 export async function updateAvailability(
@@ -118,11 +114,7 @@ export async function updateAvailability(
         ...data,
     }
     console.log(transformedData)
-    await axiosInstance
-        .patch(`/availabilities/${id}`, transformedData)
-        .catch(function (e) {
-            throw e
-        })
+    await axiosInstance.patch(`/availabilities/${id}`, transformedData)
 }
 
 export async function deleteAvailability(id: number) {

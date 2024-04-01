@@ -424,11 +424,9 @@ export default function AvailabilityListView({}: ListViewProps) {
                                                         getClostestReservations={async (
                                                             date: string
                                                         ) =>
-                                                            (
-                                                                await getClosestReservations(
-                                                                    date
-                                                                )
-                                                            )?.data!
+                                                            (await getClosestReservations(
+                                                                date
+                                                            ))!
                                                         }
                                                         defaultValues={
                                                             row.original

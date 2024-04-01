@@ -22,9 +22,9 @@
       "adonis-lucid-filter",
       "@adonisjs/auth",
       "adonis5-jwt",
-      "@stouder-io/adonis-scheduler",
       "adonis-lucid-soft-deletes",
-      "@adonisjs/ally"
+      "@adonisjs/ally",
+      "adonis5-scheduler"
     ]
   }
 }

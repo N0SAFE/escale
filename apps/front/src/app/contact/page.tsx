@@ -1,5 +1,5 @@
 import ContactForm from '@/components/contact-form'
-import axios from 'axios'
+import { axiosInstance } from '@/lib/axiosInstance'
 
 export default function Contact() {
     async function handleSubmit(
@@ -8,7 +8,7 @@ export default function Contact() {
         'use server'
 
         try {
-            await axios.post('/contact', data)
+            await axiosInstance.post('/contact', data)
             return {
                 state: true,
             }

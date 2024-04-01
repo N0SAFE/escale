@@ -66,6 +66,7 @@ export type Reservation<T extends boolean = false> = {
     id: number
     startAt: string
     endAt: string
+    notes: string
     spa: Spa
 }
 

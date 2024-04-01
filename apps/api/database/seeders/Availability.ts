@@ -56,19 +56,15 @@ export default class AvailabilitySeeder extends BaseSeeder {
       const availabilityIntersects = availabilities.some((availability) => {
         return (
           (startAt >= availability.startAt && startAt <= availability.endAt) ||
-          (endAt >= availability.startAt && endAt <= availability.endAt)
+          (endAt >= availability.startAt && endAt <= availability.endAt) ||
+          (startAt <= availability.startAt && endAt >= availability.endAt)
         )
       })
 
       if (availabilityIntersects) {
+        console.log()
         continue
       }
-
-      const availability = await Availability.create({
-        startAt: startAt,
-        endAt: endAt,
-        spaId: firstSpa.id,
-      })
 
       // get a number between 1 and 7
       const numberOfDifferentPrices = Math.floor(Math.random() * 7) + 1
@@ -86,20 +82,33 @@ export default class AvailabilitySeeder extends BaseSeeder {
         )
       }
 
+      console.log('creating prices')
+
       const prices = await Promise.all(promisePrices)
       const usedPrices: Set<AvailabilityPrice> = new Set()
       const promises: any[] = []
 
-      const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+      console.log('associating prices')
+
+      const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
+      const avaialbilityPrices: Record<`${(typeof days)[number]}PriceId`, number> = {} as any
       for (const day of days) {
         if (prices.length === 0) {
           break
         }
         const price = prices[Math.floor(Math.random() * prices.length)]
         usedPrices.add(price)
-        // @ts-ignore
-        promises.push(availability.related(`${day}Price`).associate(price))
+        avaialbilityPrices[day + 'PriceId'] = price.id
       }
+
+      console.log('creating availability')
+      const availability = await Availability.create({
+        startAt: startAt,
+        endAt: endAt,
+        spaId: firstSpa.id,
+        ...avaialbilityPrices,
+      })
+      console.log('created availability end')
 
       for (const price of usedPrices) {
         const exist = prices.some((p) => p.id === price.id)
@@ -109,45 +118,15 @@ export default class AvailabilitySeeder extends BaseSeeder {
         promises.push(price.delete())
       }
 
-      promises.push(
-        availability
-          .related('monPrice')
-          .associate(prices[Math.floor(Math.random() * prices.length)])
-      )
-      promises.push(
-        availability
-          .related('tuePrice')
-          .associate(prices[Math.floor(Math.random() * prices.length)])
-      )
-      promises.push(
-        availability
-          .related('wedPrice')
-          .associate(prices[Math.floor(Math.random() * prices.length)])
-      )
-      promises.push(
-        availability
-          .related('thuPrice')
-          .associate(prices[Math.floor(Math.random() * prices.length)])
-      )
-      promises.push(
-        availability
-          .related('friPrice')
-          .associate(prices[Math.floor(Math.random() * prices.length)])
-      )
-      promises.push(
-        availability
-          .related('satPrice')
-          .associate(prices[Math.floor(Math.random() * prices.length)])
-      )
-      promises.push(
-        availability
-          .related('sunPrice')
-          .associate(prices[Math.floor(Math.random() * prices.length)])
-      )
+      console.log('waiting for promises')
 
       await Promise.all(promises)
 
+      console.log('pushing availability')
+
       availabilities.push(availability)
+
+      console.log()
     }
   }
 }

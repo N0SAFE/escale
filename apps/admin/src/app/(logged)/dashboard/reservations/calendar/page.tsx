@@ -4,7 +4,12 @@ import { Reservation, Spa, UpdateReservation } from '@/types/index'
 import React from 'react'
 import { getSpas } from '../../actions'
 import { useWindowSize } from '@uidotdev/usehooks'
-import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
+import {
+    keepPreviousData,
+    useMutation,
+    useQuery,
+    useQueryClient,
+} from '@tanstack/react-query'
 import { DateTime } from 'luxon'
 import { block } from 'million/react'
 import {
@@ -29,15 +34,20 @@ import Combobox from '@/components/Combobox'
 import ReservationEdit from '@/components/ReservationEdit'
 
 const ReservationCalendarView = () => {
+    const queryClient = useQueryClient()
     const [selectedMonth, setSelectedMonth] = React.useState<Date>(new Date())
     const [selectedSpa, setSelectedSpa] = React.useState<Spa>()
     const [sheetIsOpen, setSheetIsOpen] = React.useState(false)
-    const [selectedReservation, setSelectedReservation] =
-        React.useState<Reservation>()
+    const [selectedReservations, setSelectedReservations] = React.useState<{
+        list: Reservation[]
+        active?: Reservation
+    }>()
     const [updatedReservation, setUpdatedReservation] = React.useState<{
         id: number
         reservation: UpdateReservation
     }>()
+
+    // console.log('updatedReservation', updatedReservation)
 
     const { data: spas, isFetched: isSpaFetched } = useQuery({
         queryKey: ['spas'],
@@ -54,6 +64,7 @@ const ReservationCalendarView = () => {
             id: number
             reservation: UpdateReservation
         }) => {
+            // console.log('reservation', id, reservation)
             if (!reservation) {
                 return
             }
@@ -63,6 +74,9 @@ const ReservationCalendarView = () => {
             toast.error('server error')
         },
         onSuccess: async (data) => {
+            queryClient.invalidateQueries({
+                queryKey: ['reservations'],
+            })
             toast.success('reservation updated')
             await refetch()
         },
@@ -75,9 +89,11 @@ const ReservationCalendarView = () => {
             toast.error('server error')
         },
         onSuccess: async (data) => {
+            queryClient.invalidateQueries({
+                queryKey: ['reservations'],
+            })
             toast.success('reservation deleted')
             setSheetIsOpen(false)
-            await refetch()
         },
     })
 
@@ -103,7 +119,11 @@ const ReservationCalendarView = () => {
         refetch,
     } = useQuery({
         placeholderData: keepPreviousData,
-        queryKey: ['reservations', selectedMonth.toISOString(), selectedSpa],
+        queryKey: [
+            'reservations',
+            selectedMonth.toISOString(),
+            selectedSpa?.id,
+        ],
         queryFn: async () =>
             selectedSpa
                 ? await getReservations({
@@ -164,11 +184,9 @@ const ReservationCalendarView = () => {
                     random: reservations?.map((a) => ({
                         from: DateTime.fromISO(a.startAt),
                         to: DateTime.fromISO(a.endAt),
+                        fromPortion: { portion: 2, index: 1 },
+                        toPortion: { portion: 2, index: 1 },
                         item: a,
-                        onClick: (reservations: Reservation) => {
-                            setSelectedReservation(reservations)
-                            setSheetIsOpen(true)
-                        },
                     })),
                     randomColor: [
                         'blue',
@@ -183,12 +201,50 @@ const ReservationCalendarView = () => {
                         return item.id
                     },
                 }}
+                onDisplayedRangeClick={(displayedReservations) => {
+                    if (displayedReservations.length === 0) {
+                        return
+                    }
+                    if (displayedReservations.length === 1) {
+                        setSelectedReservations({
+                            list: displayedReservations.map((a) => a.item),
+                            active: displayedReservations[0].item,
+                        })
+                        setUpdatedReservation({
+                            id: displayedReservations[0].item.id,
+                            reservation: {
+                                ...displayedReservations[0].item,
+                                spa: displayedReservations[0].item.spa.id,
+                            },
+                        })
+                        setSheetIsOpen(true)
+                        return
+                    }
+                    setUpdatedReservation({
+                        id: displayedReservations[0].item.id,
+                        reservation: {
+                            ...displayedReservations[0].item,
+                            spa: displayedReservations[0].item.spa.id,
+                        },
+                    })
+                    setSelectedReservations({
+                        list: displayedReservations.map((a) => a.item),
+                        active: displayedReservations[0].item,
+                    })
+                    setSheetIsOpen(true)
+                    return
+                }}
+                triggerColorChangeOnHover
             />
+
             <SheetContent className="sm:max-w-lg md:max-w-xl w-[100vw] h-screen flex flex-col justify-between">
                 <div>
                     <SheetHeader>
                         <SheetTitle>
-                            Edit profile {selectedReservation?.id}
+                            Edit profile{' '}
+                            {selectedReservations?.list?.map(
+                                (reservation) => reservation?.id
+                            )}
                         </SheetTitle>
                         <SheetDescription>
                             Make changes to your profile here. Click save when
@@ -207,10 +263,14 @@ const ReservationCalendarView = () => {
                                   )
                                 : undefined
                         }
-                        getClostestReservations={async (date: string) =>
-                            (await getClosestReservations(date))?.data!
+                        getClostestReservations={async (
+                            date: string,
+                            avoidIds?: number[]
+                        ) =>
+                            (await getClosestReservations(date, { avoidIds }))!
                         }
-                        defaultValues={selectedReservation}
+                        defaultValues={selectedReservations?.active}
+                        reservationsList={selectedReservations?.list}
                         onChange={(data) => {
                             setUpdatedReservation({
                                 id: data.id!,

@@ -120,6 +120,7 @@ export default function SelectDate({
                     <PopoverContent className="w-auto p-0" align="start">
                         {multiple ? (
                             <Calendar
+                                fixedWeeks
                                 initialFocus
                                 mode="range"
                                 defaultMonth={rangeDate?.from}

@@ -1,9 +1,9 @@
 'use client'
 
 import Loader from '@/components/loader'
-import { getSession, getUser, isLogin, refreshToken } from '@/lib/auth'
-import { redirect, usePathname } from 'next/navigation'
-import React from 'react'
+import { isLogin, refreshToken } from '@/lib/auth'
+import { usePathname } from 'next/navigation'
+import React, { Suspense } from 'react'
 import { navigate } from '../actions/navigate'
 
 export default function RootLayout({
@@ -35,5 +35,15 @@ export default function RootLayout({
             </div>
         )
     }
-    return <>{children}</>
+    return (
+        <Suspense
+            fallback={
+                <div className="flex justify-center items-center w-full h-full">
+                    <Loader />
+                </div>
+            }
+        >
+            {children}
+        </Suspense>
+    )
 }

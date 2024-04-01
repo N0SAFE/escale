@@ -21,18 +21,13 @@ import {
     SheetHeader,
     SheetTitle,
 } from '@/components/ui/sheet'
-import {
-    ContextMenu,
-    ContextMenuContent,
-    ContextMenuTrigger,
-} from '@/components/ui/context-menu'
 import { Calendar } from '@/components/ui/calendar'
 import AvailabilityEdit from '@/components/AvailabillityEdit'
 import { Button } from '@/components/ui/button'
 import Loader from '@/components/loader'
 import { toast } from 'sonner'
-import { Label } from '@/components/ui/label'
 import Combobox from '@/components/Combobox'
+import { Select } from '@/components/ui/select'
 
 const AvailabilityCalendarView = () => {
     const [selectedMonth, setSelectedMonth] = React.useState<Date>(new Date())
@@ -109,7 +104,11 @@ const AvailabilityCalendarView = () => {
         refetch,
     } = useQuery({
         placeholderData: keepPreviousData,
-        queryKey: ['availabilities', selectedMonth.toISOString(), selectedSpa],
+        queryKey: [
+            'availabilities',
+            selectedMonth.toISOString(),
+            selectedSpa?.id,
+        ],
         queryFn: async () =>
             selectedSpa
                 ? await getAvailabilities({
@@ -189,6 +188,13 @@ const AvailabilityCalendarView = () => {
                         return item.id
                     },
                 }}
+                onDisplayedRangeClick={(displayedAvailabilities) => {
+                    if (displayedAvailabilities.length === 1) {
+                        setSelectedAvailability(displayedAvailabilities[0].item)
+                        setSheetIsOpen(true)
+                    }
+                }}
+                triggerColorChangeOnHover
             />
             <SheetContent className="sm:max-w-lg md:max-w-xl w-[100vw] h-screen flex flex-col justify-between">
                 <div>

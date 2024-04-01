@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
+import AppBaseService from './AppBaseService'
 
-export default class DateTimeService {
+export default class DateTimeService implements AppBaseService {
   public getNumberOfDaysBetweenDates (startAt: DateTime, endAt: DateTime): number {
     return endAt.diff(startAt, 'days').days + 1
   }

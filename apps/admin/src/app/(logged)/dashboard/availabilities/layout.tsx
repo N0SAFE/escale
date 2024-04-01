@@ -113,7 +113,7 @@ export default function AvailabilityLayout({
             await refetch()
         },
     })
-    console.log(createdAvailability?.spa)
+    // console.log(createdAvailability?.spa)
     const { data: availabilities, isFetched } = useQuery({
         placeholderData: keepPreviousData,
         queryKey: [

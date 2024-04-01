@@ -6,6 +6,7 @@ import {
   beforeFind,
   column,
   hasMany,
+  hasOne,
   manyToMany,
 } from '@ioc:Adonis/Lucid/Orm'
 import Availability from './Availability'
@@ -17,6 +18,9 @@ import { compose } from '@ioc:Adonis/Core/Helpers'
 import { Filterable } from '@ioc:Adonis/Addons/LucidFilter'
 import SpaFilter from './Filters/SpaFilter'
 import AppBaseModel from './AppBaseModel'
+import { HasOne } from '@ioc:Adonis/Lucid/Orm'
+import InternalCalendar from './InternalCalendar'
+import ExternalCalendar from './ExternalCalendar'
 
 export default class Spa extends compose(AppBaseModel, Filterable) {
   public static $filter = () => SpaFilter
@@ -68,6 +72,12 @@ export default class Spa extends compose(AppBaseModel, Filterable) {
 
   @column()
   public googleMapsLink: string
+
+  @hasOne(() => ExternalCalendar)
+  public externalCalendar: HasOne<typeof ExternalCalendar>
+
+  @hasOne(() => InternalCalendar)
+  public internalCalendar: HasOne<typeof InternalCalendar>
 
   // @beforeUpdate()
   // public static async updateOrder (spa: Spa) {

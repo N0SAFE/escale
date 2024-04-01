@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { axiosInstance } from '@/lib/axiosInstance'
 import { redirect } from 'next/navigation'
 
 type ReservationType = {
@@ -7,8 +7,8 @@ type ReservationType = {
 
 const Reservation = async () => {
     // this page is a placeholder for the first spa reservation
-    // console.log(axios.defaults.baseURL)
-    const { data } = await axios<ReservationType>('/spas')
+    // console.log(axiosInstance.defaults.baseURL)
+    const { data } = await axiosInstance<ReservationType>('/spas')
     redirect(`/reservation/${data?.[0]?.id}`)
 }
 

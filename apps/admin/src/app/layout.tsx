@@ -9,6 +9,7 @@ import { Toaster } from '@/components/ui/sonner'
 import ReactQueryProviders from '@/utils/ReactQueryProviders'
 import { Suspense } from 'react'
 import Loader from '@/components/loader'
+import { cn } from '../lib/utils'
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL
 // console.log('baseURL top layout', process.env.NEXT_PUBLIC_API_URL)
 
@@ -27,7 +28,7 @@ export default async function RootLayout({
     return (
         <html lang="en">
             <ClientStartup />
-            <body className={inter.className}>
+            <body className={cn(inter.className, 'dark')}>
                 <ReactQueryProviders>
                     <Suspense
                         fallback={

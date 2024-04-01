@@ -1,47 +1,110 @@
-import { IsDefined, IsObject, ValidateNested } from 'class-validator'
+import { IsDefined, IsNumber, IsObject, ValidateNested } from 'class-validator'
+import { Exclude, Transform, Type } from 'class-transformer'
+import { AsSameProperties } from '../type/AsSameProperties'
+import { RequestContract } from '@ioc:Adonis/Core/Request'
 import { BaseDto } from '../BaseDto'
-import { Type, instanceToInstance } from 'class-transformer'
+import { SkipTransform } from '../Decorator/SkipTransform'
+import { EntityExist } from '../Decorator/EntityExist'
+import Reservation from 'App/Models/Reservation'
+import { AwaitPromise } from '../Decorator/AwaitPromise'
 
-export class ReservationsRessourceDeleteBodyDto extends BaseDto {}
+export class ReservationRessourceDeleteBodyDto {}
 
-export class ReservationsRessourceDeleteQueryDto extends BaseDto {}
+export class ReservationRessourceDeleteQueryDto {}
 
-export class ReservationsRessourceDeleteDto extends BaseDto {
-  constructor (args: any) {
-    super(args)
-    if (!args) {
-      return
-    }
-    this.body = args.body
-    this.query = args.query
-    return instanceToInstance(this)
-  }
+export class ReservationRessourceDeleteParamsDto {
+  @Type(() => Number)
+  @IsNumber()
+  @IsDefined()
+  @EntityExist(Reservation)
+  public id: number
+}
+
+@Exclude()
+export class ReservationRessourceDeleteFilesDto {}
+
+@SkipTransform([['files', ReservationRessourceDeleteFilesDto]])
+export class ReservationRessourceDeleteDto extends BaseDto {
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ReservationRessourceDeleteBodyDto)
+  public body: ReservationRessourceDeleteBodyDto
 
   @IsDefined()
   @IsObject()
   @ValidateNested()
-  @Type(() => ReservationsRessourceDeleteBodyDto)
-  private _body: ReservationsRessourceDeleteBodyDto = {} as ReservationsRessourceDeleteBodyDto
-
-  public get body (): ReservationsRessourceDeleteBodyDto {
-    return this._body || new ReservationsRessourceDeleteBodyDto({})
-  }
-
-  public set body (value: ReservationsRessourceDeleteBodyDto | undefined) {
-    this._body = new ReservationsRessourceDeleteBodyDto(value || {})
-  }
+  @Type(() => ReservationRessourceDeleteQueryDto)
+  public query: ReservationRessourceDeleteQueryDto
 
   @IsDefined()
   @IsObject()
   @ValidateNested()
-  @Type(() => ReservationsRessourceDeleteQueryDto)
-  private _query: ReservationsRessourceDeleteQueryDto = {} as ReservationsRessourceDeleteQueryDto
+  @Type(() => ReservationRessourceDeleteParamsDto)
+  public params: ReservationRessourceDeleteParamsDto
 
-  public get query (): ReservationsRessourceDeleteQueryDto {
-    return this._query || new ReservationsRessourceDeleteQueryDto({})
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ReservationRessourceDeleteFilesDto)
+  public files: ReservationRessourceDeleteFilesDto
+
+  public get after () {
+    return new ReservationRessourceDeleteDtoAfter(this)
   }
 
-  public set query (value: ReservationsRessourceDeleteQueryDto | undefined) {
-    this._query = new ReservationsRessourceDeleteQueryDto(value || {})
+  public static fromRequest (request: RequestContract) {
+    return new this({
+      body: request.body(),
+      query: request.qs(),
+      params: request.params(),
+      files: request.allFiles(),
+    })
   }
+}
+
+export class ReservationRessourceDeleteBodyDtoAfter
+implements AsSameProperties<ReservationRessourceDeleteBodyDto> {}
+
+export class ReservationRessourceDeleteQueryDtoAfter
+implements AsSameProperties<ReservationRessourceDeleteQueryDto> {}
+
+export class ReservationRessourceDeleteParamsDtoAfter
+implements AsSameProperties<ReservationRessourceDeleteParamsDto> {
+  @Transform(({ value }) => Reservation.findOrFail(value))
+  @AwaitPromise
+  public id: Reservation
+}
+
+@Exclude()
+export class ReservationRessourceDeleteFilesDtoAfter
+implements AsSameProperties<ReservationRessourceDeleteFilesDto> {}
+
+@SkipTransform([['files', ReservationRessourceDeleteFilesDtoAfter]])
+export class ReservationRessourceDeleteDtoAfter
+  extends BaseDto
+  implements AsSameProperties<Omit<ReservationRessourceDeleteDto, 'after'>> {
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ReservationRessourceDeleteBodyDtoAfter)
+  public body: ReservationRessourceDeleteBodyDtoAfter
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ReservationRessourceDeleteQueryDtoAfter)
+  public query: ReservationRessourceDeleteQueryDtoAfter
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ReservationRessourceDeleteParamsDtoAfter)
+  public params: ReservationRessourceDeleteParamsDtoAfter
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ReservationRessourceDeleteFilesDtoAfter)
+  public files: ReservationRessourceDeleteFilesDtoAfter
 }

@@ -7,7 +7,7 @@
     "@adonisjs/lucid/build/commands",
     "adonis5-swagger/build/commands",
     "adonis-lucid-filter/build/commands",
-    "@stouder-io/adonis-scheduler/build/commands/MakeTask"
+    "adonis5-scheduler/build/commands"
   ],
   "exceptionHandlerNamespace": "App/Exceptions/Handler",
   "aliases": {
@@ -25,10 +25,10 @@
     "adonis-lucid-filter",
     "@adonisjs/auth",
     "adonis5-jwt",
-    "@stouder-io/adonis-scheduler",
     "adonis-lucid-soft-deletes",
     "./providers/StripeProvider",
-    "./providers/ModelQueryBuilderPreloadProvider"
+    "./providers/ModelQueryBuilderPreloadProvider",
+    "adonis5-scheduler"
   ],
   "aceProviders": ["@adonisjs/repl"],
   "tests": {

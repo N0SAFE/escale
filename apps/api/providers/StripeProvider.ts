@@ -63,15 +63,13 @@ export default class StripeProvider {
   }
 
   private async removeWebhooks (stripe: Stripe, webhooks: Stripe.WebhookEndpoint[]) {
-    console.log('removing webhooks')
     webhooks.forEach((endpoint) => {
-      console.log('removing webhook', endpoint.id)
+      this.app.logger.info('removing webhook', endpoint.id)
       stripe.webhookEndpoints.del(endpoint.id)
     })
   }
 
   private async createWebhooks (stripe: Stripe) {
-    console.log('creating webhooks')
     const wehbook = await stripe.webhookEndpoints.create({
       url: Env.get('APP_URL') + '/webhook/stripe',
       enabled_events: [
@@ -80,7 +78,7 @@ export default class StripeProvider {
         'payment_intent.canceled',
       ],
     })
-    console.log('created webhook', wehbook.id)
+    this.app.logger.info('webhook created', wehbook.id)
     this.webhooks.push(wehbook)
     const webhooks = this.webhooks
     const self = this

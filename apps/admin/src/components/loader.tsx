@@ -6,11 +6,7 @@ type Props = {
     size?: '4' | '8' | '12' | '16' | '24' | '32'
 }
 
-export default function Loader({
-    minHeight = '500px',
-    className,
-    size = '8',
-}: Props) {
+function Loader({ minHeight = '500px', className, size = '8' }: Props) {
     return (
         <>
             <div role="status">
@@ -35,3 +31,5 @@ export default function Loader({
         </>
     )
 }
+
+export default Loader

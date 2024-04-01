@@ -79,9 +79,8 @@ export default class AvailabilitiesController {
     const availability = await Availability.create({
       startAt: body.startAt,
       endAt: body.endAt,
+      spaId: body.spa.id,
     })
-
-    availability.related('spa').associate(body.spa)
 
     const daysPrice = [
       {
@@ -164,8 +163,6 @@ export default class AvailabilitiesController {
 
     const { body, params } = await dto.after.customTransform
 
-    console.log(body)
-
     const availability = params.id
     availability.related('spa').associate(body.spa)
 
@@ -179,34 +176,6 @@ export default class AvailabilitiesController {
         availability.satPriceId,
         availability.sunPriceId,
       ])
-    )
-
-    await Promise.all(
-      ['monPrice', 'tuePrice', 'wedPrice', 'thuPrice', 'friPrice', 'satPrice', 'sunPrice'].map(
-        async function (day) {
-          try {
-            availability
-              .related(
-                day as
-                  | 'monPrice'
-                  | 'tuePrice'
-                  | 'wedPrice'
-                  | 'thuPrice'
-                  | 'friPrice'
-                  | 'satPrice'
-                  | 'sunPrice'
-              )
-              .dissociate()
-          } catch {}
-        }
-      )
-    )
-
-    const pricesToDelete = await AvailabilityPrice.findMany(prices)
-    await Promise.all(
-      pricesToDelete.map(async (price) => {
-        await await price.delete()
-      })
     )
 
     const daysPrice = [
@@ -243,8 +212,6 @@ export default class AvailabilitiesController {
     const priceMap = new Map<string, AvailabilityPrice>()
     const daysMap = new Map<string, AvailabilityPrice>()
 
-    console.log(daysPrice)
-
     for (const { name, price } of daysPrice) {
       if (price) {
         if (priceMap.has(JSON.stringify(price))) {
@@ -261,30 +228,27 @@ export default class AvailabilitiesController {
       }
     }
 
-    console.log(daysMap)
-
-    await Promise.all(
-      Array.from(daysMap).map(async function ([key, value]) {
-        await availability
-          .related(
-            (key + 'Price') as `${['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'][number]}Price`
-          )
-          .associate(value)
-      })
-    )
-
-    console.log(availability)
-
     availability.merge({
       startAt: body.startAt,
       endAt: body.endAt,
+      monPriceId: daysMap.get('mon')?.id,
+      tuePriceId: daysMap.get('tue')?.id,
+      wedPriceId: daysMap.get('wed')?.id,
+      thuPriceId: daysMap.get('thu')?.id,
+      friPriceId: daysMap.get('fri')?.id,
+      satPriceId: daysMap.get('sat')?.id,
+      sunPriceId: daysMap.get('sun')?.id,
     })
-
-    console.log('availability before save')
 
     await availability.save()
 
-    console.log('availability after save')
+    const pricesToDelete = await AvailabilityPrice.findMany(prices)
+    await Promise.all(
+      pricesToDelete.map(async (price) => {
+        console.log('deleting price ' + price.id)
+        await price.delete()
+      })
+    )
 
     return response.ok(availability)
   }

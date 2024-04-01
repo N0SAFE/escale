@@ -39,4 +39,7 @@ export default class Reservation extends compose(AppBaseModel, Filterable) {
 
   @column.date()
   public endAt: DateTime
+
+  @column()
+  public notes?: string
 }

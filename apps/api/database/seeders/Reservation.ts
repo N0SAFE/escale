@@ -10,11 +10,11 @@ export default class ReservationSeeder extends BaseSeeder {
     const reservations: Reservation[] = []
     for (const availability of availabilities) {
       for (let index = 0; index < numberOfReservationsTryPerAvailability; index++) {
-        console.log(
-          `trying creating reservation ${
-            index + 1
-          } of ${numberOfReservationsTryPerAvailability} for availability ${availability.id}`
-        )
+        // console.log(
+        //   `trying creating reservation ${
+        //     index + 1
+        //   } of ${numberOfReservationsTryPerAvailability} for availability ${availability.id}`
+        // )
         // startAt has to be after the availability startAt but before the endAt
         const diffBetweenStartAndEnd = availability.endAt.diff(availability.startAt, 'days').days
         const startAt = availability.startAt.plus({

@@ -52,11 +52,11 @@ export default function SearchFilter<T extends NormalizeConstructor<typeof Custo
         this.addAfter((query, input) => {
           const model = query.model
           Object.entries(input).forEach(([path, value]) => {
-            console.log(path)
-            console.log({
-              relationPath: path.split('.').slice(0, -1)!,
-              property: path.split('.').slice(-1).join()!,
-            })
+            // console.log(path)
+            // console.log({
+            //   relationPath: path.split('.').slice(0, -1)!,
+            //   property: path.split('.').slice(-1).join()!,
+            // })
             if (
               !relationPathExists(
                 model,

@@ -1,47 +1,110 @@
-import { IsDefined, IsObject, ValidateNested } from 'class-validator'
+import { IsDefined, IsNumber, IsObject, ValidateNested } from 'class-validator'
+import { Exclude, Transform, Type } from 'class-transformer'
+import { AsSameProperties } from '../type/AsSameProperties'
+import { RequestContract } from '@ioc:Adonis/Core/Request'
 import { BaseDto } from '../BaseDto'
-import { Type, instanceToInstance } from 'class-transformer'
+import { SkipTransform } from '../Decorator/SkipTransform'
+import Reservation from 'App/Models/Reservation'
+import { EntityExist } from '../Decorator/EntityExist'
+import { AwaitPromise } from '../Decorator/AwaitPromise'
 
-export class ReservationsRessourceGetBodyDto extends BaseDto {}
+export class ReservationRessourceGetBodyDto {}
 
-export class ReservationsRessourceGetQueryDto extends BaseDto {}
+export class ReservationRessourceGetQueryDto {}
 
-export class ReservationsRessourceGetDto extends BaseDto {
-  constructor (args: any) {
-    super(args)
-    if (!args) {
-      return
-    }
-    this.body = args.body
-    this.query = args.query
-    return instanceToInstance(this)
-  }
+export class ReservationRessourceGetParamsDto {
+  @Type(() => Number)
+  @IsNumber()
+  @IsDefined()
+  @EntityExist(Reservation)
+  public id: number
+}
+
+@Exclude()
+export class ReservationRessourceGetFilesDto {}
+
+@SkipTransform([['files', ReservationRessourceGetFilesDto]])
+export class ReservationRessourceGetDto extends BaseDto {
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ReservationRessourceGetBodyDto)
+  public body: ReservationRessourceGetBodyDto
 
   @IsDefined()
   @IsObject()
   @ValidateNested()
-  @Type(() => ReservationsRessourceGetBodyDto)
-  private _body: ReservationsRessourceGetBodyDto = {} as ReservationsRessourceGetBodyDto
-
-  public get body (): ReservationsRessourceGetBodyDto {
-    return this._body || new ReservationsRessourceGetBodyDto({})
-  }
-
-  public set body (value: ReservationsRessourceGetBodyDto | undefined) {
-    this._body = new ReservationsRessourceGetBodyDto(value || {})
-  }
+  @Type(() => ReservationRessourceGetQueryDto)
+  public query: ReservationRessourceGetQueryDto
 
   @IsDefined()
   @IsObject()
   @ValidateNested()
-  @Type(() => ReservationsRessourceGetQueryDto)
-  private _query: ReservationsRessourceGetQueryDto = {} as ReservationsRessourceGetQueryDto
+  @Type(() => ReservationRessourceGetParamsDto)
+  public params: ReservationRessourceGetParamsDto
 
-  public get query (): ReservationsRessourceGetQueryDto {
-    return this._query || new ReservationsRessourceGetQueryDto({})
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ReservationRessourceGetFilesDto)
+  public files: ReservationRessourceGetFilesDto
+
+  public get after () {
+    return new ReservationRessourceGetDtoAfter(this)
   }
 
-  public set query (value: ReservationsRessourceGetQueryDto | undefined) {
-    this._query = new ReservationsRessourceGetQueryDto(value || {})
+  public static fromRequest (request: RequestContract) {
+    return new this({
+      body: request.body(),
+      query: request.qs(),
+      params: request.params(),
+      files: request.allFiles(),
+    })
   }
+}
+
+export class ReservationRessourceGetBodyDtoAfter
+implements AsSameProperties<ReservationRessourceGetBodyDto> {}
+
+export class ReservationRessourceGetQueryDtoAfter
+implements AsSameProperties<ReservationRessourceGetQueryDto> {}
+
+export class ReservationRessourceGetParamsDtoAfter
+implements AsSameProperties<ReservationRessourceGetParamsDto> {
+  @Transform(({ value }) => Reservation.findOrFail(value))
+  @AwaitPromise
+  public id: Reservation
+}
+
+@Exclude()
+export class ReservationRessourceGetFilesDtoAfter
+implements AsSameProperties<ReservationRessourceGetFilesDto> {}
+
+@SkipTransform([['files', ReservationRessourceGetFilesDtoAfter]])
+export class ReservationRessourceGetDtoAfter
+  extends BaseDto
+  implements AsSameProperties<Omit<ReservationRessourceGetDto, 'after'>> {
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ReservationRessourceGetBodyDtoAfter)
+  public body: ReservationRessourceGetBodyDtoAfter
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ReservationRessourceGetQueryDtoAfter)
+  public query: ReservationRessourceGetQueryDtoAfter
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ReservationRessourceGetParamsDtoAfter)
+  public params: ReservationRessourceGetParamsDtoAfter
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ReservationRessourceGetFilesDtoAfter)
+  public files: ReservationRessourceGetFilesDtoAfter
 }

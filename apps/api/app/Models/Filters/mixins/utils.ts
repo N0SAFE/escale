@@ -16,19 +16,19 @@ export function preloadQuery (
   callback: (query: ModelQueryBuilderContract<LucidModel>) => void
 ) {
   if (paths.length === 0) {
-    console.log('paths', paths)
+    // console.log('paths', paths)
     callback(query)
     return
   }
-  console.log('paths', paths)
-  console.log('relation', relation)
+  // console.log('paths', paths)
+  // console.log('relation', relation)
   const recWithQuery = (
     relation: Relation | undefined,
     paths: string[],
     query: ModelQueryBuilderContract<LucidModel>
   ) => {
     // create a new relation if it not exist and add a waiter for when the relation will be preload after that
-    console.log('recWithQuery', paths)
+    // console.log('recWithQuery', paths)
     if (paths.length === 0) {
       callback(query)
       return
@@ -37,7 +37,7 @@ export function preloadQuery (
       rec(relation, paths)
     }
     const [first, ...rest] = paths
-    console.log((query as any).preloader.preloads)
+    // console.log((query as any).preloader.preloads)
     if ((query as any).preloader.preloads[first]) {
       query.preloadChain(first as any, (queryRelation) => {
         recWithQuery(undefined, rest, queryRelation)
@@ -58,15 +58,15 @@ export function preloadQuery (
   }
 
   const rec = (relation: Relation, paths: string[]) => {
-    console.log('rec', paths)
-    console.log(relation)
-    console.log(paths.length)
+    // console.log('rec', paths)
+    // console.log(relation)
+    // console.log(paths.length)
     if (paths.length === 0) {
       // console.log('relation.tableName', relation.tableName)
-      console.log(paths)
-      console.log(
-        'define callback ' + relation.tableName + ' : ' + paths.join('.') + ' : ' + paths[0]
-      )
+      // console.log(paths)
+      // console.log(
+      //   'define callback ' + relation.tableName + ' : ' + paths.join('.') + ' : ' + paths[0]
+      // )
       relation.queryFunction.push((query) => callback(query))
       return
     }
@@ -82,12 +82,12 @@ export function preloadQuery (
   if (!paths.length) {
     callback(query)
   }
-  console.log('relation', relation)
+  // console.log('relation', relation)
   if (!relation) {
-    console.log('relation is undefined')
+    // console.log('relation is undefined')
     recWithQuery(relation, paths, query)
   } else {
-    console.log('relation is defined')
+    // console.log('relation is defined')
     rec(relation, paths)
   }
 }
@@ -229,8 +229,8 @@ export function preloadFromGroups (groups: string[], query: ModelQueryBuilderCon
   }
 
   function launchPreload () {
-    console.log('launchPreload')
-    console.log(fields)
+    // console.log('launchPreload')
+    // console.log(fields)
     if (fields) {
       fields.forEach((field) => {
         query.preloadChain(field as any, (queryRelation) => {
@@ -303,8 +303,8 @@ export function nestedRelationToArray (
       if (!isNaN(parseInt(key))) {
         return rec(value, model, path)
       }
-      console.log(model.table)
-      console.log(key)
+      // console.log(model.table)
+      // console.log(key)
       if (model.$getRelation(key)) {
         if (value === true) {
           return [
@@ -351,7 +351,7 @@ export function nestedRelationToArray (
 export function relationPathExists (model: LucidModel, relationPath: string[], property?: string) {
   let currentModel = model
   for (const relation of relationPath) {
-    console.log('relation', relation)
+    // console.log('relation', relation)
     if (!currentModel.$getRelation(relation)) {
       return false
     }

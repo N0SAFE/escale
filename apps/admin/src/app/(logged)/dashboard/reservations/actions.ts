@@ -19,7 +19,7 @@ export async function getReservations(
 ) {
     'use server'
 
-    console.log(filter)
+    // console.log(filter)
 
     const { data } = await axiosInstance.get<Reservation[]>('/reservations', {
         params: {
@@ -29,13 +29,15 @@ export async function getReservations(
         },
         signal,
     })
-    console.log(data.length)
+    // console.log(data.length)
     return data
 }
 
 export async function getClosestReservations(
     date: string,
-    filter: GroupsFilter & SearchFilter & OrderFilter = {}
+    filter: GroupsFilter &
+        SearchFilter &
+        OrderFilter & { avoidIds?: number[] } = {}
 ) {
     'use server'
 
@@ -44,7 +46,7 @@ export async function getClosestReservations(
             params: {
                 groups: filter.groups,
                 ...filter.search,
-                endAt: {
+                startAt: {
                     ...(filter.search?.endAt as any),
                     strictly_before: date,
                 },
@@ -53,6 +55,7 @@ export async function getClosestReservations(
                     ...filter?.order,
                     startAt: 'desc',
                 },
+                notInIds: filter.avoidIds,
             },
         }),
         axiosInstance.get<Reservation[]>('/reservations', {
@@ -61,31 +64,24 @@ export async function getClosestReservations(
                 ...filter.search,
                 startAt: {
                     ...(filter.search?.startAt as any),
-                    strictly_after: date,
+                    after: date,
                 },
                 limit: 1,
+                notInIds: filter.avoidIds,
             },
         }),
     ])
     return {
-        data: {
-            up: upResponse.data?.[0],
-            down: downResponse.data?.[0],
-        },
+        up: upResponse.data?.[0],
+        down: downResponse.data?.[0],
     }
 }
 
 export async function getReservation(id: number) {
     'use server'
 
-    try {
-        const { data } = await axiosInstance.get<Reservation>(
-            `/reservations/${id}`
-        )
-        return { data }
-    } catch (error) {
-        return { error }
-    }
+    const { data } = await axiosInstance.get<Reservation>(`/reservations/${id}`)
+    return data
 }
 
 export async function createReservation(data: CreateReservation) {
@@ -93,13 +89,7 @@ export async function createReservation(data: CreateReservation) {
 
     // console.log(Array.from(data.entries()))
 
-    console.log(data)
-
-    await axiosInstance
-        .post<CreateReservation>('/reservations', data)
-        .catch((e) => {
-            console.log(e.response.data)
-        })
+    await axiosInstance.post<CreateReservation>('/reservations', data)
 }
 
 export async function updateReservation(id: number, data?: UpdateReservation) {
@@ -111,12 +101,9 @@ export async function updateReservation(id: number, data?: UpdateReservation) {
     const transformedData = {
         ...data,
     }
-    console.log(transformedData)
-    await axiosInstance
-        .patch(`/reservations/${id}`, transformedData)
-        .catch(function (e) {
-            throw e
-        })
+    console.log(id)
+    console.log('transformedData', transformedData)
+    await axiosInstance.patch(`/reservations/${id}`, transformedData)
 }
 
 export async function deleteReservation(id: number) {

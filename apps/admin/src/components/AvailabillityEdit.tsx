@@ -461,16 +461,6 @@ export default function AvailabilityEdit({
                                 from: DateTime.fromISO(availability.startAt),
                                 to: DateTime.fromISO(availability.endAt),
                                 item: availability,
-                                onClick: function (item: AvailabilityType) {
-                                    setRangeDate({
-                                        from: DateTime.fromISO(
-                                            item.startAt
-                                        ).toJSDate(),
-                                        to: DateTime.fromISO(
-                                            item.endAt
-                                        ).toJSDate(),
-                                    })
-                                },
                             })),
                     }}
                     numberOfMonths={1}

@@ -3,7 +3,6 @@ import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import '@/lib/fontAwesome'
-import axios from 'axios'
 import { Toaster } from '@/components/ui/toaster'
 import ClientStartup from '@/components/ClientStartup'
 import { inter } from '@/fonts/index'
@@ -12,7 +11,6 @@ import { Input } from '@/components/ui/input'
 import ReactQueryProviders from '../../../admin/src/utils/ReactQueryProviders'
 import Loader from '@/components/Loader/index'
 import { Toaster as ToasterSonner } from '@/components/ui/sonner'
-axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL
 
 export const metadata: Metadata = {
     title: 'Create Next App',

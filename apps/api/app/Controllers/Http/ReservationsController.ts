@@ -6,6 +6,9 @@ import { inject } from '@adonisjs/core/build/standalone'
 import ReservationService from 'App/Service/ReservationService'
 import { ReservationsRessourceAvailableDatesDto } from './dto/ReservationDto/AvailableDates'
 import { ReservationRessourcePriceDto } from './dto/ReservationDto/Price'
+import { ReservationRessourceGetDto } from './dto/ReservationDto/Get'
+import { ReservationRessourcePatchDto } from './dto/ReservationDto/Patch'
+import { ReservationRessourceDeleteDto } from './dto/ReservationDto/Delete'
 
 @inject()
 export default class ReservationsController {
@@ -47,12 +50,15 @@ export default class ReservationsController {
     const { body } = await dto.after.customTransform
 
     const exist = await Reservation.query()
-      .where('start_at', '<=', body.endAt.toSQLDate()!)
-      .andWhere('end_at', '>=', body.startAt.toSQLDate()!)
+      .where('start_at', '<', body.endAt.toSQLDate()!)
+      .andWhere('end_at', '>', body.startAt.toSQLDate()!)
       .first()
-      .then((reservation) => !!reservation)
+    // .then((reservation) => !!reservation)
+
+    console.log(exist)
 
     if (exist) {
+      console.log('reservation already exist')
       return response.badRequest({ message: 'reservation already exist' })
     }
 
@@ -65,13 +71,68 @@ export default class ReservationsController {
     return response.ok(reservation)
   }
 
-  public async show ({}: HttpContextContract) {}
+  public async show ({ request, response }: HttpContextContract) {
+    const dto = ReservationRessourceGetDto.fromRequest(request)
+    const error = await dto.validate()
+    if (error.length > 0) {
+      return response.badRequest(error)
+    }
+
+    const { params } = await dto.after.customTransform
+    return response.ok(params.id)
+  }
 
   public async edit ({}: HttpContextContract) {}
 
-  public async update ({}: HttpContextContract) {}
+  public async update ({ request, response }: HttpContextContract) {
+    const dto = ReservationRessourcePatchDto.fromRequest(request)
+    const error = await dto.validate()
+    console.log(JSON.stringify(error, null, 4))
+    if (error.length > 0) {
+      return response.badRequest(error)
+    }
 
-  public async destroy ({}: HttpContextContract) {}
+    const { params, body } = await dto.after.customTransform
+    const reservation = params.id
+
+    const reservations = Reservation.query()
+      .where('start_at', '<', body.endAt.toSQLDate()!)
+      .andWhere('end_at', '>', body.startAt.toSQLDate()!)
+      .whereNot('id', reservation.id)
+
+    if (await reservations.first()) {
+      console.log('reservation overlap')
+      return response.badRequest({ message: 'reservation overlap' })
+    }
+
+    console.log(body)
+
+    reservation.merge({
+      startAt: body.startAt,
+      endAt: body.endAt,
+      notes: body.notes,
+      spaId: body.spa.id,
+    })
+
+    await reservation.save()
+
+    return response.ok(reservation)
+  }
+
+  public async destroy ({ request, response }: HttpContextContract) {
+    const dto = ReservationRessourceDeleteDto.fromRequest(request)
+    const error = await dto.validate()
+    if (error.length > 0) {
+      return response.badRequest(error)
+    }
+
+    const { params } = await dto.after.customTransform
+
+    const reservation = params.id
+    await reservation.delete()
+
+    return response.ok({ message: 'Reservation deleted' })
+  }
 
   public async availableDates ({ request, response }: HttpContextContract) {
     const dto = new ReservationsRessourceAvailableDatesDto({

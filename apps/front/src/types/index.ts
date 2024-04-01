@@ -44,7 +44,27 @@ export type Reservation<T extends boolean = false> = {
     spa: Spa
 }
 
+export type AvailabilityPrice = {
+    day: number
+    night: number
+    journey: number
+}
+
 export type Availability<T extends boolean = false> = {
+    id: number
+    startAt: string
+    endAt: string
+    spa: Spa
+    monPrice: AvailabilityPrice
+    tuePrice: AvailabilityPrice
+    wedPrice: AvailabilityPrice
+    thuPrice: AvailabilityPrice
+    friPrice: AvailabilityPrice
+    satPrice: AvailabilityPrice
+    sunPrice: AvailabilityPrice
+}
+
+export type Unavailability<T extends boolean = false> = {
     id: number
     startAt: string
     endAt: string

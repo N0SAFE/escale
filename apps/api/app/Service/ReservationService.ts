@@ -6,9 +6,10 @@ import { DateTime } from 'luxon'
 import DateTimeService from './DateTimeService'
 import ReservationNotChainingException from 'App/Exceptions/ReservationNotChainingException'
 import AlreadyReservedException from 'App/Exceptions/AlreadyReservedException'
+import AppBaseService from './AppBaseService'
 
 @inject()
-export default class ReservationService {
+export default class ReservationService implements AppBaseService {
   constructor (private dateTimeService: DateTimeService) {}
 
   public async getReservationsBetweenDate (

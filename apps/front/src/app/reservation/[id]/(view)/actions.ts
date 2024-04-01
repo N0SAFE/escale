@@ -1,5 +1,11 @@
-import { Availability, Reservation, Spa } from '@/types/index'
-import axios from 'axios'
+import { axiosInstance } from '@/lib/axiosInstance'
+import {
+    DatesFilter,
+    GroupsFilter,
+    PaginationFilter,
+    SearchFilter,
+} from '@/types/filters'
+import { Availability, Reservation, Spa, Unavailability } from '@/types/index'
 import { DateTime } from 'luxon'
 import { isRedirectError } from 'next/dist/client/components/redirect'
 import { redirect } from 'next/navigation'
@@ -7,7 +13,7 @@ import { DateRange } from 'react-day-picker'
 
 export async function getSpa(id: number) {
     try {
-        const { data } = await axios<Spa<true>>(`/spas/${id}`)
+        const { data } = await axiosInstance<Spa<true>>(`/spas/${id}`)
         return { data }
     } catch (error) {
         console.log(error)
@@ -27,7 +33,7 @@ export async function getPrice(
                 ? DateTime.fromJSDate((date as DateRange).from!).toISODate()!
                 : DateTime.fromJSDate((date as DateRange).to!).toISODate()!,
         }
-        const response = await axios.get<{
+        const response = await axiosInstance.get<{
             price: number
             details: { toPrice: { price: number; number: number }[] }
         }>(
@@ -38,7 +44,7 @@ export async function getPrice(
         }
         //  else {
         //     const d = DateTime.fromJSDate(date as Date).toISODate()!
-        //     const response = await axios.get(`/reservations/price?date=${d}&type=${type}&spa=${id}`);
+        //     const response = await axiosInstance.get(`/reservations/price?date=${d}&type=${type}&spa=${id}`);
         //     return {
         //         data: response.data.price
         //     };
@@ -55,22 +61,17 @@ export async function getAvailableDates(
     startAt: string,
     endAt?: string
 ) {
-    try {
-        if (!endAt) endAt = startAt
-        const data = await axios.get<{ date: string; available: boolean }[]>(
-            `/reservations/available-dates?startAt=${startAt}&endAt=${endAt}&type=${type}&spa=${id}`
-        )
-        return {
-            data: new Set(
-                data.data
-                    .filter((date) => date.available)
-                    .map((date) => date.date)
-            ),
-        }
-    } catch (error) {
-        console.log(error)
-        return { error }
+    if (!endAt) {
+        endAt = startAt
     }
+    const data = await axiosInstance.get<
+        { date: string; available: boolean }[]
+    >(
+        `/reservations/available-dates?startAt=${startAt}&endAt=${endAt}&type=${type}&spa=${id}`
+    )
+    return new Set(
+        data.data.filter((date) => date.available).map((date) => date.date)
+    )
 }
 
 export async function getSessionUrl(
@@ -81,7 +82,7 @@ export async function getSessionUrl(
     if (!date.to) {
         date.to = date.from
     }
-    const session = await axios.post('/checkout-session/spa', {
+    const session = await axiosInstance.post('/checkout-session/spa', {
         spa: 1,
         startAt: DateTime.fromJSDate(date.from!).toISODate(),
         endAt: DateTime.fromJSDate(date.to!).toISODate(),
@@ -97,21 +98,21 @@ export async function getSessionUrl(
 }
 
 export async function getAvailabilities(
-    id: number,
-    startAt: string,
-    endAt: string
+    filter: GroupsFilter & SearchFilter & DatesFilter & PaginationFilter
 ) {
-    try {
-        const { data } = await axios.get<Availability[]>(
-            `/availabilities?startAt=${startAt}&endAt=${endAt}&spa=${id}`
-        )
-        return {
-            data: data,
+    const { data } = await axiosInstance.get<Availability[]>(
+        `/availabilities`,
+        {
+            params: {
+                groups: filter.groups,
+                ...filter.search,
+                ...filter.dates,
+                limit: filter.limit,
+                page: filter.page,
+            },
         }
-    } catch (error) {
-        console.log(error)
-        return { error }
-    }
+    )
+    return data
 }
 
 export async function getReservations(
@@ -119,15 +120,77 @@ export async function getReservations(
     startAt: string,
     endAt: string
 ) {
-    try {
-        const { data } = await axios.get<Reservation[]>(
-            `/reservations?startAt=${startAt}&endAt=${endAt}&spa=${id}`
-        )
-        return {
-            data: data,
-        }
-    } catch (error) {
-        console.log(error)
-        return { error }
+    const { data } = await axiosInstance.get<Reservation[]>(
+        `/reservations?startAt=${startAt}&endAt=${endAt}&spa=${id}`
+    )
+    return data
+}
+
+export async function getClosestUnavailabilities(date: string) {
+    const closestUnavailabilitiesPromise = await Promise.all([
+        await axiosInstance.get<Unavailability[]>(`/unavailabilities`, {
+            params: {
+                endAt: {
+                    strictly_before: date,
+                },
+                limit: 1,
+                order: {
+                    startAt: 'desc',
+                },
+            },
+        }),
+        await axiosInstance.get<Unavailability[]>(`/unavailabilities`, {
+            params: {
+                startAt: {
+                    strictly_after: date,
+                },
+                limit: 1,
+            },
+        }),
+    ])
+
+    const closestReservationsPromise = Promise.all([
+        await axiosInstance.get<Reservation[]>(`/reservations`, {
+            params: {
+                endAt: {
+                    before: date,
+                },
+                limit: 1,
+                order: {
+                    startAt: 'desc',
+                },
+            },
+        }),
+        await axiosInstance.get<Reservation[]>(`/reservations`, {
+            params: {
+                startAt: {
+                    after: date,
+                },
+                limit: 1,
+            },
+        }),
+    ])
+
+    const [
+        [upResponseUnavailatilies, downResponseUnavailatilies],
+        [upResponseReservations, downResponseReservations],
+    ] = await Promise.all([
+        closestUnavailabilitiesPromise,
+        closestReservationsPromise,
+    ])
+
+    return {
+        unavailabilities: {
+            up: upResponseUnavailatilies.data?.[0] as
+                | Unavailability
+                | undefined,
+            down: downResponseUnavailatilies.data?.[0] as
+                | Unavailability
+                | undefined,
+        },
+        reservations: {
+            up: upResponseReservations.data?.[0] as Reservation | undefined,
+            down: downResponseReservations.data?.[0] as Reservation | undefined,
+        },
     }
 }

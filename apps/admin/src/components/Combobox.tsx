@@ -71,7 +71,6 @@ export default function Combobox<T extends { id: number }>({
     const [open, setOpen] = React.useState(false)
     const [val, setVal] = React.useState(defaultValue)
 
-    console.log('val', val)
     React.useEffect(() => {
         setVal(value)
     }, [value])
@@ -121,7 +120,7 @@ export default function Combobox<T extends { id: number }>({
                     )}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
+            <PopoverContent className="min-w-[200px] p-0">
                 <Command>
                     <CommandInput
                         placeholder={
@@ -157,10 +156,6 @@ export default function Combobox<T extends { id: number }>({
                                                                     []),
                                                                 item.value,
                                                             ]
-                                                  console.log(
-                                                      'newValue',
-                                                      newValue
-                                                  )
                                                   setVal(newValue)
                                                   if (!keepOpen) {
                                                       setOpen(false)

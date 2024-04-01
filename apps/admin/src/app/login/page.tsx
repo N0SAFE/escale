@@ -82,10 +82,10 @@ export default function Login() {
                     onSubmit={form.handleSubmit((data) =>
                         loginMutation.mutate(data)
                     )}
-                    className="w-1/2 bg-white p-12 flex flex-col justify-center gap-8 w-full md:w-[inherit]"
+                    className="w-screen p-12 flex flex-col justify-center gap-8 md:w-[inherit]"
                 >
-                    <h2 className="text-4xl font-bold mb-6">
-                        Sign in to yout account
+                    <h2 className="text-xl sm:text-2xl md:text-4xl font-bold mb-6">
+                        Sign in to your account
                     </h2>
                     <FormField
                         control={form.control}

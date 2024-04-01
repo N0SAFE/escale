@@ -4,13 +4,14 @@ import ImageCarousel from '@/components/ImageCarousel/index'
 import { Separator } from '@/components/ui/separator'
 import { DateTime, Settings } from 'luxon'
 import { DateRange } from 'react-day-picker'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 import {
     getSessionUrl,
     getPrice,
     getSpa,
     getAvailabilities,
     getReservations,
+    getClosestUnavailabilities,
 } from './actions'
 import Loader from '@/components/Loader/index'
 import Link from 'next/link'
@@ -35,8 +36,10 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from '@/components/ui/collapsible'
+import { SpeakerModerateIcon } from '@radix-ui/react-icons'
 
-Settings.defaultZone = 'utc'
+// ! exessive rendering
+// ! the availabilies and reservations are not updated when the month is changed and the result is that every availabilities and reservations are fetched
 
 const Reservation = ({ params }: { params: { id: string } }) => {
     const { id } = params
@@ -45,17 +48,23 @@ const Reservation = ({ params }: { params: { id: string } }) => {
     const [selectedType, setSelectedType] = useState<
         'journey' | 'night' | undefined
     >('night')
-    const [selectedMonth, setSelectedMonth] = useState(
-        new Date().getMonth() + 1
-    )
+    const [selectedMonth, setSelectedMonth] = useState(new Date())
     const [error, setError] = useState<string | undefined>()
     // const [price, setPrice] = useState<number | undefined>();
 
     // startAt is the first day of the month inside selectedMonth
-    const startAt = DateTime.utc()
-        .set({ day: 1, hour: 0, minute: 0, second: 0, millisecond: 0 })
-        .minus({ month: 1 })
-    console.log(startAt)
+    const startAt = DateTime.fromISO(
+        DateTime.fromISO(selectedMonth.toISOString()).toISODate()!,
+        { zone: 'utc' }
+    )
+        .set({
+            day: 1,
+            hour: 0,
+            minute: 0,
+            second: 0,
+            millisecond: 0,
+        })
+        .minus({ month: 1 }) as DateTime<true>
     const endAt = startAt.plus({ month: 3 }).minus({ day: 1 })
     const {
         data: spa,
@@ -69,12 +78,29 @@ const Reservation = ({ params }: { params: { id: string } }) => {
         },
         enabled: !!id,
     })
+    const { data: closestUnavailabilitiesAndReservations } = useQuery({
+        placeholderData: keepPreviousData,
+        queryKey: [
+            'closestUnavailabilities',
+            selectedDate?.from?.toISOString(),
+        ],
+        queryFn: async () => {
+            return !selectedDate?.from
+                ? undefined
+                : await getClosestUnavailabilities(
+                      DateTime.fromJSDate(selectedDate?.from).toISODate()!
+                  )
+        },
+        enabled: !!selectedDate?.from,
+    })
+    console.log(closestUnavailabilitiesAndReservations)
     const {
         data: availabilities,
         error: availabilitiesError,
         isFetched: isAvailabilitiesFetched,
         refetch: refetchAvailabilities,
     } = useQuery({
+        placeholderData: keepPreviousData,
         queryKey: [
             'availabilities',
             params.id,
@@ -82,11 +108,19 @@ const Reservation = ({ params }: { params: { id: string } }) => {
             endAt.toISODate(),
         ],
         queryFn: async () => {
-            const { data } = await getAvailabilities(
-                Number(params.id),
-                startAt.toISODate(),
-                endAt.toISODate()
-            )
+            const data = await getAvailabilities({
+                search: {
+                    spa: Number(params.id),
+                },
+                dates: {
+                    startAt: {
+                        before: startAt.toISODate(),
+                    },
+                    endAt: {
+                        after: endAt.toISODate(),
+                    },
+                },
+            })
             return data
         },
         enabled: !!id,
@@ -98,6 +132,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
         isFetched: isReservationsFetched,
         refetch: refetchReservations,
     } = useQuery({
+        placeholderData: keepPreviousData,
         queryKey: [
             'reservations',
             params.id,
@@ -105,7 +140,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
             endAt.toISODate(),
         ],
         queryFn: async () => {
-            const { data } = await getReservations(
+            const data = await getReservations(
                 Number(params.id),
                 startAt.toISODate(),
                 endAt.toISODate()
@@ -120,6 +155,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
         isFetched: isPriceFetched,
         refetch: refetchPrice,
     } = useQuery({
+        placeholderData: keepPreviousData,
         queryKey: ['price', params.id, selectedDate, selectedType],
         queryFn: async () => {
             if (!selectedDate || !selectedType) {
@@ -164,40 +200,106 @@ const Reservation = ({ params }: { params: { id: string } }) => {
         const array = Array.from({ length: numberOfDays }, (_, i) => {
             const date = startAt.plus({ days: i })
 
-            if (selectedDate?.from && !selectedDate?.to) {
+            if (selectedDate?.from) {
                 const isBooked = !!reservations.find((reservation) => {
                     return (
-                        date > DateTime.fromISO(reservation.startAt) &&
-                        date < DateTime.fromISO(reservation.endAt)
+                        date >
+                            (!selectedDate?.to
+                                ? DateTime.fromISO(reservation.startAt, {
+                                      zone: 'utc',
+                                  })
+                                : DateTime.fromISO(reservation.startAt, {
+                                      zone: 'utc',
+                                  }).minus({ days: 1 })) &&
+                        date <
+                            DateTime.fromISO(reservation.endAt, { zone: 'utc' })
                     )
                 })
 
                 const isAvailable = !!availabilities.find((availability) => {
-                    // check if the date is between the start and end of the availability
                     return (
-                        date >= DateTime.fromISO(availability.startAt) &&
-                        date <= DateTime.fromISO(availability.endAt)
+                        date >=
+                            DateTime.fromISO(availability.startAt, {
+                                zone: 'utc',
+                            }) &&
+                        date <=
+                            (!selectedDate?.to
+                                ? DateTime.fromISO(availability.endAt, {
+                                      zone: 'utc',
+                                  }).plus({ days: 1 })
+                                : DateTime.fromISO(availability.endAt, {
+                                      zone: 'utc',
+                                  }))
                     )
                 })
 
+                const isInClosestUnavailability = !(
+                    (closestUnavailabilitiesAndReservations?.unavailabilities
+                        ?.down?.startAt
+                        ? DateTime.fromISO(
+                              closestUnavailabilitiesAndReservations
+                                  ?.unavailabilities?.down?.startAt,
+                              { zone: 'utc' }
+                          )! >= date
+                        : false) &&
+                    (closestUnavailabilitiesAndReservations?.unavailabilities
+                        ?.up?.endAt
+                        ? DateTime.fromISO(
+                              closestUnavailabilitiesAndReservations
+                                  ?.unavailabilities?.up?.endAt,
+                              { zone: 'utc' }
+                          ) <= date
+                        : false)
+                )
+
+                const isInClosestReservation = !(
+                    (closestUnavailabilitiesAndReservations?.reservations?.down
+                        ?.startAt
+                        ? DateTime.fromISO(
+                              closestUnavailabilitiesAndReservations
+                                  ?.reservations?.down?.startAt,
+                              { zone: 'utc' }
+                          )! >= date
+                        : false) &&
+                    (closestUnavailabilitiesAndReservations?.reservations?.up
+                        ?.endAt
+                        ? DateTime.fromISO(
+                              closestUnavailabilitiesAndReservations
+                                  ?.reservations?.up?.endAt,
+                              { zone: 'utc' }
+                          ) <= date
+                        : false)
+                )
+
                 return {
                     date: date.toISODate(),
-                    available: !isBooked && isAvailable,
+                    available:
+                        !isBooked &&
+                        isAvailable &&
+                        !isInClosestUnavailability &&
+                        !isInClosestReservation,
                 }
             }
 
             const isBooked = !!reservations.find((reservation) => {
                 return (
-                    date >= DateTime.fromISO(reservation.startAt) &&
-                    date < DateTime.fromISO(reservation.endAt)
+                    date >
+                        DateTime.fromISO(reservation.startAt, {
+                            zone: 'utc',
+                        }).minus({ days: 1 }) &&
+                    date < DateTime.fromISO(reservation.endAt, { zone: 'utc' })
                 )
             })
 
             const isAvailable = !!availabilities.find((availability) => {
                 // check if the date is between the start and end of the availability
                 return (
-                    date >= DateTime.fromISO(availability.startAt) &&
-                    date <= DateTime.fromISO(availability.endAt)
+                    date >=
+                        DateTime.fromISO(availability.startAt, {
+                            zone: 'utc',
+                        }) &&
+                    date <=
+                        DateTime.fromISO(availability.endAt, { zone: 'utc' })
                 )
             })
 
@@ -212,7 +314,14 @@ const Reservation = ({ params }: { params: { id: string } }) => {
             }
             return acc
         }, new Set<string>())
-    }, [reservations, availabilities, startAt, endAt, selectedDate])
+    }, [
+        reservations,
+        availabilities,
+        startAt,
+        closestUnavailabilitiesAndReservations,
+    ])
+
+    console.log(availableDates)
 
     useEffect(() => {
         refetchPrice()
@@ -251,7 +360,11 @@ const Reservation = ({ params }: { params: { id: string } }) => {
     //     return confirm(Number(id), selected, date);
     // }
 
-    if (!isSpaFetched || !isAvailabilitiesFetched || !isReservationsFetched) {
+    // console.log(availableDates)
+    // console.log(reservations, availabilities)
+    // console.log(selectedMonth)
+
+    if (!isSpaFetched) {
         return (
             <div className="w-full h-full flex items-center justify-center">
                 <Loader />
@@ -261,7 +374,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
 
     // console.log(availableDates)
 
-    if (!spa || !availableDates) {
+    if (!spa) {
         return (
             <div className="w-full h-full flex items-center justify-center">
                 <h1>Spa not found</h1>
@@ -373,21 +486,28 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                                     multiple
                                     onSelect={setSelectedDate}
                                     onMonthChange={function (date) {
-                                        setSelectedMonth(
-                                            (
+                                        setSelectedMonth(date)
+                                    }}
+                                    disableDateFunction={(date) => {
+                                        // console.log(date)
+                                        // console.log( new Date() > date)
+                                        // console.log(availableDates)
+                                        // console.log(DateTime.fromJSDate(
+                                        //     date
+                                        // ).toSQLDate())
+                                        // console.log(!availableDates.has(
+                                        //     DateTime.fromJSDate(
+                                        //         date
+                                        //     ).toSQLDate() as string
+                                        // ))
+                                        return (
+                                            !availableDates.has(
                                                 DateTime.fromJSDate(
                                                     date
-                                                ) as DateTime<true>
-                                            ).month
+                                                ).toSQLDate() as string
+                                            ) || new Date() > date
                                         )
                                     }}
-                                    disableDateFunction={(date) =>
-                                        !availableDates.has(
-                                            DateTime.fromJSDate(
-                                                date
-                                            ).toSQLDate() as string
-                                        ) || new Date() > date
-                                    }
                                     defaultValue={{ date: selectedDate }}
                                 />
                                 {error && (

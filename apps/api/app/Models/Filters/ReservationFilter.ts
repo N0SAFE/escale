@@ -19,6 +19,10 @@ export default class ReservationFilter extends compose(
   public $setupPromise: Promise<void>
   public $query: ModelQueryBuilderContract<typeof Reservation, Reservation>
 
+  public notInIds (ids: number[]): void {
+    this.$query.whereNotIn('id', ids)
+  }
+
   // public method (value: any): void {
   //   this.$query.where('name', value)
   // }

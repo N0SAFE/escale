@@ -139,7 +139,7 @@ export default function AvailabilityLayout({
                         </DialogHeader>
                         <ReservationEdit
                             getClostestReservations={async (date: string) =>
-                                (await getClosestReservations(date))?.data!
+                                (await getClosestReservations(date))!
                             }
                             spas={spas}
                             onChange={(data) => {

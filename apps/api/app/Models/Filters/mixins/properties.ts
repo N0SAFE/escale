@@ -41,10 +41,10 @@ export default function PropertiesFilter<
       }
 
       public property (value: RecursiveValue): void {
-        console.log(value)
+        // console.log(value)
         const relationArray = nestedRelationToArray(value, this.$query)
 
-        console.log(relationArray)
+        // console.log(relationArray)
 
         relationArray.forEach((relation) => {
           if (!relationPathExists(this.$query.model, relation.relationPath)) {
@@ -83,14 +83,14 @@ export default function PropertiesFilter<
           //   })
           // }
           preloadQuery(this.$loadedRelation, this.$query, relation.relationPath, (query) => {
-            console.log(
-              'select :' +
-                relation.values +
-                ' from (' +
-                [this.$query.model.table, ...relation.relationPath].join('.') +
-                ') relation'
-            )
-            console.log(query.model.table)
+            // console.log(
+            //   'select :' +
+            //     relation.values +
+            //     ' from (' +
+            //     [this.$query.model.table, ...relation.relationPath].join('.') +
+            //     ') relation'
+            // )
+            // console.log(query.model.table)
             query.select(relation.values)
           })
         })

@@ -7,7 +7,6 @@ import { redirect } from 'next/navigation'
 // I believe you are using `parser` to get cookies. get the token.
 export const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
-    timeout: 1000,
 })
 
 axiosInstance.interceptors.request.use(async (config) => {

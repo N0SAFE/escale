@@ -1,12 +1,12 @@
 import { List } from '@/components/List'
-import axios from 'axios'
+import { axiosInstance } from '@/lib/axiosInstance'
 
 type Rule = {
     rule: string
 }
 
 export default async function Reglement() {
-    const { data } = await axios.get<Rule[]>('/rules')
+    const { data } = await axiosInstance.get<Rule[]>('/rules')
     return (
         <div className="mb-16 mt-4">
             <div className="flex items-center justify-center">

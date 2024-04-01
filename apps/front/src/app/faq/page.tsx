@@ -5,7 +5,7 @@ import {
     AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Separator } from '@/components/ui/separator'
-import axios from 'axios'
+import { axiosInstance } from '@/lib/axiosInstance'
 
 type Faq = {
     question: string
@@ -13,7 +13,7 @@ type Faq = {
 }
 
 export default async function faq() {
-    const { data } = await axios.get<Faq[]>(`/faqs`)
+    const { data } = await axiosInstance.get<Faq[]>(`/faqs`)
     return (
         <div className="mb-16 mt-4">
             <div className="flex items-center justify-center">

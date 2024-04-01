@@ -1,5 +1,29 @@
 {
   "commands": {
+    "generate:calendar": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/GenerateInternalCalendar",
+      "commandName": "generate:calendar",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
+    "load:calendar": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/LoadExternalCalendar",
+      "commandName": "load:calendar",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "make:dto:ressource": {
       "settings": {
         "loadApp": false,
@@ -69,6 +93,18 @@
           "description": "Name of the dto files to create"
         }
       ]
+    },
+    "make:repository": {
+      "settings": {
+        "loadApp": false,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/MakeRepository",
+      "commandName": "make:repository",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
     },
     "remove:unused:tmp:uploads": {
       "settings": {
@@ -682,21 +718,32 @@
     },
     "make:task": {
       "settings": {
-        "loadApp": false,
-        "stayAlive": false
+        "loadApp": true
       },
-      "commandPath": "@stouder-io/adonis-scheduler/build/commands/MakeTask",
+      "commandPath": "adonis5-scheduler/build/commands/MakeTask",
       "commandName": "make:task",
-      "description": "Make a new task",
+      "description": "Generate task from template",
       "args": [
         {
           "type": "string",
           "propertyName": "name",
           "name": "name",
           "required": true,
-          "description": "Name of the job class"
+          "description": "Name of the task"
         }
       ],
+      "aliases": [],
+      "flags": []
+    },
+    "scheduler:run": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": true
+      },
+      "commandPath": "adonis5-scheduler/build/commands/SchedulerRun",
+      "commandName": "scheduler:run",
+      "description": "Start one or more workers",
+      "args": [],
       "aliases": [],
       "flags": []
     }
