@@ -372,11 +372,11 @@ export default function AvailabilityEdit({
     return (
         <div className="grid gap-4 py-4  w-full">
             <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="spa" className="text-right">
+                <Label htmlFor="spa" className="text-right hidden md:block">
                     spa
                 </Label>
                 <Combobox
-                    className="col-span-3"
+                    className="md:col-span-3 col-span-4"
                     items={spas?.map((spa) => ({
                         label: spa.title,
                         value: spa,
@@ -395,7 +395,6 @@ export default function AvailabilityEdit({
                             ...availabilityState,
                             spa: spa?.id || -1,
                         })
-                        setRangeDate(undefined)
                     }}
                 />
             </div>

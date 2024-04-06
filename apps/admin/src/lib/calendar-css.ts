@@ -237,6 +237,7 @@ const generateColor = (color: string) => {
 
 const start = Date.now()
 console.log('START:', start)
+console.log(colors.map(generateColor).join(''))
 
 const css: string = `${colors.map(generateColor).join('')}`
 

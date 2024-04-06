@@ -339,11 +339,11 @@ export default function ReservationEdit({
                 </div>
             ) : undefined}
             <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="spa" className="text-right">
+                <Label htmlFor="spa" className="text-right hidden md:block">
                     spa
                 </Label>
                 <Combobox
-                    className="col-span-3"
+                    className="md:col-span-3 col-span-4"
                     items={spas?.map((spa) => ({
                         label: spa.title,
                         value: spa,
@@ -365,7 +365,7 @@ export default function ReservationEdit({
                     }}
                 />
             </div>
-            <div className="flex flex-row md:flex-col">
+            <div className="flex flex-col">
                 <Calendar
                     fixedWeeks
                     mode="range"
@@ -421,11 +421,11 @@ export default function ReservationEdit({
                         )
                     }}
                 />
-                <div className="grid grid-cols-4 items-center gap-4">
+                <div className="flex flex-col items-center justify-center md:grid md:grid-cols-4 gap-4">
                     <Label htmlFor="spa" className="text-right">
                         notes
                     </Label>
-                    <pre className="col-span-3">
+                    <pre className="col-span-3 w-full p-[1px]">
                         <textarea
                             className="w-full h-32 p-2 border border-gray-300 rounded-md bg-inherit"
                             value={reservationState.notes}

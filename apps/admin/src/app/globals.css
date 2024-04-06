@@ -78,3 +78,9 @@
 .ck-editor {
     max-width: inherit;
 }
+
+/* add this snippet in your globals.css file */
+
+.rdp-vhidden {
+    @apply hidden;
+}

@@ -9,54 +9,80 @@ export type AvailableDate = {
   date: string
 } & (
   | {
-    isAvailable: false
-    partial: false
-    details: {
-      noAvailability: true
-    }
-  }
-  | {
-    isAvailable: false
-    partial: false
-    details: {
-      dayStart: 'reservation' | 'external blocked' | 'external reserved'
-      dayEnd: 'reservation' | 'external blocked' | 'external reserved'
-    }
-  }
-  | {
-    isAvailable: false
-    partial: false
-    details: {
-      dayFull: 'reservation' | 'external blocked' | 'external reserved'
-    }
-  }
-  | ({
-    isAvailable: true
-  } & (
-    | {
-      partial: 'departure'
+      isAvailable: false
+      partial: false
       details: {
-        dayStart: 'reservation' | 'external blocked' | 'external reserved'
+        tomorrow: 'no availability'
       }
     }
-    | {
-      partial: 'arrival'
+  | {
+      isAvailable: false
+      partial: false
       details: {
+        yesterday: 'no availability'
+      }
+    }
+  | {
+      isAvailable: false
+      partial: false
+      details: {
+        noAvailability: true
+      }
+    }
+  | {
+      isAvailable: false
+      partial: false
+      details: {
+        dayStart: 'reservation' | 'external blocked' | 'external reserved'
         dayEnd: 'reservation' | 'external blocked' | 'external reserved'
       }
     }
-    | {
+  | {
+      isAvailable: false
+      partial: false
+      details: {
+        dayFull: 'reservation' | 'external blocked' | 'external reserved'
+      }
+    }
+  | ({
+      isAvailable: true
+    } & (
+      | {
+          partial: 'departure'
+          details: {
+            tomorrow: 'no availability'
+          }
+        }
+      | {
+          partial: 'arrival'
+          details: {
+            yesterday: 'no availability'
+          }
+        }
+      | {
+          partial: 'departure'
+          details: {
+            dayStart: 'reservation' | 'external blocked' | 'external reserved'
+          }
+        }
+      | {
+          partial: 'arrival'
+          details: {
+            dayEnd: 'reservation' | 'external blocked' | 'external reserved'
+          }
+        }
+      | {
+          partial: false
+        }
+    ))
+  | {
+      isAvailable: true
       partial: false
     }
-  ))
-  | {
-    isAvailable: true
-    partial: false
-  }
 )
 
 export default class AvailabilityService implements AppBaseService {
-  public async getAvailableDates (
+  public async getAvailableDates(
     spa: Spa,
     from: DateTime,
     to: DateTime,
@@ -72,7 +98,7 @@ export default class AvailabilityService implements AppBaseService {
       includeAvailabilities: boolean
     }
   ): Promise<AvailableDate[]> {
-    async function getExternalBlockedEvents (externalCalendar: ExternalCalendar | null) {
+    async function getExternalBlockedEvents(externalCalendar: ExternalCalendar | null) {
       if (!externalCalendar) {
         return []
       }
@@ -99,7 +125,7 @@ export default class AvailabilityService implements AppBaseService {
       return []
     }
 
-    async function getExternalReservedEvents (externalCalendar: ExternalCalendar | null) {
+    async function getExternalReservedEvents(externalCalendar: ExternalCalendar | null) {
       if (!externalCalendar) {
         return []
       }
@@ -148,37 +174,37 @@ export default class AvailabilityService implements AppBaseService {
         }),
         includeAvailabilities
           ? spa
-            .related('availability')
-            .query()
-            .where('end_at', '>=', from.toSQLDate()!)
-            .where('start_at', '<=', to.toSQLDate()!)
-            .exec()
+              .related('availability')
+              .query()
+              .where('end_at', '>=', from.toSQLDate()!)
+              .where('start_at', '<=', to.toSQLDate()!)
+              .exec()
           : Promise.resolve([]),
         includeReservations
           ? spa
-            .related('reservations')
-            .query()
-            .where('end_at', '>=', from.toSQLDate()!)
-            .where('start_at', '<=', to.toSQLDate()!)
-            .exec()
+              .related('reservations')
+              .query()
+              .where('end_at', '>=', from.toSQLDate()!)
+              .where('start_at', '<=', to.toSQLDate()!)
+              .exec()
           : Promise.resolve([]),
       ])
 
-    const durationDayIsStart = function <T extends { startAt: DateTime; endAt: DateTime }> (
+    const durationDayIsStart = function <T extends { startAt: DateTime; endAt: DateTime }>(
       duration: T,
       date: DateTime
     ) {
       return duration.startAt.toMillis() === date.toMillis()
     }
 
-    const durationDayIsEnd = function <T extends { startAt: DateTime; endAt: DateTime }> (
+    const durationDayIsEnd = function <T extends { startAt: DateTime; endAt: DateTime }>(
       duration: T,
       date: DateTime
     ) {
       return duration.endAt.toMillis() === date.toMillis()
     }
 
-    const durationDayIsInside = function <T extends { startAt: DateTime; endAt: DateTime }> (
+    const durationDayIsInside = function <T extends { startAt: DateTime; endAt: DateTime }>(
       duration: T,
       date: DateTime
     ) {
@@ -187,26 +213,63 @@ export default class AvailabilityService implements AppBaseService {
 
     // this function return true if the date is available for the spa
     const daysIsAvailable = function (date: DateTime, chain: boolean = false): AvailableDate {
-      if (
-        !availabilities.some((a) => a.startAt <= date && a.endAt >= date) &&
-        includeAvailabilities
-      ) {
-        return {
-          date: date.toISODate()!,
-          isAvailable: false,
-          partial: false,
-          details: {
-            noAvailability: true,
-          },
+      const yesterday = date.minus({ day: 1 })
+      const tomorrrow = date.plus({ day: 1 })
+      const availabilitiesArroundToday = includeAvailabilities
+        ? availabilities.reduce<{
+            today?: Availability
+            yesterday?: Availability
+            tomorrow?: Availability
+          }>(
+            (acc, a) => {
+              return {
+                today: acc.today ? acc.today : a.startAt <= date && a.endAt >= date ? a : undefined,
+                yesterday: acc.yesterday
+                  ? acc.yesterday
+                  : a.startAt <= yesterday && a.endAt >= yesterday
+                  ? a
+                  : undefined,
+                tomorrow: acc.tomorrow
+                  ? acc.tomorrow
+                  : a.startAt <= tomorrrow && a.endAt >= tomorrrow
+                  ? a
+                  : undefined,
+              }
+            },
+            {
+              yesterday: undefined,
+              today: undefined,
+              tomorrow: undefined,
+            }
+          )
+        : undefined
+      if (includeAvailabilities) {
+        if (availabilitiesArroundToday?.today) {
+          if (!availabilitiesArroundToday.yesterday && !availabilitiesArroundToday.tomorrow) {
+            return {
+              date: date.toISODate()!,
+              isAvailable: true,
+              partial: false,
+            }
+          }
+        } else {
+          return {
+            date: date.toISODate()!,
+            isAvailable: false,
+            partial: false,
+            details: {
+              noAvailability: true,
+            },
+          }
         }
       }
       const isDayFull = reservations.some((r) => durationDayIsInside(r, date))
         ? 'reservation'
         : blockedEvents.some((e) => durationDayIsInside(e, date))
-          ? 'external blocked'
-          : reservedEvents.some((e) => durationDayIsInside(e, date))
-            ? 'external reserved'
-            : false
+        ? 'external blocked'
+        : reservedEvents.some((e) => durationDayIsInside(e, date))
+        ? 'external reserved'
+        : false
       if (isDayFull !== false) {
         return {
           date: date.toISODate()!,
@@ -220,18 +283,18 @@ export default class AvailabilityService implements AppBaseService {
       const dayHasStart = reservations.some((r) => durationDayIsStart(r, date))
         ? 'reservation'
         : blockedEvents.some((e) => durationDayIsStart(e, date))
-          ? 'external blocked'
-          : reservedEvents.some((e) => durationDayIsStart(e, date))
-            ? 'external reserved'
-            : false
+        ? 'external blocked'
+        : reservedEvents.some((e) => durationDayIsStart(e, date))
+        ? 'external reserved'
+        : false
 
       const dayHasEnd = reservations.some((r) => durationDayIsEnd(r, date))
         ? 'reservation'
         : blockedEvents.some((e) => durationDayIsEnd(e, date))
-          ? 'external blocked'
-          : reservedEvents.some((e) => durationDayIsEnd(e, date))
-            ? 'external reserved'
-            : false
+        ? 'external blocked'
+        : reservedEvents.some((e) => durationDayIsEnd(e, date))
+        ? 'external reserved'
+        : false
 
       if (dayHasStart && dayHasEnd) {
         // count as a full day
@@ -254,6 +317,16 @@ export default class AvailabilityService implements AppBaseService {
             partial: false,
             details: {
               dayFull: dayHasEnd,
+            },
+          }
+        }
+        if (includeAvailabilities && !availabilitiesArroundToday?.tomorrow) {
+          return {
+            date: date.toISODate()!,
+            isAvailable: false,
+            partial: false,
+            details: {
+              tomorrow: 'no availability',
             },
           }
         }
@@ -280,6 +353,16 @@ export default class AvailabilityService implements AppBaseService {
             },
           }
         }
+        if (includeAvailabilities && !availabilitiesArroundToday?.yesterday) {
+          return {
+            date: date.toISODate()!,
+            isAvailable: false,
+            partial: false,
+            details: {
+              yesterday: 'no availability',
+            },
+          }
+        }
         return {
           date: date.toISODate()!,
           isAvailable: true,
@@ -289,6 +372,29 @@ export default class AvailabilityService implements AppBaseService {
           },
         }
       }
+      if (availabilitiesArroundToday) {
+        if (!availabilitiesArroundToday.yesterday) {
+          return {
+            date: date.toISODate()!,
+            isAvailable: true,
+            partial: 'arrival',
+            details: {
+              yesterday: 'no availability',
+            },
+          }
+        }
+        if (!availabilitiesArroundToday.tomorrow) {
+          return {
+            date: date.toISODate()!,
+            isAvailable: true,
+            partial: 'departure',
+            details: {
+              tomorrow: 'no availability',
+            },
+          }
+        }
+      }
+
       return {
         date: date.toISODate()!,
         isAvailable: true,

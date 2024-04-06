@@ -244,7 +244,7 @@ const ReservationCalendarView = () => {
             />
 
             <SheetContent className="sm:max-w-lg md:max-w-xl w-[100vw] h-screen flex flex-col justify-between">
-                <div>
+                <div className="overflow-auto scrollbar-none">
                     <SheetHeader>
                         <SheetTitle>
                             Edit profile{' '}
