@@ -1,7 +1,7 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 
 export default class extends BaseSchema {
-  protected tableName = 'airbnb_calendar_events'
+  protected tableName = 'external_calendar_events'
 
   public async up () {
     this.schema.createTable(this.tableName, (table) => {
@@ -14,6 +14,7 @@ export default class extends BaseSchema {
       table.timestamp('updated_at', { useTz: true })
       table.date('start_at')
       table.date('end_at')
+      table.enum('from', ['airbnb', 'booking'])
       table.enum('type', ['reserved', 'blocked']).defaultTo('blocked')
       table
         .integer('external_calendar_id')

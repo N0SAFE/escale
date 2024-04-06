@@ -38,7 +38,10 @@ export type Session =
           user: null
       }
 
-export async function setSession(session: Session): Promise<Session | null> {
+export async function setSession(
+    session: Session,
+    request?: NextRequest
+): Promise<Session | null> {
     const expiresAt = (() => {
         if (session?.isAuthenticated) {
             // console.log(session.jwt.expires_at)
@@ -52,7 +55,7 @@ export async function setSession(session: Session): Promise<Session | null> {
     // console.log(session)
     // console.log(session?.jwt?.refreshToken)
     // console.log(response) {
-    const cookieStore = cookies()
+    const cookieStore = request ? request.cookies : cookies()
     cookieStore.set('session', JSON.stringify(session), {
         path: '/',
         httpOnly: false,
@@ -85,7 +88,7 @@ export async function setSession(session: Session): Promise<Session | null> {
     return session
 }
 
-async function getJwt(): Promise<Jwt | null> {
+export async function getJwt(): Promise<Jwt | null> {
     return (await getSession())?.jwt || null
 }
 
@@ -96,10 +99,12 @@ export async function updateSession(
     return setSession({ ...oldSession, ...session } as Session)
 }
 
-export async function getSession(): Promise<Session | null> {
+export async function getSession(
+    request?: NextRequest
+): Promise<Session | null> {
     'use server'
 
-    const cookieStore = cookies()
+    const cookieStore = request ? request.cookies : cookies()
     const sessionString = cookieStore.get('session')?.value
     const jwtString = cookieStore.get('jwt')?.value
     // console.log(jwtString)
@@ -140,7 +145,10 @@ export async function cookiesGetAll() {
     return cookies().getAll()
 }
 
-export async function refreshToken(retry?: boolean): Promise<Session> {
+export async function refreshToken(
+    retry?: boolean,
+    request?: NextRequest
+): Promise<Session> {
     'use server'
 
     // console.log('refreshing token')
@@ -150,7 +158,7 @@ export async function refreshToken(retry?: boolean): Promise<Session> {
         .post<any, AxiosResponse<any, { _retry: boolean }>>('/refresh', {}, {
             withCredentials: true,
             headers: {
-                refresh_token: (await getSession())?.jwt?.refreshToken,
+                refresh_token: (await getSession(request))?.jwt?.refreshToken,
             },
             _retry: retry,
         } as any)
@@ -171,21 +179,24 @@ export async function refreshToken(retry?: boolean): Promise<Session> {
                         ...res.data,
                         jwt: jwt,
                     }
-                    await setSession(session)
+                    await setSession(session, request)
                     return session
                 })
         })
         .catch(async function (e) {
             // console.log("refresh error")
             // console.log(e) // ! i am here
-            await setSession({
-                authenticationAttempted: true,
-                isAuthenticated: false,
-                isGuest: true,
-                isLoggedIn: false,
-                jwt: null,
-                user: null,
-            })
+            await setSession(
+                {
+                    authenticationAttempted: true,
+                    isAuthenticated: false,
+                    isGuest: true,
+                    isLoggedIn: false,
+                    jwt: null,
+                    user: null,
+                },
+                request
+            )
             return {
                 authenticationAttempted: true,
                 isAuthenticated: false,
@@ -325,9 +336,12 @@ export async function recreteJwt() {
         })
 }
 
-export async function isLogin(session?: Session) {
-    if (session) {
-        return session?.isAuthenticated
+export async function isLogin(options?: {
+    session?: Session
+    request?: NextRequest
+}) {
+    if (options?.session) {
+        return options?.session?.isAuthenticated
     }
-    return getSession()?.then((res) => res?.isAuthenticated)
+    return getSession(options?.request)?.then((res) => res?.isAuthenticated)
 }

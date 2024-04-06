@@ -8,10 +8,60 @@ import {
 } from '@/types/filters'
 import {
     CreateReservation,
+    ExternalBlockedCalendarEvent,
+    ExternalReservedCalendarEvent,
     Reservation,
+    Unavailability,
     UpdateReservation,
 } from '@/types/index'
 import { axiosInstance } from '@/utils/axiosInstance'
+
+export async function getUnreservableData(
+    spa: number,
+    from: string,
+    to: string
+) {
+    'use server'
+
+    console.log(from, to)
+    console.log(spa)
+
+    const { data } = await axiosInstance.get<{
+        reservations: Reservation[]
+        blockedEvents?: ExternalBlockedCalendarEvent[]
+        reservedEvents?: ExternalReservedCalendarEvent[]
+        unavailabilities?: {
+            availabilityPastLimit: string
+            availabilityFutureLimit: string
+            data: Unavailability[]
+        }
+    }>('/reservations/unreservable', {
+        params: {
+            spa,
+            from,
+            to,
+        },
+    })
+    return data
+}
+
+export async function getExternalBlockedCalendarEvent(id: number) {
+    'use server'
+
+    const { data } = await axiosInstance.get<ExternalBlockedCalendarEvent[]>(
+        `/external-calendars/${id}/events/blocked`
+    )
+    return data
+}
+
+export async function getExternalReservedCalendarEvent(id: number) {
+    'use server'
+
+    const { data } = await axiosInstance.get<ExternalReservedCalendarEvent[]>(
+        `/external-calendars/${id}/events/reserved`
+    )
+    return data
+}
 
 export async function getReservations(
     filter: GroupsFilter & SearchFilter & DatesFilter = {},
@@ -75,6 +125,33 @@ export async function getClosestReservations(
         up: upResponse.data?.[0],
         down: downResponse.data?.[0],
     }
+}
+
+export async function getClosestUnreservable(
+    spa: number,
+    date: string,
+    avoidIds?: number[],
+    includes?: {
+        includeExternalBlockedCalendarEvents?: boolean
+        includeExternalReservedCalendarEvents?: boolean
+        includeUnavailabilities?: boolean
+    }
+) {
+    'use server'
+
+    const { data } = await axiosInstance.get<{
+        past?: string
+        future?: string
+    }>(`/reservations/closest-unreservable`, {
+        params: {
+            spa,
+            date,
+            avoidIds,
+            ...includes,
+        },
+    })
+
+    return data
 }
 
 export async function getReservation(id: number) {

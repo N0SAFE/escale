@@ -1,10 +1,10 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, HasMany, hasMany, HasOne, hasOne } from '@ioc:Adonis/Lucid/Orm'
+import { column, HasMany, hasMany, HasOne, hasOne } from '@ioc:Adonis/Lucid/Orm'
 import Spa from './Spa'
-import AirbnbCalendarEvent from './AirbnbCalendarEvent'
-import BookingCalendarEvent from './BookingCalendarEvent'
+import ExternalCalendarEvent from './ExternalCalendarEvent'
+import AppBaseModel from './AppBaseModel'
 
-export default class ExternalCalendar extends BaseModel {
+export default class ExternalCalendar extends AppBaseModel {
   @column({ isPrimary: true })
   public id: number
 
@@ -20,11 +20,11 @@ export default class ExternalCalendar extends BaseModel {
   @column()
   public spaId: number
 
-  @hasMany(() => AirbnbCalendarEvent)
-  public airbnbEvents: HasMany<typeof AirbnbCalendarEvent>
+  @hasMany(() => ExternalCalendarEvent)
+  public airbnbEvents: HasMany<typeof ExternalCalendarEvent>
 
-  @hasMany(() => BookingCalendarEvent)
-  public bookingEvents: HasMany<typeof BookingCalendarEvent>
+  @hasMany(() => ExternalCalendarEvent)
+  public bookingEvents: HasMany<typeof ExternalCalendarEvent>
 
   @column()
   public airbnbCalendarUrl: string

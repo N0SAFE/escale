@@ -1,5 +1,5 @@
 import { NextFetchEvent, NextMiddleware, NextRequest } from 'next/server'
-import { MiddlewareFactory } from './types'
+import { MiddlewareFactory } from './utils/types'
 
 export const withHeaders: MiddlewareFactory = (next: NextMiddleware) => {
     return async (request: NextRequest, _next: NextFetchEvent) => {

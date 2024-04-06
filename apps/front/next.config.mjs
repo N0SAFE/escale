@@ -16,8 +16,7 @@ const nextConfig = {
 }
 
 const millionConfig = {
-    auto: { rsc: true },
-    rsc: true,
+    // rsc: true,
 }
 
 export default MillionLint.next({ rsc: true })(

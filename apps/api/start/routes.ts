@@ -73,6 +73,17 @@ Route.group(() => {
   }).middleware('connected')
 
   Route.group(() => {
+    Route.get(
+      'external-calendars/:externalCalendar/events/blocked',
+      'ExternalEventsController.getBlockedDates'
+    )
+    Route.get(
+      'external-calendars/:externalCalendar/events/reserved',
+      'ExternalEventsController.getReservedDates'
+    )
+    Route.resource('externalCalendar', 'ExternalCalendarsController')
+      .apiOnly()
+      .only(['index', 'show'])
     Route.get('reservations/price', 'ReservationsController.price')
     Route.post('spas/:spa/images', 'SpasController.postImages')
     Route.get('spas/:spa/images', 'SpasController.getImages')
@@ -85,8 +96,15 @@ Route.group(() => {
     Route.resource('rules', 'RulesController').apiOnly().only(['index', 'show'])
     Route.resource('contact', 'ContactsController').apiOnly().only(['store'])
     Route.resource('users', 'UsersController').apiOnly().only(['show'])
+    Route.get('reservations/reservable', 'ReservationsController.getReservableDates')
+    Route.get(
+      'reservations/closest-unreservable',
+      'ReservationsController.getClosestUnreservableDates'
+    )
+    Route.get('reservations/unreservable', 'ReservationsController.getUnreservable')
     Route.resource('reservations', 'ReservationsController').apiOnly().only(['show', 'index'])
     Route.resource('unavailabilities', 'UnavailabilitiesController').apiOnly().only(['index'])
+    Route.get('availabilities/dates', 'AvailabilitiesController.getAvailableDates')
     Route.resource('availabilities', 'AvailabilitiesController').apiOnly().only(['index', 'show'])
     Route.resource('spas', 'SpasController').apiOnly().only(['index', 'show'])
     Route.resource('services', 'ServicesController').apiOnly().only(['index', 'show'])

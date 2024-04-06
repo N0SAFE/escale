@@ -4,7 +4,7 @@ import {
     NextRequest,
     NextResponse,
 } from 'next/server'
-import { MiddlewareFactory } from './types'
+import { MiddlewareFactory } from './utils/types'
 
 export const withHealthCheck: MiddlewareFactory = (next: NextMiddleware) => {
     return async (request: NextRequest, _next: NextFetchEvent) => {

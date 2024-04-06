@@ -1,6 +1,8 @@
 // the T generics on the typed model is used to define where the model is the top level called
 // if i get the mode Spa i want to have some extra prop that are not fetch by default
 
+import { Immutable } from './utils'
+
 export type File = {
     id: number
     uuid: string
@@ -41,11 +43,12 @@ export type Spa<T extends boolean = false> = {
     description: string
     location: string
     googleMapsLink: string
+    externalCalendar: ExternalCalendar
 } & (T extends true ? { spaImages: SpaImage[]; services: Service[] } : {})
 
-export type CreateSpa = Omit<Spa<true>, 'id'>
+export type CreateSpa = Omit<Spa<true>, 'id' | 'externalCalendar'>
 
-export type UpdateSpa = Partial<Omit<Spa<true>, 'id'>>
+export type UpdateSpa = Partial<Omit<Spa<true>, 'id' | 'externalCalendar'>>
 
 export type Service<T extends boolean = false> = {
     id: number
@@ -67,6 +70,7 @@ export type Reservation<T extends boolean = false> = {
     startAt: string
     endAt: string
     notes: string
+    spaId: number
     spa: Spa
 }
 
@@ -74,7 +78,7 @@ export type UpdateReservation = Partial<
     Omit<Reservation, 'id' | 'spa'> & { spa: number }
 >
 
-export type CreateReservation = Omit<Reservation, 'id' | 'spa'> & {
+export type CreateReservation = Omit<Reservation, 'id' | 'spa' | 'spaId'> & {
     spa: number
 }
 
@@ -107,3 +111,50 @@ export type UpdateAvailability = Partial<
 export type CreateAvailability = Omit<Availability, 'id' | 'spa'> & {
     spa: number
 }
+
+export type Unavailability<T extends boolean = false> = {
+    id: number
+    startAt: string
+    endAt: string
+    spaId: number
+    spa: Spa
+}
+
+export type ExternalCalendar = Immutable<{
+    id: number
+    airbnbCalendarUrl: string
+    bookingCalendarUrl: string
+}>
+
+export type ExternalCalendarEvent = Immutable<{
+    id: number
+    type: 'blocked' | 'reserved'
+    from: 'airbnb' | 'booking'
+    startAt: string
+    endAt: string
+    externalCalendar: ExternalCalendar
+}>
+
+export type ExternalAirbnbCalendarEvent = Immutable<
+    Omit<ExternalCalendarEvent, 'from'> & {
+        from: 'airbnb'
+    }
+>
+
+export type ExternalBookingCalendarEvent = Immutable<
+    Omit<ExternalCalendarEvent, 'from'> & {
+        from: 'booking'
+    }
+>
+
+export type ExternalBlockedCalendarEvent = Immutable<
+    Omit<ExternalCalendarEvent, 'type'> & {
+        type: 'blocked'
+    }
+>
+
+export type ExternalReservedCalendarEvent = Immutable<
+    Omit<ExternalCalendarEvent, 'type'> & {
+        type: 'reserved'
+    }
+>

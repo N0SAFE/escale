@@ -8,7 +8,12 @@ import { Calendar } from './ui/calendar'
 import { Label } from './ui/label'
 import Combobox from './Combobox'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { getReservations } from '@/app/(logged)/dashboard/reservations/actions'
+import {
+    getClosestUnreservable,
+    getReservations,
+    getUnreservableData,
+} from '@/app/(logged)/dashboard/reservations/actions'
+import { getAvailableDates } from '@/app/(logged)/dashboard/actions'
 
 export type ReservationEditProps = {
     onChange?: ({
@@ -51,7 +56,14 @@ export default function ReservationEdit({
             ? DateTime.fromISO(defaultValues?.startAt, {
                   zone: 'utc',
               }).toJSDate()
-            : new Date()
+            : DateTime.now()
+                  .set({
+                      day: 1,
+                      hour: 0,
+                      minute: 0,
+                      second: 0,
+                  })
+                  .toJSDate()
     )
     const [defaultSelectedState, setDefaultSelectedState] = useState<
         Reservation | undefined
@@ -60,7 +72,7 @@ export default function ReservationEdit({
         React.useState<CreateReservation>({
             startAt: defaultValues?.startAt || '',
             endAt: defaultValues?.endAt || '',
-            spa: defaultValues?.spa?.id || -1,
+            spa: defaultValues?.spaId || -1,
             notes: defaultValues?.notes || '',
         })
     const [rangeDate, setRangeDate] = React.useState<DateRange | undefined>({
@@ -71,174 +83,109 @@ export default function ReservationEdit({
             ? DateTime.fromISO(defaultValues.endAt).toJSDate()
             : undefined,
     })
-    const startAt = DateTime.fromJSDate(selectedMonth, { zone: 'utc' }).set({
+    const firstDayOfTheMonth = DateTime.fromJSDate(selectedMonth).set({
         day: 1,
         hour: 0,
         minute: 0,
         second: 0,
-        millisecond: 0,
     })
-    const endAt = startAt.plus({ month: 3 }).minus({ day: 1 })
+    const startAt = firstDayOfTheMonth.minus({
+        day: 6,
+    })
+    const endAt = firstDayOfTheMonth
+        .plus({ month: 1 })
+        .set({
+            day: 1,
+            hour: 0,
+            minute: 0,
+            second: 0,
+        })
+        .plus({ day: 6 })
 
-    const { data: reservations } = useQuery({
-        placeholderData: keepPreviousData,
-        queryKey: [
-            'reservations',
-            selectedMonth.toUTCString(),
-            { range: { before: 2, after: 2, spa: reservationState?.spa } },
-        ],
+    const { data: allReservations, refetch } = useQuery({
+        queryKey: ['reservations', reservationState?.spa, startAt.toISO()],
         queryFn: async () => {
-            if (!reservationState?.spa || reservationState?.spa === -1) return
-            return getReservations({
-                groups: ['reservations:spa'],
-                search: {
-                    spa: reservationState?.spa,
-                },
-                dates: {
-                    startAt: {
-                        after: DateTime.fromJSDate(selectedMonth)
-                            .minus({ months: 2 })
-                            .toISODate()!,
-                    },
-                    endAt: {
-                        before: DateTime.fromJSDate(selectedMonth)
-                            .plus({ months: 2 })
-                            .toISODate()!,
-                    },
-                },
-            })
+            return reservationState?.spa
+                ? await getUnreservableData(
+                      reservationState?.spa,
+                      startAt.toISODate()!,
+                      endAt.toISODate()!
+                  )
+                : {
+                      reservations: [],
+                      blockedEvents: [],
+                      reservedEvents: [],
+                  }
         },
         enabled: !!reservationState?.spa,
     })
 
-    const { data: closestReservations } = useQuery({
+    const { reservations, reservedEvents } = allReservations || {
+        reservations: [],
+        reservedEvents: [],
+    }
+
+    const { data: closestUnreservableDate } = useQuery({
         queryKey: [
-            'closestReservations',
+            'closestAllReservations',
+            defaultSelectedState?.id,
             DateTime.fromJSDate(rangeDate?.from!).toISODate()!,
         ],
         queryFn: async () => {
-            console.log(
-                'get closest reservations',
-                DateTime.fromJSDate(rangeDate?.from!).toISODate()!
-            )
-            return await getClostestReservations?.(
-                DateTime.fromJSDate(rangeDate?.from!).toISODate()!,
-                defaultSelectedState?.id != undefined
-                    ? [defaultSelectedState?.id]
-                    : undefined
-            )
+            const closestUnreservablilities = reservationState?.spa
+                ? await getClosestUnreservable?.(
+                      reservationState?.spa!,
+                      DateTime.fromJSDate(rangeDate?.from!).toISODate()!,
+                      defaultSelectedState?.id != undefined
+                          ? [defaultSelectedState?.id]
+                          : undefined,
+                      {
+                          includeExternalReservedCalendarEvents: true,
+                      }
+                  )
+                : {}
+
+            return {
+                past: closestUnreservablilities.past
+                    ? DateTime.fromISO(closestUnreservablilities.past)
+                    : undefined,
+                future: closestUnreservablilities.future
+                    ? DateTime.fromISO(closestUnreservablilities.future)
+                    : undefined,
+            }
         },
         enabled: !!rangeDate?.from,
     })
 
-    console.log('closestReservations', closestReservations)
-
-    const reservationDates = React.useMemo(() => {
-        if (!reservations) {
-            return {
-                up: undefined,
-                down: undefined,
-                set: new Set<string>(),
-            }
-        }
-        const numberOfDays = endAt.diff(startAt, 'days').days + 1
-        const array = Array.from({ length: numberOfDays }, (_, i) => {
-            const date = startAt.plus({ days: i })
-            let hasStart = false
-            let hasEnd = false
-            // console.log(date.toISODate())
-
-            for (const reservation of reservations) {
-                // console.log(reservation)
-                if (reservation.id === defaultSelectedState?.id) {
-                    // console.log('defaultSelectedState (true)')
-                    return {
-                        date: date,
-                        available: false,
-                    }
-                }
-                if (
-                    date.toISODate() ==
-                    DateTime.fromISO(reservation.startAt, {
-                        zone: 'utc',
-                    }).toISODate()
-                ) {
-                    hasStart = true
-                }
-                if (
-                    date.toISODate() ==
-                    DateTime.fromISO(reservation.endAt, {
-                        zone: 'utc',
-                    }).toISODate()
-                ) {
-                    hasEnd = true
-                }
-                if (hasStart && hasEnd) {
-                    // console.log('hasStart && hasEnd (false)')
-                    return {
-                        date: date,
-                        available: true,
-                    }
-                }
-                if (
-                    date >
-                        DateTime.fromISO(reservation.startAt, {
-                            zone: 'utc',
-                        }) &&
-                    date <
-                        DateTime.fromISO(reservation.endAt, {
-                            zone: 'utc',
-                        })
-                ) {
-                    // console.log('date > startAt && date < endAt (false)')
-                    return {
-                        date: date,
-                        available: true,
-                    }
-                }
-            }
-
-            // console.log('not found (false)')
-            return {
-                date: date,
-                available: false,
-            }
-        })
-        if (rangeDate?.from) {
-            return {
-                up:
-                    closestReservations?.down &&
-                    closestReservations?.down.id !== defaultSelectedState?.id
-                        ? DateTime.fromISO(
-                              closestReservations?.down.startAt
-                          ).toJSDate()!
-                        : undefined,
-                down:
-                    closestReservations?.up &&
-                    closestReservations?.up.id !== defaultSelectedState?.id
-                        ? DateTime.fromISO(
-                              closestReservations?.up.endAt
-                          ).toJSDate()!
-                        : undefined,
-                set: array.reduce((acc, date) => {
-                    if (date.available) {
-                        acc.add(date.date.toISODate()!)
-                    }
-                    return acc
-                }, new Set<string>()),
-            }
-        }
-        return {
-            up: undefined,
-            down: undefined,
-            set: array.reduce((acc, date) => {
-                if (date.available) {
-                    acc.add(date.date.toISODate()!)
-                }
-                return acc
-            }, new Set<string>()),
-        } // eslint-disable-next-line
-    }, [reservations, rangeDate, defaultSelectedState, closestReservations])
+    const { data: availableDates } = useQuery({
+        queryKey: [
+            'availableDates',
+            reservationState?.spa,
+            startAt.toISODate(),
+        ],
+        queryFn: async () => {
+            return reservationState?.spa
+                ? new Map<
+                      string,
+                      Awaited<ReturnType<typeof getAvailableDates>>[number]
+                  >(
+                      await getAvailableDates(
+                          reservationState?.spa,
+                          startAt.toISODate()!,
+                          endAt.toISODate()!,
+                          {
+                              includeExternalReservedCalendarEvents: true,
+                              includeReservations: true,
+                          }
+                      ).then((r) => r.map((data) => [data.date, data]))
+                  )
+                : new Map<
+                      string,
+                      Awaited<ReturnType<typeof getAvailableDates>>[number]
+                  >()
+        },
+        enabled: !!reservationState?.spa,
+    })
 
     useEffect(() => {
         if (!rangeDate?.from && !rangeDate?.to) {
@@ -287,6 +234,18 @@ export default function ReservationEdit({
                     from: undefined,
                     to: undefined,
                 })
+                return
+            }
+            if (
+                rangeDate?.from?.toISOString() === rangeDate?.to?.toISOString()
+            ) {
+                setRangeDate({
+                    from: rangeDate?.from,
+                    to: DateTime.fromJSDate(rangeDate?.from)
+                        .plus({ day: 1 })
+                        .toJSDate(),
+                })
+                return
             }
         } else if (rangeDate?.from) {
             const from = DateTime.fromJSDate(rangeDate?.from!).toISODate()!
@@ -304,13 +263,23 @@ export default function ReservationEdit({
                     from: undefined,
                     to: undefined,
                 })
+                return
+            }
+            if (
+                availableDates?.get(
+                    DateTime.fromJSDate(rangeDate?.from).toISODate()!
+                )?.partial === 'departure'
+            ) {
+                setRangeDate({
+                    from: DateTime.fromJSDate(rangeDate?.from)
+                        .minus({ day: 1 })
+                        .toJSDate(),
+                    to: rangeDate?.from,
+                })
+                return
             }
         }
     }, [rangeDate, reservations, defaultSelectedState?.id])
-
-    console.log('notes', reservationState.notes)
-
-    console.log(reservationDates)
 
     return (
         <div className="grid gap-4 py-4  w-full">
@@ -335,7 +304,7 @@ export default function ReservationEdit({
                             (reservation) =>
                                 reservation.id === defaultSelectedState?.id
                         )}
-                        onSelect={(reservation) => {
+                        onSelect={(reservation?: Reservation) => {
                             if (!reservation) {
                                 setRangeDate({
                                     from: undefined,
@@ -409,31 +378,41 @@ export default function ReservationEdit({
                     selected={rangeDate}
                     onSelect={setRangeDate}
                     displayedRange={{
-                        red: reservations
-                            ?.filter((reservation) => {
-                                return (
-                                    reservation.id !== defaultSelectedState?.id
-                                )
-                            })
-                            .map((reservation) => ({
+                        red: [
+                            ...reservations
+                                ?.filter((reservation) => {
+                                    return (
+                                        reservation.id !==
+                                        defaultSelectedState?.id
+                                    )
+                                })
+                                .map((reservation) => ({
+                                    from: DateTime.fromISO(reservation.startAt),
+                                    to: DateTime.fromISO(reservation.endAt),
+                                    fromPortion: { portion: 2, index: 1 },
+                                    toPortion: { portion: 2, index: 1 },
+                                })),
+                            ...(reservedEvents?.map((reservation) => ({
                                 from: DateTime.fromISO(reservation.startAt),
                                 to: DateTime.fromISO(reservation.endAt),
                                 fromPortion: { portion: 2, index: 1 },
                                 toPortion: { portion: 2, index: 1 },
                                 item: reservation,
-                            })),
+                            })) || []),
+                        ],
                     }}
                     numberOfMonths={1}
                     disabled={(date) => {
                         return (
-                            reservationDates.set.has(
-                                DateTime.fromJSDate(date).toSQLDate() as string
-                            ) ||
-                            (reservationDates.down
-                                ? date < reservationDates.down
+                            !availableDates?.get(
+                                DateTime.fromJSDate(date).toISODate()!
+                            )?.isAvailable ||
+                            (closestUnreservableDate?.past
+                                ? date < closestUnreservableDate.past.toJSDate()
                                 : false) ||
-                            (reservationDates.up
-                                ? date > reservationDates.up
+                            (closestUnreservableDate?.future
+                                ? date >
+                                  closestUnreservableDate.future.toJSDate()
                                 : false) ||
                             !reservationState?.spa ||
                             reservationState?.spa === -1 ||

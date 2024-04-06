@@ -23,136 +23,149 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/router'
 import { useMutation } from '@tanstack/react-query'
 import Loader from '@/components/loader'
+import dynamic from 'next/dynamic'
 
 const FormSchema = z.object({
     email: z.string().email(),
     password: z.string().min(8),
 })
 
-export default function Login() {
-    const loginMutation = useMutation({
-        mutationFn: async (data: z.infer<typeof FormSchema>) =>
-            login(data.email, data.password),
-        onError: (error) => {
-            toast.error('server error')
-        },
-        onSuccess: (session) => {
-            if (!session?.isAuthenticated) {
-                return toast.error('Invalid email or password')
-            }
-            toast.success('Welcome back')
-            navigate(searchParams.get('redirectPath') || '/')
-        },
-    })
-    const searchParams = useSearchParams()
+const pageNoSsr = dynamic(
+    () =>
+        Promise.resolve(() => {
+            const loginMutation = useMutation({
+                mutationFn: async (data: z.infer<typeof FormSchema>) =>
+                    login(data.email, data.password),
+                onError: (error) => {
+                    toast.error('server error')
+                },
+                onSuccess: (session) => {
+                    if (!session?.isAuthenticated) {
+                        return toast.error('Invalid email or password')
+                    }
+                    toast.success('Welcome back')
+                    navigate(searchParams.get('redirectPath') || '/')
+                },
+            })
+            const searchParams = useSearchParams()
 
-    if (searchParams.has('error')) {
-        setTimeout(() => {
-            if (searchParams.get('redirectPath') !== '/') {
-                toast.error(searchParams.get('error')!)
-            }
-        }, 1000)
-        const params = new URLSearchParams(searchParams.toString())
-        params.delete('error')
-        navigate('/login?' + params.toString())
-    }
+            useEffect(() => {
+                if (searchParams.has('error')) {
+                    if (searchParams.get('redirectPath') !== '/') {
+                        toast.error(searchParams.get('error')!)
+                    }
+                    const params = new URLSearchParams(searchParams.toString())
+                    params.delete('error')
+                    navigate('/login?' + params.toString())
+                }
+            }, [searchParams])
 
-    const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
-    })
+            const form = useForm<z.infer<typeof FormSchema>>({
+                resolver: zodResolver(FormSchema),
+                defaultValues: {
+                    email: '',
+                    password: '',
+                },
+            })
 
-    return (
-        <div className="min-h-screen flex">
-            <div className="w-1/2 bg-black text-white p-12 flex-col justify-between hidden md:flex">
-                <div>
-                    <GlobeIcon className="text-white w-6 h-6" />
-                    <h1 className="text-4xl font-bold mt-4">Acme Inc</h1>
-                </div>
-                <div>
-                    <p className="text-xl leading-relaxed">
-                        &quot;This library has saved me countless hours of work
-                        and helped me deliver stunning designs to my clients
-                        faster than ever before.&quot;
-                    </p>
-                    <p className="text-lg font-semibold mt-4">Sofia Davis</p>
-                </div>
-            </div>
-            <Form {...form}>
-                <form
-                    onSubmit={form.handleSubmit((data) =>
-                        loginMutation.mutate(data)
-                    )}
-                    className="w-screen p-12 flex flex-col justify-center gap-8 md:w-[inherit]"
-                >
-                    <h2 className="text-xl sm:text-2xl md:text-4xl font-bold mb-6">
-                        Sign in to your account
-                    </h2>
-                    <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                                <FormLabel>email</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        placeholder="name@example.com"
-                                        {...field}
-                                    />
-                                </FormControl>
+            return (
+                <div className="min-h-screen flex">
+                    <div className="w-1/2 bg-black text-white p-12 flex-col justify-between hidden md:flex">
+                        <div>
+                            <GlobeIcon className="text-white w-6 h-6" />
+                            <h1 className="text-4xl font-bold mt-4">
+                                Acme Inc
+                            </h1>
+                        </div>
+                        <div>
+                            <p className="text-xl leading-relaxed">
+                                &quot;This library has saved me countless hours
+                                of work and helped me deliver stunning designs
+                                to my clients faster than ever before.&quot;
+                            </p>
+                            <p className="text-lg font-semibold mt-4">
+                                Sofia Davis
+                            </p>
+                        </div>
+                    </div>
+                    <Form {...form}>
+                        <form
+                            onSubmit={form.handleSubmit((data) =>
+                                loginMutation.mutate(data)
+                            )}
+                            className="w-screen p-12 flex flex-col justify-center gap-8 md:w-[inherit]"
+                        >
+                            <h2 className="text-xl sm:text-2xl md:text-4xl font-bold mb-6">
+                                Sign in to your account
+                            </h2>
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-col">
+                                        <FormLabel>email</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                autoComplete="email"
+                                                placeholder="name@example.com"
+                                                {...field}
+                                            />
+                                        </FormControl>
 
-                                <FormDescription>
-                                    Enter your email address
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                                <FormLabel>Password</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        placeholder="password"
-                                        type="password"
-                                        {...field}
-                                    />
-                                </FormControl>
+                                        <FormDescription>
+                                            Enter your email address
+                                        </FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="password"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-col">
+                                        <FormLabel>Password</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder="password"
+                                                type="password"
+                                                autoComplete="current-password"
+                                                {...field}
+                                            />
+                                        </FormControl>
 
-                                <FormDescription>
-                                    Enter your password
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <Button
-                        disabled={loginMutation.isPending}
-                        type="submit"
-                        className="mb-4"
-                    >
-                        {loginMutation.isPending ? (
-                            <Loader size="4" />
-                        ) : (
-                            'Sign In with Email'
-                        )}
-                    </Button>
-                    <p className="text-sm text-gray-500">
-                        By clicking continue, you agree to our{' '}
-                        <Link className="text-blue-600" href="#">
-                            Terms of Service
-                        </Link>{' '}
-                        and{' '}
-                        <Link className="text-blue-600" href="#">
-                            Privacy Policy
-                        </Link>
-                        .
-                    </p>
-                </form>
-            </Form>
-            {/* <form className="w-1/2 bg-white p-12 flex flex-col justify-center">
+                                        <FormDescription>
+                                            Enter your password
+                                        </FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <Button
+                                disabled={loginMutation.isPending}
+                                type="submit"
+                                className="mb-4"
+                            >
+                                {loginMutation.isPending ? (
+                                    <Loader size="4" />
+                                ) : (
+                                    'Sign In with Email'
+                                )}
+                            </Button>
+                            <p className="text-sm text-gray-500">
+                                By clicking continue, you agree to our{' '}
+                                <Link className="text-blue-600" href="#">
+                                    Terms of Service
+                                </Link>{' '}
+                                and{' '}
+                                <Link className="text-blue-600" href="#">
+                                    Privacy Policy
+                                </Link>
+                                .
+                            </p>
+                        </form>
+                    </Form>
+                    {/* <form className="w-1/2 bg-white p-12 flex flex-col justify-center">
                 <h2 className="text-4xl font-bold mb-6">Create an account</h2>
                 <p className="text-lg mb-6">Enter your email below to create your account</p>
                 <Input className="mb-4" placeholder="name@example.com" type="email" name="email" />
@@ -179,10 +192,17 @@ export default function Login() {
                     .
                 </p>
             </form> */}
-        </div>
-    )
-}
+                </div>
+            )
+        }),
+    {
+        ssr: false,
+    }
+)
 
+export default pageNoSsr
+
+// million-ignore
 function GlobeIcon(props: React.SVGProps<SVGSVGElement>) {
     return (
         <svg

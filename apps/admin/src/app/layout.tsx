@@ -9,9 +9,6 @@ import { Toaster } from '@/components/ui/sonner'
 import ReactQueryProviders from '@/utils/ReactQueryProviders'
 import { Suspense } from 'react'
 import Loader from '@/components/loader'
-import { cn } from '../lib/utils'
-axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL
-// console.log('baseURL top layout', process.env.NEXT_PUBLIC_API_URL)
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -26,9 +23,9 @@ export default async function RootLayout({
     children: React.ReactNode
 }>) {
     return (
-        <html lang="en">
+        <html lang="en" className="dark">
             <ClientStartup />
-            <body className={cn(inter.className, 'dark')}>
+            <body className={inter.className}>
                 <ReactQueryProviders>
                     <Suspense
                         fallback={
@@ -40,8 +37,8 @@ export default async function RootLayout({
                         {children}
                     </Suspense>
                 </ReactQueryProviders>
+                <Toaster richColors position="bottom-left" />
             </body>
-            <Toaster richColors position="bottom-left" />
         </html>
     )
 }

@@ -16,6 +16,7 @@ export const colors = [
     'orange',
     'cyan',
     'pink',
+    'gray',
 ]
 
 const activeTone = {

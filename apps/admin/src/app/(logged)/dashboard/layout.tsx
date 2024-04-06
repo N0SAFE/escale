@@ -10,7 +10,6 @@ import {
     CardContent,
     Card,
 } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import {
     DropdownMenuTrigger,
     DropdownMenuLabel,
@@ -27,6 +26,7 @@ import ClickHandler from '@/components/ClickHandler'
 import { usePathname } from 'next/navigation'
 import {
     Breadcrumb,
+    BreadcrumbEllipsis,
     BreadcrumbItem,
     BreadcrumbLink,
     BreadcrumbList,
@@ -34,6 +34,7 @@ import {
     BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import Loader from '@/components/loader'
+import { v4 as uuid } from 'uuid'
 import {
     Sheet,
     SheetContent,
@@ -49,6 +50,18 @@ import {
     Package2 as Package2Icon,
     ExternalLink as ExternalLinkIcon,
 } from 'lucide-react'
+import { useMediaQuery } from '@uidotdev/usehooks'
+import dynamic from 'next/dynamic'
+import {
+    Drawer,
+    DrawerClose,
+    DrawerContent,
+    DrawerDescription,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
+} from '@/components/ui/drawer'
 
 type RouteLink = {
     name: string
@@ -66,6 +79,8 @@ type RouteComponent = {
 }
 
 type RouteType = RouteLink | RouteComponent
+
+const ITEMS_TO_DISPLAY_IN_BREADCRUMB = 2
 
 export default function Layout({
     children,
@@ -157,33 +172,33 @@ export default function Layout({
                     <div className="flex-1 overflow-auto py-2">
                         <nav className="grid items-start px-4 text-sm font-medium">
                             {routes.map((route, index) => {
-                                if (route.type === 'component') {
-                                    return (
-                                        <div key={index}>{route.component}</div>
-                                    )
-                                }
                                 return (
-                                    <Link
-                                        key={route.path}
-                                        className={
-                                            route.active
-                                                ? `flex items-center justify-between gap-3 rounded-lg bg-gray-100 px-3 py-2 text-gray-900  transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50`
-                                                : `flex items-center justify-between rounded-lg px-3 py-2 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50`
-                                        }
-                                        href={
-                                            (route.path
-                                                ? head + route.path
-                                                : route.url) as string
-                                        }
-                                    >
-                                        <div className="flex gap-3 items-center">
-                                            {route.icon}
-                                            {route.name}
-                                        </div>
-                                        {route.external && (
-                                            <ExternalLinkIcon size="16" />
+                                    <div key={uuid()}>
+                                        {route.type === 'component' ? (
+                                            <div>{route.component}</div>
+                                        ) : (
+                                            <Link
+                                                className={
+                                                    route.active
+                                                        ? `flex items-center justify-between gap-3 rounded-lg bg-gray-100 px-3 py-2 text-gray-900  transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50`
+                                                        : `flex items-center justify-between rounded-lg px-3 py-2 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50`
+                                                }
+                                                href={
+                                                    (route.path
+                                                        ? head + route.path
+                                                        : route.url) as string
+                                                }
+                                            >
+                                                <div className="flex gap-3 items-center">
+                                                    {route.icon}
+                                                    {route.name}
+                                                </div>
+                                                {route.external && (
+                                                    <ExternalLinkIcon size="16" />
+                                                )}
+                                            </Link>
                                         )}
-                                    </Link>
+                                    </div>
                                 )
                             })}
                         </nav>
@@ -237,35 +252,38 @@ export default function Layout({
                                 <div className="flex-1 overflow-hidden py-2">
                                     <nav className="grid items-start text-sm font-medium">
                                         {routes.map((route, index) => {
-                                            if (route.type === 'component') {
-                                                return (
-                                                    <div key={index}>
-                                                        {route.component}
-                                                    </div>
-                                                )
-                                            }
                                             return (
-                                                <Link
-                                                    key={route.path}
-                                                    className={
-                                                        route.active
-                                                            ? `flex items-center justify-between gap-3 rounded-lg bg-gray-100 px-3 py-2 text-gray-900  transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50`
-                                                            : `flex items-center justify-between rounded-lg px-3 py-2 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50`
-                                                    }
-                                                    href={
-                                                        (route.path
-                                                            ? head + route.path
-                                                            : route.url) as string
-                                                    }
-                                                >
-                                                    <div className="flex gap-3 items-center">
-                                                        {route.icon}
-                                                        {route.name}
-                                                    </div>
-                                                    {route.external && (
-                                                        <ExternalLinkIcon size="16" />
+                                                <div key={uuid()}>
+                                                    {route.type ===
+                                                    'component' ? (
+                                                        <div>
+                                                            {route.component}
+                                                        </div>
+                                                    ) : (
+                                                        <Link
+                                                            key={route.path}
+                                                            className={
+                                                                route.active
+                                                                    ? `flex items-center justify-between gap-3 rounded-lg bg-gray-100 px-3 py-2 text-gray-900  transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50`
+                                                                    : `flex items-center justify-between rounded-lg px-3 py-2 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50`
+                                                            }
+                                                            href={
+                                                                (route.path
+                                                                    ? head +
+                                                                      route.path
+                                                                    : route.url) as string
+                                                            }
+                                                        >
+                                                            <div className="flex gap-3 items-center">
+                                                                {route.icon}
+                                                                {route.name}
+                                                            </div>
+                                                            {route.external && (
+                                                                <ExternalLinkIcon size="16" />
+                                                            )}
+                                                        </Link>
                                                     )}
-                                                </Link>
+                                                </div>
                                             )
                                         })}
                                     </nav>
@@ -296,36 +314,19 @@ export default function Layout({
                         </SheetContent>
                     </Sheet>
                     <div className="flex-1">
-                        <Breadcrumb>
-                            <BreadcrumbList>
-                                {tailWihtoutSlash.map((crumb, index, array) => {
-                                    const path = array
-                                        .slice(0, index + 1)
-                                        .join('/')
-                                    if (index === array.length - 1) {
-                                        return (
-                                            <BreadcrumbItem key={index}>
-                                                <BreadcrumbPage>
-                                                    {crumb}
-                                                </BreadcrumbPage>
-                                            </BreadcrumbItem>
-                                        )
-                                    }
-                                    return (
-                                        <>
-                                            <BreadcrumbItem key={index}>
-                                                <BreadcrumbLink
-                                                    href={head + '/' + path}
-                                                >
-                                                    {crumb}
-                                                </BreadcrumbLink>
-                                            </BreadcrumbItem>
-                                            <BreadcrumbSeparator />
-                                        </>
-                                    )
-                                })}
-                            </BreadcrumbList>
-                        </Breadcrumb>
+                        <BreadcrumbSection
+                            array={tailWihtoutSlash}
+                            ITEMS_TO_DISPLAY_IN_BREADCRUMB={
+                                ITEMS_TO_DISPLAY_IN_BREADCRUMB
+                            }
+                            calculateHref={(crumb, index, array) => {
+                                return (
+                                    head +
+                                    '/' +
+                                    array.slice(0, index + 1).join('/')
+                                )
+                            }}
+                        />
                     </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -390,15 +391,247 @@ function StripeIcon(props: React.SVGProps<SVGSVGElement>) {
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
         >
-            <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-            <g
-                id="SVGRepo_tracerCarrier"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            ></g>
-            <g id="SVGRepo_iconCarrier">
-                <path d="M13.479 9.883c-1.626-.604-2.512-1.067-2.512-1.803 0-.622.511-.977 1.423-.977 1.667 0 3.379.642 4.558 1.22l.666-4.111c-.935-.446-2.847-1.177-5.49-1.177-1.87 0-3.425.489-4.536 1.401-1.155.954-1.757 2.334-1.757 4 0 3.023 1.847 4.312 4.847 5.403 1.936.688 2.579 1.178 2.579 1.934 0 .732-.629 1.155-1.762 1.155-1.403 0-3.716-.689-5.231-1.578l-.674 4.157c1.304.732 3.705 1.488 6.197 1.488 1.976 0 3.624-.467 4.735-1.356 1.245-.977 1.89-2.422 1.89-4.289 0-3.091-1.889-4.38-4.935-5.468h.002z"></path>
-            </g>
+            <path d="M13.479 9.883c-1.626-.604-2.512-1.067-2.512-1.803 0-.622.511-.977 1.423-.977 1.667 0 3.379.642 4.558 1.22l.666-4.111c-.935-.446-2.847-1.177-5.49-1.177-1.87 0-3.425.489-4.536 1.401-1.155.954-1.757 2.334-1.757 4 0 3.023 1.847 4.312 4.847 5.403 1.936.688 2.579 1.178 2.579 1.934 0 .732-.629 1.155-1.762 1.155-1.403 0-3.716-.689-5.231-1.578l-.674 4.157c1.304.732 3.705 1.488 6.197 1.488 1.976 0 3.624-.467 4.735-1.356 1.245-.977 1.89-2.422 1.89-4.289 0-3.091-1.889-4.38-4.935-5.468h.002z"></path>
         </svg>
     )
 }
+
+type BreadcrumbSectionProps<T> = {
+    ITEMS_TO_DISPLAY_IN_BREADCRUMB: number
+    array: T[]
+    calculateHref: (crumb: T, index: number, array: T[]) => string
+    display?: (crumb: T) => React.ReactNode
+}
+
+const BreadcrumbSection = function <T>({
+    ITEMS_TO_DISPLAY_IN_BREADCRUMB,
+    array: totalArray,
+    calculateHref,
+    display,
+}: BreadcrumbSectionProps<T>) {
+    return (
+        <Breadcrumb>
+            <BreadcrumbList>
+                {totalArray.length <= ITEMS_TO_DISPLAY_IN_BREADCRUMB ? (
+                    totalArray.map((i, index, array) => {
+                        const href = calculateHref(i, index, totalArray)
+                        return (
+                            <>
+                                <BreadcrumbItem key={`${index}`}>
+                                    {index === totalArray.length - 1 ? (
+                                        <BreadcrumbPage>
+                                            {display
+                                                ? display(i)
+                                                : (i as React.ReactNode)}
+                                        </BreadcrumbPage>
+                                    ) : (
+                                        <>
+                                            <BreadcrumbLink href={href}>
+                                                {display
+                                                    ? display(i)
+                                                    : (i as React.ReactNode)}
+                                            </BreadcrumbLink>
+                                        </>
+                                    )}
+                                </BreadcrumbItem>
+                                {index !== array.length - 1 ? (
+                                    <BreadcrumbSeparator
+                                        key={`${index}-separator`}
+                                    />
+                                ) : (
+                                    <></>
+                                )}
+                            </>
+                        )
+                    })
+                ) : (
+                    <>
+                        <BreadcrumbItem>
+                            {(() => {
+                                const href = calculateHref(
+                                    totalArray[0],
+                                    0,
+                                    totalArray
+                                )
+                                return (
+                                    <BreadcrumbLink href={href}>
+                                        {display
+                                            ? display(totalArray[0])
+                                            : (totalArray[0] as React.ReactNode)}
+                                    </BreadcrumbLink>
+                                )
+                            })()}
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <EllipsisBreadcrumbElement
+                            ITEMS_TO_DISPLAY_IN_BREADCRUMB={
+                                ITEMS_TO_DISPLAY_IN_BREADCRUMB
+                            }
+                            array={totalArray}
+                            display={display}
+                            calculateHref={calculateHref}
+                        />
+                        <BreadcrumbSeparator />
+                        {totalArray
+                            .slice(-ITEMS_TO_DISPLAY_IN_BREADCRUMB + 1)
+                            .map((i, index, array) => {
+                                const href = calculateHref(
+                                    i,
+                                    index + -ITEMS_TO_DISPLAY_IN_BREADCRUMB + 1,
+                                    totalArray
+                                )
+                                const isLast = index === array.length - 1
+                                return (
+                                    <BreadcrumbItem key={index}>
+                                        {!isLast ? (
+                                            <>
+                                                <BreadcrumbLink
+                                                    asChild
+                                                    className="max-w-20 truncate md:max-w-none"
+                                                >
+                                                    <Link href={href}>
+                                                        {display
+                                                            ? display(i)
+                                                            : (i as React.ReactNode)}
+                                                    </Link>
+                                                </BreadcrumbLink>
+                                                <BreadcrumbSeparator />
+                                            </>
+                                        ) : (
+                                            <BreadcrumbPage className="max-w-20 truncate md:max-w-none">
+                                                {display
+                                                    ? display(i)
+                                                    : (i as React.ReactNode)}
+                                            </BreadcrumbPage>
+                                        )}
+                                    </BreadcrumbItem>
+                                )
+                            })}
+                    </>
+                )}
+            </BreadcrumbList>
+        </Breadcrumb>
+    )
+}
+
+type EllipsisBreadcrumbElementProps<T> = {
+    ITEMS_TO_DISPLAY_IN_BREADCRUMB: number
+    array: T[]
+    calculateHref: (crumb: T, index: number, array: T[]) => string | URL
+    display?: (crumb: T) => React.ReactNode
+}
+
+function EllipsisBreadcrumbElement<T>({
+    ITEMS_TO_DISPLAY_IN_BREADCRUMB,
+    array: totalArray,
+    calculateHref,
+    display,
+}: EllipsisBreadcrumbElementProps<T>) {
+    const [open, setOpen] = React.useState(false)
+    return (
+        <BreadcrumbItem className="gap-0">
+            <BreadcrumbEllipsis
+                onClick={() => {
+                    setOpen(!open)
+                }}
+                className="h-4 w-4 cursor-pointer"
+            />
+            <EllipsisBreadcrumbMenuElementNoSSR
+                ITEMS_TO_DISPLAY_IN_BREADCRUMB={ITEMS_TO_DISPLAY_IN_BREADCRUMB}
+                array={totalArray}
+                calculateHref={calculateHref}
+                display={display}
+                open={open}
+                setOpen={setOpen}
+            />
+        </BreadcrumbItem>
+    )
+}
+
+type EllipsisBreadcrumbMenuElementProps<T> = {
+    open: boolean
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>
+} & EllipsisBreadcrumbElementProps<T>
+
+function EllipsisBreadcrumbMenuElement<T>({
+    open,
+    setOpen,
+    ITEMS_TO_DISPLAY_IN_BREADCRUMB,
+    array: totalArray,
+    calculateHref,
+    display,
+}: EllipsisBreadcrumbMenuElementProps<T>) {
+    const isDesktop = useMediaQuery('(min-width: 768px)')
+    return isDesktop ? (
+        <>
+            <DropdownMenu open={open} onOpenChange={setOpen}>
+                <DropdownMenuTrigger className="invisible w-0">
+                    <BreadcrumbEllipsis className="h-4 w-0" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    {totalArray
+                        .slice(1, -(ITEMS_TO_DISPLAY_IN_BREADCRUMB - 1))
+                        .map((i, index) => {
+                            const href = calculateHref(i, index + 1, totalArray)
+                            return (
+                                <DropdownMenuItem
+                                    key={index}
+                                    asChild
+                                    className="cursor-pointer"
+                                >
+                                    <Link href={href}>
+                                        {display
+                                            ? display(i)
+                                            : (i as React.ReactNode)}
+                                    </Link>
+                                </DropdownMenuItem>
+                            )
+                        })}
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </>
+    ) : (
+        <Drawer open={open} onOpenChange={setOpen}>
+            <DrawerContent>
+                <DrawerHeader className="text-left">
+                    <DrawerTitle>Navigate to</DrawerTitle>
+                    <DrawerDescription>
+                        Select a page to navigate to.
+                    </DrawerDescription>
+                </DrawerHeader>
+                <div className="grid gap-1 px-4">
+                    {totalArray
+                        .slice(1, -(ITEMS_TO_DISPLAY_IN_BREADCRUMB - 1))
+                        .map((i, index) => {
+                            const href = calculateHref(i, index + 1, totalArray)
+                            return (
+                                <Link
+                                    key={index}
+                                    href={href}
+                                    className="py-1 text-sm"
+                                >
+                                    {display
+                                        ? display(i)
+                                        : (i as React.ReactNode)}
+                                </Link>
+                            )
+                        })}
+                </div>
+                <DrawerFooter className="pt-4">
+                    <DrawerClose asChild>
+                        <Button variant="outline">Close</Button>
+                    </DrawerClose>
+                </DrawerFooter>
+            </DrawerContent>
+        </Drawer>
+    )
+}
+
+const EllipsisBreadcrumbMenuElementNoSSR = dynamic(
+    function <T>() {
+        return Promise.resolve(EllipsisBreadcrumbMenuElement<T>)
+    },
+    {
+        ssr: false,
+    }
+) as <T>(props: EllipsisBreadcrumbMenuElementProps<T>) => JSX.Element

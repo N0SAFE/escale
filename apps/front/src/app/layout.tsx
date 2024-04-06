@@ -4,13 +4,12 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import '@/lib/fontAwesome'
 import { Toaster } from '@/components/ui/toaster'
-import ClientStartup from '@/components/ClientStartup'
 import { inter } from '@/fonts/index'
 import { Suspense, useEffect, useState } from 'react'
 import { Input } from '@/components/ui/input'
-import ReactQueryProviders from '../../../admin/src/utils/ReactQueryProviders'
-import Loader from '@/components/Loader/index'
+import Loader from '@/components/Loader'
 import { Toaster as ToasterSonner } from '@/components/ui/sonner'
+import ReactQueryProviders from '@/utils/ReactQueryProviders'
 
 export const metadata: Metadata = {
     title: 'Create Next App',
@@ -27,7 +26,6 @@ export default function RootLayout({
             <body
                 className={`${inter.className} bg-[#000000] text-white min-h-screen flex flex-col justify-between`}
             >
-                <ClientStartup />
                 <ReactQueryProviders>
                     <Suspense
                         fallback={

@@ -154,3 +154,7 @@ export type TupleIndices<A extends any[]> = A extends [any, ...infer T]
     : never
 
 export const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
+
+export type Immutable<T> = {
+    readonly [K in keyof T]: T[K]
+}

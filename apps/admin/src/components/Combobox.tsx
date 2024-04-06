@@ -47,7 +47,7 @@ type ComboboxProps<T extends { id: number }> = (
     notFoundText?: string
     defaultPreviewText?: string
     defaultSearchText?: string
-    isLoading: boolean
+    isLoading?: boolean
     keepOpen?: boolean
     onRender?: (item: T) => React.ReactNode
 }
@@ -80,44 +80,32 @@ export default function Combobox<T extends { id: number }>({
             <PopoverTrigger asChild>
                 <Button
                     variant="outline"
-                    disabled={isLoading}
                     role="combobox"
                     aria-expanded={open}
-                    className={cn(
-                        isLoading ? 'justify-center' : 'justify-between',
-                        className
-                    )}
+                    className={cn('justify-between', className)}
                 >
-                    {isLoading ? (
-                        <Loader />
+                    {multiple ? (
+                        <span className="overflow-hidden text-ellipsis">
+                            {val
+                                ? preview
+                                    ? preview(val as T[])
+                                    : (val as T[]).length + ' items selected'
+                                : defaultPreviewText}
+                        </span>
                     ) : (
-                        <>
-                            {multiple ? (
-                                <span className="overflow-hidden text-ellipsis">
-                                    {val
-                                        ? preview
-                                            ? preview(val as T[])
-                                            : (val as T[]).length +
-                                              ' items selected'
-                                        : defaultPreviewText}
-                                </span>
-                            ) : (
-                                <span className="overflow-hidden text-ellipsis">
-                                    {val
-                                        ? preview
-                                            ? preview(val as T)
-                                            : items?.find(
-                                                  (framework) =>
-                                                      framework.value === val
-                                              )?.label || defaultPreviewText
-                                        : defaultPreviewText}
-                                </span>
-                            )}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-
-                            {/* <span className="overflow-hidden text-ellipsis">{value ? preview ? preview(value) : items.find((framework) => framework.value === value)?.label : defaultPreviewText}</span> <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" /> */}
-                        </>
+                        <span className="overflow-hidden text-ellipsis">
+                            {val
+                                ? preview
+                                    ? preview(val as T)
+                                    : items?.find(
+                                          (framework) => framework.value === val
+                                      )?.label || defaultPreviewText
+                                : defaultPreviewText}
+                        </span>
                     )}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+
+                    {/* <span className="overflow-hidden text-ellipsis">{value ? preview ? preview(value) : items.find((framework) => framework.value === value)?.label : defaultPreviewText}</span> <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" /> */}
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="min-w-[200px] p-0">
@@ -129,91 +117,104 @@ export default function Combobox<T extends { id: number }>({
                                 : 'Search items...'
                         }
                     />
-                    <CommandEmpty>
-                        {notFoundText ? notFoundText : 'No item found.'}
-                    </CommandEmpty>
+                    {!isLoading && (
+                        <CommandEmpty>
+                            {notFoundText ? notFoundText : 'No item found.'}
+                        </CommandEmpty>
+                    )}
                     <CommandGroup>
-                        <ScrollArea className="h-[300px]">
-                            {multiple === true
-                                ? items?.map((item) => {
-                                      const lastValue = val as T[] | undefined
-                                      return (
-                                          <CommandItem
-                                              key={item.label}
-                                              value={item.label}
-                                              onSelect={() => {
-                                                  const newValue =
-                                                      lastValue?.includes(
-                                                          item.value
+                        {isLoading ? (
+                            <div className="h-[300px] flex justify-center items-center">
+                                <Loader />
+                            </div>
+                        ) : (
+                            <ScrollArea className="h-[300px]">
+                                {multiple === true
+                                    ? items?.map((item) => {
+                                          const lastValue = val as
+                                              | T[]
+                                              | undefined
+                                          return (
+                                              <CommandItem
+                                                  key={item.label}
+                                                  value={item.label}
+                                                  onSelect={() => {
+                                                      const newValue =
+                                                          lastValue?.includes(
+                                                              item.value
+                                                          )
+                                                              ? lastValue.filter(
+                                                                    (i) =>
+                                                                        i !==
+                                                                        item.value
+                                                                )
+                                                              : [
+                                                                    ...(lastValue ||
+                                                                        []),
+                                                                    item.value,
+                                                                ]
+                                                      setVal(newValue)
+                                                      if (!keepOpen) {
+                                                          setOpen(false)
+                                                      }
+                                                      onSelect?.(newValue)
+                                                  }}
+                                              >
+                                                  {onRender?.(item.value) ||
+                                                      item.label}
+                                                  <Check
+                                                      className={cn(
+                                                          'ml-auto h-4 w-4',
+                                                          lastValue?.includes(
+                                                              item.value
+                                                          )
+                                                              ? 'opacity-100'
+                                                              : 'opacity-0'
+                                                      )}
+                                                  />
+                                              </CommandItem>
+                                          )
+                                      })
+                                    : items?.map((item) => {
+                                          const lastValue = val as T | undefined
+                                          return (
+                                              <CommandItem
+                                                  key={item.label}
+                                                  value={item.label}
+                                                  onSelect={(newValue) => {
+                                                      setVal(
+                                                          item.value ===
+                                                              lastValue
+                                                              ? undefined
+                                                              : item.value
                                                       )
-                                                          ? lastValue.filter(
-                                                                (i) =>
-                                                                    i !==
-                                                                    item.value
-                                                            )
-                                                          : [
-                                                                ...(lastValue ||
-                                                                    []),
-                                                                item.value,
-                                                            ]
-                                                  setVal(newValue)
-                                                  if (!keepOpen) {
-                                                      setOpen(false)
-                                                  }
-                                                  onSelect?.(newValue)
-                                              }}
-                                          >
-                                              {onRender?.(item.value) ||
-                                                  item.label}
-                                              <Check
-                                                  className={cn(
-                                                      'ml-auto h-4 w-4',
-                                                      lastValue?.includes(
-                                                          item.value
+                                                      if (!keepOpen) {
+                                                          setOpen(false)
+                                                      }
+                                                      onSelect?.(
+                                                          item.value ===
+                                                              lastValue
+                                                              ? undefined
+                                                              : item.value
                                                       )
-                                                          ? 'opacity-100'
-                                                          : 'opacity-0'
-                                                  )}
-                                              />
-                                          </CommandItem>
-                                      )
-                                  })
-                                : items?.map((item) => {
-                                      const lastValue = val as T | undefined
-                                      return (
-                                          <CommandItem
-                                              key={item.label}
-                                              value={item.label}
-                                              onSelect={(newValue) => {
-                                                  setVal(
-                                                      item.value === lastValue
-                                                          ? undefined
-                                                          : item.value
-                                                  )
-                                                  if (!keepOpen) {
-                                                      setOpen(false)
-                                                  }
-                                                  onSelect?.(
-                                                      item.value === lastValue
-                                                          ? undefined
-                                                          : item.value
-                                                  )
-                                              }}
-                                          >
-                                              {onRender?.(item.value) ||
-                                                  item.label}
-                                              <Check
-                                                  className={cn(
-                                                      'ml-auto h-4 w-4',
-                                                      lastValue === item.value
-                                                          ? 'opacity-100'
-                                                          : 'opacity-0'
-                                                  )}
-                                              />
-                                          </CommandItem>
-                                      )
-                                  })}
-                        </ScrollArea>
+                                                  }}
+                                              >
+                                                  {onRender?.(item.value) ||
+                                                      item.label}
+                                                  <Check
+                                                      className={cn(
+                                                          'ml-auto h-4 w-4',
+                                                          lastValue ===
+                                                              item.value
+                                                              ? 'opacity-100'
+                                                              : 'opacity-0'
+                                                      )}
+                                                  />
+                                              </CommandItem>
+                                          )
+                                      })}
+                            </ScrollArea>
+                        )}
                     </CommandGroup>
                 </Command>
             </PopoverContent>

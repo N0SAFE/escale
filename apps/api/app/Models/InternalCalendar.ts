@@ -1,18 +1,11 @@
 import { DateTime } from 'luxon'
-import {
-  BaseModel,
-  beforeCreate,
-  beforeDelete,
-  column,
-  computed,
-  HasOne,
-  hasOne,
-} from '@ioc:Adonis/Lucid/Orm'
+import { beforeCreate, beforeDelete, column, computed, HasOne, hasOne } from '@ioc:Adonis/Lucid/Orm'
 import Spa from './Spa'
 import { v4 as uuid } from 'uuid'
 import Drive from '@ioc:Adonis/Core/Drive'
+import AppBaseModel from './AppBaseModel'
 
-export default class InternalCalendar extends BaseModel {
+export default class InternalCalendar extends AppBaseModel {
   @column({ isPrimary: true })
   public id: number
 

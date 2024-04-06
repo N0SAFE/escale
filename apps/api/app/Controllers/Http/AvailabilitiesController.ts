@@ -5,7 +5,9 @@ import { AvailabilityRessourceGetCollectionDto } from './dto/AvailabilityDto/Get
 import { AvailabilityRessourcePatchDto } from './dto/AvailabilityDto/Patch'
 import AvailabilityPrice from 'App/Models/AvailabilityPrice'
 import { AvailabilityRessourceDeleteDto } from './dto/AvailabilityDto/Delete'
+import { inject } from '@adonisjs/core/build/standalone'
 
+@inject()
 export default class AvailabilitiesController {
   public async index ({ response, request }: HttpContextContract) {
     const dto = AvailabilityRessourceGetCollectionDto.fromRequest(request)

@@ -9,6 +9,8 @@ export async function getSpas(
 ) {
     'use server'
 
+    console.log('getSpas')
+
     // console.log(axiosInstance.defaults.baseURL)
     const { data } = await axiosInstance.get<Spa[]>('/spas', {
         params: {

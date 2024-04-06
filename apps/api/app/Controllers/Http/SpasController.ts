@@ -14,9 +14,10 @@ import { SpaRessourceDeleteDto } from './dto/SpaDto/Delete'
 
 export default class SpasController {
   public async index ({ response, request }: HttpContextContract) {
-    // const spasQuery = Spa.query().preload('spaImages').preload('tags').preload('services')
-    // return response.ok(await spasQuery.exec())
-    return response.ok(await Spa.filter(request.qs()).exec())
+    const spasQuery = Spa.filter(request.qs())
+    spasQuery.preload('externalCalendar')
+
+    return response.ok(await spasQuery.exec())
   }
 
   public async create ({}: HttpContextContract) {}

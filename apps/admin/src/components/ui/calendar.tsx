@@ -5,11 +5,60 @@ import { DateRange, DayPicker } from 'react-day-picker'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
 import { DateTime } from 'luxon'
-import { TupleIndices } from '@/types/utils'
-import Head from 'next/head'
 import css from '@/lib/calendar-css'
 
+import {
+    DayProps,
+    useDayRender,
+    Button as ReactDayPickerButton,
+} from 'react-day-picker'
+
+function DurationDay<T extends { id: number }>(
+    props: DayProps,
+    {
+        displayedpropsMap,
+    }: {
+        displayedpropsMap: Map<
+            string,
+            {
+                color: (typeof colors)[number]
+                displayedProp: DisplayedProps<T>
+            }[]
+        >
+    }
+) {
+    const buttonRef = React.useRef<HTMLButtonElement>(null)
+    const dayRender = useDayRender(props.date, props.displayMonth, buttonRef)
+
+    dayRender.activeModifiers = {
+        ...(dayRender.activeModifiers || {}),
+        selected: true,
+    }
+
+    // console.log(DateTime.fromJSDate(props.date).toISODate()!)
+    // console.log(displayedpropsMap.get(DateTime.fromJSDate(props.date).toISODate()!))
+
+    if (dayRender.isHidden) {
+        return <></>
+    }
+    if (!dayRender.isButton) {
+        return <div {...dayRender.divProps} />
+    }
+
+    // console.log('dayRender', dayRender.activeModifiers)
+
+    return <ReactDayPickerButton {...dayRender.buttonProps} ref={buttonRef} />
+}
+
 type DisplayedProps<T extends { id: number }> = {
+    from: DateTime
+    fromPortion?: { portion: number; index: number }
+    to: DateTime
+    toPortion?: { portion: number; index: number }
+    item?: T
+}
+
+type DisplayedPropsRequireItem<T extends { id: number }> = {
     from: DateTime
     fromPortion?: { portion: number; index: number }
     to: DateTime
@@ -26,6 +75,7 @@ const colors = [
     'orange',
     'pink',
     'cyan',
+    'gray',
 ] as const
 
 export type CalendarProps<T extends { id: number }> = React.ComponentProps<
@@ -40,14 +90,24 @@ export type CalendarProps<T extends { id: number }> = React.ComponentProps<
         orange?: DisplayedProps<T>[]
         pink?: DisplayedProps<T>[]
         cyan?: DisplayedProps<T>[]
-        random?: DisplayedProps<T>[]
+        gray?: DisplayedProps<T>[]
+        random?: DisplayedPropsRequireItem<T>[]
         randomColor?: (typeof colors)[number][]
-        pickRandomColor?: (item: DisplayedProps<T>, index: number) => number
+        pickRandomColor?: (
+            item: DisplayedPropsRequireItem<T>,
+            index: number
+        ) => number
     }
     triggerColorChangeOnHover?: boolean
     triggerSelectedColorChangeOnHoverDisplayedRange?: boolean
-    onDisplayedRangeClick?: (items: DisplayedProps<T>[], day: Date) => void
-    onDisplayedRangeHover?: (items: DisplayedProps<T>[], day: Date) => void
+    onDisplayedRangeClick?: (
+        items: Exclude<DisplayedPropsRequireItem<T>, undefined>[],
+        day: Date
+    ) => void
+    onDisplayedRangeHover?: (
+        items: Exclude<DisplayedPropsRequireItem<T>, undefined>[],
+        day: Date
+    ) => void
     onDisplayedRangeOut?: () => void
 }
 
@@ -66,10 +126,51 @@ function Calendar<T extends { id: number }>({
     onDisplayedRangeOut,
     ...props
 }: CalendarProps<T>) {
+    // console.log('render CalendarComponent')
     const [hoveredItems, setHoveredItems] = React.useState<
         DisplayedProps<T>[] | null
     >(null)
     // console.log('triggerColorChangeOnHover', triggerColorChangeOnHover)
+    // console.log(displayedRange)
+    const displayedRangeMap = React.useMemo(() => {
+        const map = new Map<
+            string,
+            {
+                color: (typeof colors)[number]
+                displayedProp: DisplayedProps<T>
+            }[]
+        >()
+        colors.forEach((color) => {
+            // console.log(color)
+            displayedRange?.[color]?.forEach((item) => {
+                // console.log(displayedRange?.[color])
+                const numberOfDays = item.to.diff(item.from, 'days').days
+                // console.log(numberOfDays)
+                Array.from({ length: numberOfDays + 1 }, (_, i) => {
+                    const date = item.from.plus({ days: i })
+                    // console.log(date.toISODate())
+                    if (map.has(date.toISODate()!)) {
+                        map.set(date.toISODate()!, [
+                            ...map.get(date.toISODate()!)!,
+                            {
+                                color,
+                                displayedProp: item,
+                            },
+                        ])
+                    } else {
+                        map.set(date.toISODate()!, [
+                            {
+                                color,
+                                displayedProp: item,
+                            },
+                        ])
+                    }
+                })
+            })
+        })
+        return map
+    }, [displayedRange])
+    // console.log(displayedRangeMap)
     const duration = React.useMemo(() => {
         const d = {
             ...colors.reduce(
@@ -162,7 +263,11 @@ function Calendar<T extends { id: number }>({
             if (hoveredItems?.length > 0) {
                 setHoveredItems(hoveredItems.map((item) => item.duration))
                 onDisplayedRangeHover?.(
-                    hoveredItems.map((item) => item.duration),
+                    hoveredItems
+                        ?.filter((i) => i.duration.item)
+                        .map(
+                            (item) => item.duration
+                        ) as DisplayedPropsRequireItem<T>[],
                     day
                 )
                 return
@@ -324,7 +429,7 @@ function Calendar<T extends { id: number }>({
                             if (
                                 hoveredItems.some(
                                     (hoveredItem) =>
-                                        hoveredItem.item.id === item.id
+                                        hoveredItem.item?.id === item?.id
                                 )
                             ) {
                                 if (acc[middleActiveKey]) {
@@ -462,6 +567,10 @@ function Calendar<T extends { id: number }>({
                     IconRight: ({ ...props }) => (
                         <ChevronRight className="h-4 w-4" />
                     ),
+                    Day: (props) =>
+                        DurationDay(props, {
+                            displayedpropsMap: displayedRangeMap,
+                        }),
                 }}
                 modifiers={modifiersComputed}
                 modifiersClassNames={{
@@ -473,7 +582,12 @@ function Calendar<T extends { id: number }>({
                     if (!hoveredItems || hoveredItems.length === 0) {
                         return
                     }
-                    onDisplayedRangeClick?.(hoveredItems, day)
+                    onDisplayedRangeClick?.(
+                        hoveredItems?.filter(
+                            (i) => i.item
+                        ) as DisplayedPropsRequireItem<T>[],
+                        day
+                    )
                     onDayClick?.(day, activeModifiers, e)
                 }}
                 {...props}

@@ -1,15 +1,22 @@
-import { IsDefined, IsObject, ValidateNested } from 'class-validator'
-import { Exclude, Type } from 'class-transformer'
+import { IsDefined, IsNumber, IsObject, ValidateNested } from 'class-validator'
+import { Exclude, Transform, Type } from 'class-transformer'
 import { AsSameProperties } from '../type/AsSameProperties'
 import { RequestContract } from '@ioc:Adonis/Core/Request'
 import { BaseDto } from '../BaseDto'
 import { SkipTransform } from '../Decorator/SkipTransform'
+import ExternalCalendar from 'App/Models/ExternalCalendar'
+import { AwaitPromise } from '../Decorator/AwaitPromise'
 
 export class ExternalCalendarRessourceGetBodyDto {}
 
 export class ExternalCalendarRessourceGetQueryDto {}
 
-export class ExternalCalendarRessourceGetParamsDto {}
+export class ExternalCalendarRessourceGetParamsDto {
+  @Type(() => Number)
+  @IsNumber()
+  @IsDefined()
+  public id: number
+}
 
 @Exclude()
 export class ExternalCalendarRessourceGetFilesDto {}
@@ -61,7 +68,11 @@ export class ExternalCalendarRessourceGetQueryDtoAfter
 implements AsSameProperties<ExternalCalendarRessourceGetQueryDto> {}
 
 export class ExternalCalendarRessourceGetParamsDtoAfter
-implements AsSameProperties<ExternalCalendarRessourceGetParamsDto> {}
+implements AsSameProperties<ExternalCalendarRessourceGetParamsDto> {
+  @Transform(({ value }) => ExternalCalendar.findOrFail(value))
+  @AwaitPromise
+  public id: ExternalCalendar
+}
 
 @Exclude()
 export class ExternalCalendarRessourceGetFilesDtoAfter

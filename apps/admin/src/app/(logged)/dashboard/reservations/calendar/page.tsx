@@ -1,7 +1,7 @@
 'use client'
 
 import { Reservation, Spa, UpdateReservation } from '@/types/index'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { getSpas } from '../../actions'
 import { useWindowSize } from '@uidotdev/usehooks'
 import {
@@ -14,9 +14,9 @@ import { DateTime } from 'luxon'
 import { block } from 'million/react'
 import {
     deleteReservation,
-    getReservations,
     getClosestReservations,
     updateReservation,
+    getUnreservableData,
 } from '../actions'
 import {
     Sheet,
@@ -34,6 +34,7 @@ import Combobox from '@/components/Combobox'
 import ReservationEdit from '@/components/ReservationEdit'
 
 const ReservationCalendarView = () => {
+    console.log('render ReservationCalendarView')
     const queryClient = useQueryClient()
     const [selectedMonth, setSelectedMonth] = React.useState<Date>(new Date())
     const [selectedSpa, setSelectedSpa] = React.useState<Spa>()
@@ -49,7 +50,7 @@ const ReservationCalendarView = () => {
 
     // console.log('updatedReservation', updatedReservation)
 
-    const { data: spas, isFetched: isSpaFetched } = useQuery({
+    const { data: spas, isFetched: spaIsFetched } = useQuery({
         queryKey: ['spas'],
         queryFn: async () => {
             return await getSpas()
@@ -112,46 +113,39 @@ const ReservationCalendarView = () => {
         [size]
     )
 
-    const {
-        data: reservations,
-        error,
-        isFetched,
-        refetch,
-    } = useQuery({
+    const { data: allReservations, refetch } = useQuery({
         placeholderData: keepPreviousData,
         queryKey: [
             'reservations',
-            selectedMonth.toISOString(),
             selectedSpa?.id,
+            selectedMonth.toISOString(),
         ],
-        queryFn: async () =>
-            selectedSpa
-                ? await getReservations({
-                      groups: ['reservations:spa'],
-                      search: {
-                          spa: selectedSpa?.id,
-                      },
-                      dates: {
-                          endAt: {
-                              after: selectedMonth
-                                  ? DateTime.fromJSDate(selectedMonth)
-                                        .minus({ month: 1 })
-                                        .toISODate()!
-                                  : undefined,
-                          },
-                          startAt: {
-                              before: selectedMonth
-                                  ? DateTime.fromJSDate(selectedMonth)
-                                        .plus({
-                                            month: calendarSize + 1,
-                                        })
-                                        .toISODate()!
-                                  : undefined,
-                          },
-                      },
-                  })
-                : [],
+        queryFn: async () => {
+            return selectedSpa?.id
+                ? await getUnreservableData(
+                      selectedSpa?.id,
+                      DateTime.fromJSDate(selectedMonth)
+                          .minus({ month: 1 })
+                          .toISODate()!,
+                      DateTime.fromJSDate(selectedMonth)
+                          .plus({
+                              month: calendarSize + 1,
+                          })
+                          .toISODate()!
+                  )
+                : {
+                      reservations: [],
+                      blockedEvents: [],
+                      reservedEvents: [],
+                  }
+        },
     })
+
+    const { reservations, blockedEvents, reservedEvents } = allReservations || {
+        reservations: [],
+        blockedEvents: [],
+        reservedEvents: [],
+    }
 
     return (
         <Sheet
@@ -165,7 +159,7 @@ const ReservationCalendarView = () => {
                         label: spa.title,
                         value: spa,
                     }))}
-                    isLoading={!isSpaFetched}
+                    isLoading={!spaIsFetched}
                     defaultPreviewText="Select a spa..."
                     value={selectedSpa}
                     onSelect={(spa) => {
@@ -197,6 +191,18 @@ const ReservationCalendarView = () => {
                         'cyan',
                         'pink',
                     ],
+                    red: reservedEvents?.map((a) => ({
+                        from: DateTime.fromISO(a.startAt),
+                        to: DateTime.fromISO(a.endAt),
+                        fromPortion: { portion: 2, index: 1 },
+                        toPortion: { portion: 2, index: 1 },
+                    })),
+                    gray: blockedEvents?.map((a) => ({
+                        from: DateTime.fromISO(a.startAt),
+                        to: DateTime.fromISO(a.endAt),
+                        fromPortion: { portion: 2, index: 1 },
+                        toPortion: { portion: 2, index: 1 },
+                    })),
                     pickRandomColor: ({ item }) => {
                         return item.id
                     },
@@ -214,7 +220,7 @@ const ReservationCalendarView = () => {
                             id: displayedReservations[0].item.id,
                             reservation: {
                                 ...displayedReservations[0].item,
-                                spa: displayedReservations[0].item.spa.id,
+                                spa: displayedReservations[0].item.spaId,
                             },
                         })
                         setSheetIsOpen(true)
@@ -224,7 +230,7 @@ const ReservationCalendarView = () => {
                         id: displayedReservations[0].item.id,
                         reservation: {
                             ...displayedReservations[0].item,
-                            spa: displayedReservations[0].item.spa.id,
+                            spa: displayedReservations[0].item.spaId,
                         },
                     })
                     setSelectedReservations({
@@ -253,7 +259,7 @@ const ReservationCalendarView = () => {
                     </SheetHeader>
                     <ReservationEdit
                         spas={spas}
-                        isSpaLoading={!isSpaFetched}
+                        isSpaLoading={!spaIsFetched}
                         selectedSpa={
                             updatedReservation?.reservation?.spa
                                 ? spas?.find(

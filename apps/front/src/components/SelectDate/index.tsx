@@ -58,6 +58,12 @@ export default function SelectDate({
     )
 
     useEffect(() => {
+        setRangeDate(
+            defaultValue?.date ? (defaultValue.date as DateRange) : undefined
+        )
+    }, [defaultValue])
+
+    useEffect(() => {
         if (onSelect) {
             console.log('date', date)
             console.log('multiple', multiple)

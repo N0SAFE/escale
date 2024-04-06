@@ -1,19 +1,15 @@
 import { BaseTask, CronTimeV2 } from 'adonis5-scheduler/build/src/Scheduler/Task'
-import IcalService, { BookingIcalService } from 'App/Service/IcalService'
-import { AirbnbIcalService } from '../Service/IcalService'
 import ExternalCalendar from 'App/Models/ExternalCalendar'
+import ExternalCalendarEventRepository from 'App/Models/Repositories/ExternalCalendarEvent'
+import IcalService, { AirbnbIcalService, BookingIcalService } from 'App/Service/IcalService'
 import axios from 'axios'
-import AirbnbCalendarEventRepository from '../Models/Repositories/AirbnbCalendarEvent'
-import BookingCalendarEventRepository from 'App/Models/Repositories/BookingCalendarEvent'
 
 export default class LoadExternalCalendar extends BaseTask {
   private icalService: IcalService = new IcalService()
   private airbnbIcalService: AirbnbIcalService = new AirbnbIcalService()
   private bookingIcalService: BookingIcalService = new BookingIcalService()
-  private airbnbCalendarEventRepository: AirbnbCalendarEventRepository =
-    new AirbnbCalendarEventRepository()
-  private bookingCalendarEventRepository: BookingCalendarEventRepository =
-    new BookingCalendarEventRepository()
+  private externalCalendarEventRepository: ExternalCalendarEventRepository =
+    new ExternalCalendarEventRepository()
 
   public static get schedule () {
     // Use CronTimeV2 generator:
@@ -29,23 +25,23 @@ export default class LoadExternalCalendar extends BaseTask {
   }
 
   public async processLoadingExternalCalendar ({
-    repository,
+    from,
     service,
     calendarUrl,
     externalCalendar,
   }: {
-    repository: AirbnbCalendarEventRepository | BookingCalendarEventRepository
+    from: 'airbnb' | 'booking'
     service: AirbnbIcalService | BookingIcalService
     calendarUrl: string
     externalCalendar: ExternalCalendar
   }) {
-    const airbnbEventIds = (await repository.getEvents(externalCalendar.id)).map(
-      (event) => event.id
-    )
+    const airbnbEventIds = (
+      await this.externalCalendarEventRepository.getEvents(externalCalendar.id, { from })
+    ).map((event) => event.id)
     const { data: airbnbIcalString } = await axios.get(calendarUrl)
     const vevents = await this.icalService.getAllVeventsFromIcalString(airbnbIcalString, service)
-    await repository.createEvents(externalCalendar, vevents)
-    await repository.deleteEvents(airbnbEventIds)
+    await this.externalCalendarEventRepository.createEvents(externalCalendar, vevents, from)
+    await this.externalCalendarEventRepository.deleteEvents(airbnbEventIds)
   }
 
   public async handle () {
@@ -54,14 +50,14 @@ export default class LoadExternalCalendar extends BaseTask {
       externalCalendars.map(async (externalCalendar) => {
         return Promise.all([
           await this.processLoadingExternalCalendar({
-            repository: this.airbnbCalendarEventRepository,
+            from: 'airbnb',
             service: this.airbnbIcalService,
             calendarUrl: externalCalendar.airbnbCalendarUrl,
             externalCalendar,
           }),
 
           await this.processLoadingExternalCalendar({
-            repository: this.bookingCalendarEventRepository,
+            from: 'booking',
             service: this.bookingIcalService,
             calendarUrl: externalCalendar.bookingCalendarUrl,
             externalCalendar,

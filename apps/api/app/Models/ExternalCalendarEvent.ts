@@ -1,8 +1,9 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import ExternalCalendar from './ExternalCalendar'
+import AppBaseModel from './AppBaseModel'
 
-export default class BookingCalendarEvent extends BaseModel {
+export default class ExternalCalendarEvent extends AppBaseModel {
   @column({ isPrimary: true })
   public id: number
 
@@ -17,6 +18,9 @@ export default class BookingCalendarEvent extends BaseModel {
 
   @column()
   public externalCalendarId: number
+
+  @column()
+  public from: 'airbnb' | 'booking'
 
   @column()
   public type: 'blocked' | 'reserved'

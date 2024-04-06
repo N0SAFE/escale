@@ -1,11 +1,18 @@
 // middleware.ts
 
-import axios from 'axios'
-import { stackMiddlewares } from './middlewares/stackMiddlewares'
+import {
+    Middleware,
+    stackMiddlewares,
+} from './middlewares/utils/stackMiddlewares'
 import { withHeaders } from './middlewares/WithHeaders'
 import { withHealthCheck } from './middlewares/WithHealthCheck'
-import { withAuth } from './middlewares/AuthMiddlewares'
-axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL
+import * as AuthMiddleware from './middlewares/WithAuth'
+import * as WithRedirect from './middlewares/WithRedirect'
 
-const middlewares = [withHeaders, withHealthCheck, withAuth]
+const middlewares: Middleware[] = [
+    withHeaders,
+    withHealthCheck,
+    WithRedirect,
+    AuthMiddleware,
+]
 export default stackMiddlewares(middlewares)

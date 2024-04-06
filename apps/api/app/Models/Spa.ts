@@ -21,6 +21,7 @@ import AppBaseModel from './AppBaseModel'
 import { HasOne } from '@ioc:Adonis/Lucid/Orm'
 import InternalCalendar from './InternalCalendar'
 import ExternalCalendar from './ExternalCalendar'
+import Unavailability from './Unavailability'
 
 export default class Spa extends compose(AppBaseModel, Filterable) {
   public static $filter = () => SpaFilter
@@ -57,7 +58,7 @@ export default class Spa extends compose(AppBaseModel, Filterable) {
   public reservations: HasMany<typeof Reservation>
 
   @hasMany(() => Availability)
-  public availability: HasMany<typeof Availability>
+  public availability: HasMany<typeof Availability> // ! change to availabilities
 
   @hasMany(() => Tag)
   public tags: HasMany<typeof Tag>
@@ -72,6 +73,9 @@ export default class Spa extends compose(AppBaseModel, Filterable) {
 
   @column()
   public googleMapsLink: string
+
+  @hasMany(() => Unavailability)
+  public unavailabilities: HasMany<typeof Unavailability>
 
   @hasOne(() => ExternalCalendar)
   public externalCalendar: HasOne<typeof ExternalCalendar>

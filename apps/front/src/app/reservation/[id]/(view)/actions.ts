@@ -1,3 +1,5 @@
+'use server'
+
 import { axiosInstance } from '@/lib/axiosInstance'
 import {
     DatesFilter,
@@ -53,25 +55,6 @@ export async function getPrice(
         console.log(error)
         return { error }
     }
-}
-
-export async function getAvailableDates(
-    id: number,
-    type: 'night' | 'journey',
-    startAt: string,
-    endAt?: string
-) {
-    if (!endAt) {
-        endAt = startAt
-    }
-    const data = await axiosInstance.get<
-        { date: string; available: boolean }[]
-    >(
-        `/reservations/available-dates?startAt=${startAt}&endAt=${endAt}&type=${type}&spa=${id}`
-    )
-    return new Set(
-        data.data.filter((date) => date.available).map((date) => date.date)
-    )
 }
 
 export async function getSessionUrl(
@@ -193,4 +176,82 @@ export async function getClosestUnavailabilities(date: string) {
             down: downResponseReservations.data?.[0] as Reservation | undefined,
         },
     }
+}
+
+export async function getAvailableDates(
+    spa: number,
+    from: string,
+    to: string,
+    {
+        includeExternalBlockedCalendarEvents,
+        includeExternalReservedCalendarEvents,
+        includeReservations,
+        includeAvailabilities,
+    }: {
+        includeExternalBlockedCalendarEvents?: boolean
+        includeExternalReservedCalendarEvents?: boolean
+        includeReservations?: boolean
+        includeAvailabilities?: boolean
+    } = {}
+) {
+    'use server'
+
+    const { data } = await axiosInstance.get<
+        {
+            date: string
+            isAvailable: boolean
+            partial: false | 'departure' | 'arrival'
+            details: {
+                noAvailability: boolean
+                dayStart:
+                    | 'reservation'
+                    | 'external blocked'
+                    | 'external reserved'
+                dayEnd: 'reservation' | 'external blocked' | 'external reserved'
+                dayFull:
+                    | 'reservation'
+                    | 'external blocked'
+                    | 'external reserved'
+            }
+        }[]
+    >(`/reservations/reservable`, {
+        params: {
+            spa,
+            from,
+            to,
+            includeExternalBlockedCalendarEvents,
+            includeExternalReservedCalendarEvents,
+            includeReservations,
+            includeAvailabilities,
+        },
+    })
+
+    return data
+}
+
+export async function getClosestUnreservable(
+    spa: number,
+    date: string,
+    avoidIds?: number[],
+    includes?: {
+        includeExternalBlockedCalendarEvents?: boolean
+        includeExternalReservedCalendarEvents?: boolean
+        includeUnavailabilities?: boolean
+    }
+) {
+    'use server'
+
+    const { data } = await axiosInstance.get<{
+        past?: string
+        future?: string
+    }>(`/reservations/closest-unreservable`, {
+        params: {
+            spa,
+            date,
+            avoidIds,
+            ...includes,
+        },
+    })
+
+    return data
 }

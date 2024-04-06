@@ -6,28 +6,29 @@ export async function middleware(request: NextRequest) {
     if (request.nextUrl.pathname.startsWith('/_next')) {
         return NextResponse.next()
     }
-    if (process.env.NODE_ENV === 'development') {
-        try {
-            const res = await fetch(
-                process.env.NEXT_PUBLIC_API_URL + '/health',
-                {
-                    cache: 'force-cache',
-                    next: { revalidate: 100 },
-                }
-            ).then((res) => res.json())
-            if (res.healthy) {
-                return NextResponse.next()
-            } else {
-                return Response.json(
-                    { error: 'API is not healthy', data: res },
-                    { status: 500 }
-                )
-            }
-        } catch {
-            return Response.json(
-                { error: 'API cannot be reach' },
-                { status: 500 }
-            )
-        }
-    }
+    // if (process.env.NODE_ENV === 'development') {
+    //     try {
+    //         const res = await fetch(
+    //             process.env.NEXT_PUBLIC_API_URL + '/health',
+    //             {
+    //                 cache: 'force-cache',
+    //                 next: { revalidate: 100 },
+    //             }
+    //         ).then((res) => res.json())
+    //         if (res.healthy) {
+    //             return NextResponse.next()
+    //         } else {
+    //             return Response.json(
+    //                 { error: 'API is not healthy', data: res },
+    //                 { status: 500 }
+    //             )
+    //         }
+    //     } catch {
+    //         return Response.json(
+    //             { error: 'API cannot be reach' },
+    //             { status: 500 }
+    //         )
+    //     }
+    // }
+    return NextResponse.next()
 }

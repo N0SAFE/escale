@@ -12,6 +12,8 @@ import {
     getAvailabilities,
     getReservations,
     getClosestUnavailabilities,
+    getAvailableDates,
+    getClosestUnreservable,
 } from './actions'
 import Loader from '@/components/Loader/index'
 import Link from 'next/link'
@@ -44,6 +46,8 @@ import { SpeakerModerateIcon } from '@radix-ui/react-icons'
 const Reservation = ({ params }: { params: { id: string } }) => {
     const { id } = params
 
+    console.log(id)
+
     const [selectedDate, setSelectedDate] = useState<DateRange | undefined>()
     const [selectedType, setSelectedType] = useState<
         'journey' | 'night' | undefined
@@ -71,9 +75,9 @@ const Reservation = ({ params }: { params: { id: string } }) => {
         error: spaError,
         isFetched: isSpaFetched,
     } = useQuery({
-        queryKey: ['spa', params.id],
+        queryKey: ['spa', id],
         queryFn: async () => {
-            const { data } = await getSpa(Number(params.id))
+            const { data } = await getSpa(Number(id))
             return data
         },
         enabled: !!id,
@@ -94,61 +98,6 @@ const Reservation = ({ params }: { params: { id: string } }) => {
         enabled: !!selectedDate?.from,
     })
     console.log(closestUnavailabilitiesAndReservations)
-    const {
-        data: availabilities,
-        error: availabilitiesError,
-        isFetched: isAvailabilitiesFetched,
-        refetch: refetchAvailabilities,
-    } = useQuery({
-        placeholderData: keepPreviousData,
-        queryKey: [
-            'availabilities',
-            params.id,
-            startAt.toISODate(),
-            endAt.toISODate(),
-        ],
-        queryFn: async () => {
-            const data = await getAvailabilities({
-                search: {
-                    spa: Number(params.id),
-                },
-                dates: {
-                    startAt: {
-                        before: startAt.toISODate(),
-                    },
-                    endAt: {
-                        after: endAt.toISODate(),
-                    },
-                },
-            })
-            return data
-        },
-        enabled: !!id,
-        refetchInterval: 1000 * 60 * 10, // 10 minutes
-    })
-    const {
-        data: reservations,
-        error: reservationsError,
-        isFetched: isReservationsFetched,
-        refetch: refetchReservations,
-    } = useQuery({
-        placeholderData: keepPreviousData,
-        queryKey: [
-            'reservations',
-            params.id,
-            startAt.toISODate(),
-            endAt.toISODate(),
-        ],
-        queryFn: async () => {
-            const data = await getReservations(
-                Number(params.id),
-                startAt.toISODate(),
-                endAt.toISODate()
-            )
-            return data
-        },
-        enabled: !!id,
-    })
     const {
         data: price,
         error: priceError,
@@ -192,134 +141,197 @@ const Reservation = ({ params }: { params: { id: string } }) => {
         },
     })
 
-    const availableDates = useMemo(() => {
-        if (!reservations || !availabilities) {
-            return new Set()
-        }
-        const numberOfDays = endAt.diff(startAt, 'days').days + 1
-        const array = Array.from({ length: numberOfDays }, (_, i) => {
-            const date = startAt.plus({ days: i })
+    const { data: availableDates } = useQuery({
+        queryKey: ['availableDates', id, startAt.toISODate()],
+        queryFn: async () => {
+            return id
+                ? new Map<
+                      string,
+                      Awaited<ReturnType<typeof getAvailableDates>>[number]
+                  >(
+                      await getAvailableDates(
+                          Number(id),
+                          startAt.toISODate()!,
+                          endAt.toISODate()!,
+                          {
+                              includeExternalReservedCalendarEvents: true,
+                              includeReservations: true,
+                              includeAvailabilities: true,
+                              includeExternalBlockedCalendarEvents: true,
+                          }
+                      ).then((r) => r.map((data) => [data.date, data]))
+                  )
+                : new Map<
+                      string,
+                      Awaited<ReturnType<typeof getAvailableDates>>[number]
+                  >()
+        },
+        enabled: !!id,
+    })
 
-            if (selectedDate?.from) {
-                const isBooked = !!reservations.find((reservation) => {
-                    return (
-                        date >
-                            (!selectedDate?.to
-                                ? DateTime.fromISO(reservation.startAt, {
-                                      zone: 'utc',
-                                  })
-                                : DateTime.fromISO(reservation.startAt, {
-                                      zone: 'utc',
-                                  }).minus({ days: 1 })) &&
-                        date <
-                            DateTime.fromISO(reservation.endAt, { zone: 'utc' })
-                    )
-                })
+    console.log('availableDates', availableDates)
 
-                const isAvailable = !!availabilities.find((availability) => {
-                    return (
-                        date >=
-                            DateTime.fromISO(availability.startAt, {
-                                zone: 'utc',
-                            }) &&
-                        date <=
-                            (!selectedDate?.to
-                                ? DateTime.fromISO(availability.endAt, {
-                                      zone: 'utc',
-                                  }).plus({ days: 1 })
-                                : DateTime.fromISO(availability.endAt, {
-                                      zone: 'utc',
-                                  }))
-                    )
-                })
-
-                const isInClosestUnavailability = !(
-                    (closestUnavailabilitiesAndReservations?.unavailabilities
-                        ?.down?.startAt
-                        ? DateTime.fromISO(
-                              closestUnavailabilitiesAndReservations
-                                  ?.unavailabilities?.down?.startAt,
-                              { zone: 'utc' }
-                          )! >= date
-                        : false) &&
-                    (closestUnavailabilitiesAndReservations?.unavailabilities
-                        ?.up?.endAt
-                        ? DateTime.fromISO(
-                              closestUnavailabilitiesAndReservations
-                                  ?.unavailabilities?.up?.endAt,
-                              { zone: 'utc' }
-                          ) <= date
-                        : false)
-                )
-
-                const isInClosestReservation = !(
-                    (closestUnavailabilitiesAndReservations?.reservations?.down
-                        ?.startAt
-                        ? DateTime.fromISO(
-                              closestUnavailabilitiesAndReservations
-                                  ?.reservations?.down?.startAt,
-                              { zone: 'utc' }
-                          )! >= date
-                        : false) &&
-                    (closestUnavailabilitiesAndReservations?.reservations?.up
-                        ?.endAt
-                        ? DateTime.fromISO(
-                              closestUnavailabilitiesAndReservations
-                                  ?.reservations?.up?.endAt,
-                              { zone: 'utc' }
-                          ) <= date
-                        : false)
-                )
-
-                return {
-                    date: date.toISODate(),
-                    available:
-                        !isBooked &&
-                        isAvailable &&
-                        !isInClosestUnavailability &&
-                        !isInClosestReservation,
-                }
-            }
-
-            const isBooked = !!reservations.find((reservation) => {
-                return (
-                    date >
-                        DateTime.fromISO(reservation.startAt, {
-                            zone: 'utc',
-                        }).minus({ days: 1 }) &&
-                    date < DateTime.fromISO(reservation.endAt, { zone: 'utc' })
-                )
-            })
-
-            const isAvailable = !!availabilities.find((availability) => {
-                // check if the date is between the start and end of the availability
-                return (
-                    date >=
-                        DateTime.fromISO(availability.startAt, {
-                            zone: 'utc',
-                        }) &&
-                    date <=
-                        DateTime.fromISO(availability.endAt, { zone: 'utc' })
-                )
-            })
+    const { data: closestUnreservableDate } = useQuery({
+        queryKey: ['closestAllReservations', selectedDate?.from?.toISOString()],
+        queryFn: async () => {
+            const closestUnreservablilities = id
+                ? await getClosestUnreservable?.(
+                      Number(id),
+                      DateTime.fromJSDate(selectedDate?.from!).toISODate()!,
+                      [],
+                      {
+                          includeExternalReservedCalendarEvents: true,
+                          includeExternalBlockedCalendarEvents: true,
+                          includeUnavailabilities: true,
+                      }
+                  )
+                : {}
 
             return {
-                date: date.toISODate(),
-                available: !isBooked && isAvailable,
+                past: closestUnreservablilities.past
+                    ? DateTime.fromISO(closestUnreservablilities.past)
+                    : undefined,
+                future: closestUnreservablilities.future
+                    ? DateTime.fromISO(closestUnreservablilities.future)
+                    : undefined,
             }
-        })
-        return array.reduce((acc, date) => {
-            if (date.available === true) {
-                acc.add(date.date)
-            }
-            return acc
-        }, new Set<string>())
-    }, [
-        reservations,
-        availabilities,
-        startAt,
-        closestUnavailabilitiesAndReservations,
-    ])
+        },
+        enabled: !!selectedDate?.from,
+    })
+
+    console.log('closestUnreservableDate', {
+        past: closestUnreservableDate?.past?.toISODate(),
+        future: closestUnreservableDate?.future?.toISODate(),
+    })
+
+    // const availableDates = useMemo(() => {
+    //     if (!reservations || !availabilities) {
+    //         return new Set()
+    //     }
+    //     const numberOfDays = endAt.diff(startAt, 'days').days + 1
+    //     const array = Array.from({ length: numberOfDays }, (_, i) => {
+    //         const date = startAt.plus({ days: i })
+
+    //         if (selectedDate?.from) {
+    //             const isBooked = !!reservations.find((reservation) => {
+    //                 return (
+    //                     date >
+    //                         (!selectedDate?.to
+    //                             ? DateTime.fromISO(reservation.startAt, {
+    //                                   zone: 'utc',
+    //                               })
+    //                             : DateTime.fromISO(reservation.startAt, {
+    //                                   zone: 'utc',
+    //                               }).minus({ days: 1 })) &&
+    //                     date <
+    //                         DateTime.fromISO(reservation.endAt, { zone: 'utc' })
+    //                 )
+    //             })
+
+    //             const isAvailable = !!availabilities.find((availability) => {
+    //                 return (
+    //                     date >=
+    //                         DateTime.fromISO(availability.startAt, {
+    //                             zone: 'utc',
+    //                         }) &&
+    //                     date <=
+    //                         (!selectedDate?.to
+    //                             ? DateTime.fromISO(availability.endAt, {
+    //                                   zone: 'utc',
+    //                               }).plus({ days: 1 })
+    //                             : DateTime.fromISO(availability.endAt, {
+    //                                   zone: 'utc',
+    //                               }))
+    //                 )
+    //             })
+
+    //             const isInClosestUnavailability = !(
+    //                 (closestUnavailabilitiesAndReservations?.unavailabilities
+    //                     ?.down?.startAt
+    //                     ? DateTime.fromISO(
+    //                           closestUnavailabilitiesAndReservations
+    //                               ?.unavailabilities?.down?.startAt,
+    //                           { zone: 'utc' }
+    //                       )! >= date
+    //                     : false) &&
+    //                 (closestUnavailabilitiesAndReservations?.unavailabilities
+    //                     ?.up?.endAt
+    //                     ? DateTime.fromISO(
+    //                           closestUnavailabilitiesAndReservations
+    //                               ?.unavailabilities?.up?.endAt,
+    //                           { zone: 'utc' }
+    //                       ) <= date
+    //                     : false)
+    //             )
+
+    //             const isInClosestReservation = !(
+    //                 (closestUnavailabilitiesAndReservations?.reservations?.down
+    //                     ?.startAt
+    //                     ? DateTime.fromISO(
+    //                           closestUnavailabilitiesAndReservations
+    //                               ?.reservations?.down?.startAt,
+    //                           { zone: 'utc' }
+    //                       )! >= date
+    //                     : false) &&
+    //                 (closestUnavailabilitiesAndReservations?.reservations?.up
+    //                     ?.endAt
+    //                     ? DateTime.fromISO(
+    //                           closestUnavailabilitiesAndReservations
+    //                               ?.reservations?.up?.endAt,
+    //                           { zone: 'utc' }
+    //                       ) <= date
+    //                     : false)
+    //             )
+
+    //             return {
+    //                 date: date.toISODate(),
+    //                 available:
+    //                     !isBooked &&
+    //                     isAvailable &&
+    //                     !isInClosestUnavailability &&
+    //                     !isInClosestReservation,
+    //             }
+    //         }
+
+    //         const isBooked = !!reservations.find((reservation) => {
+    //             return (
+    //                 date >
+    //                     DateTime.fromISO(reservation.startAt, {
+    //                         zone: 'utc',
+    //                     }).minus({ days: 1 }) &&
+    //                 date < DateTime.fromISO(reservation.endAt, { zone: 'utc' })
+    //             )
+    //         })
+
+    //         const isAvailable = !!availabilities.find((availability) => {
+    //             // check if the date is between the start and end of the availability
+    //             return (
+    //                 date >=
+    //                     DateTime.fromISO(availability.startAt, {
+    //                         zone: 'utc',
+    //                     }) &&
+    //                 date <=
+    //                     DateTime.fromISO(availability.endAt, { zone: 'utc' })
+    //             )
+    //         })
+
+    //         return {
+    //             date: date.toISODate(),
+    //             available: !isBooked && isAvailable,
+    //         }
+    //     })
+    //     return array.reduce((acc, date) => {
+    //         if (date.available === true) {
+    //             acc.add(date.date)
+    //         }
+    //         return acc
+    //     }, new Set<string>())
+    // }, [
+    //     reservations,
+    //     availabilities,
+    //     startAt,
+    //     closestUnavailabilitiesAndReservations,
+    // ])
 
     console.log(availableDates)
 
@@ -328,31 +340,32 @@ const Reservation = ({ params }: { params: { id: string } }) => {
     }, [selectedType, selectedDate, refetchPrice])
 
     useEffect(() => {
-        refetchAvailabilities()
-        refetchReservations()
-    }, [
-        selectedMonth,
-        selectedType,
-        refetchAvailabilities,
-        refetchReservations,
-    ])
-
-    useEffect(() => {
-        // console.log({
-        //     spaError,
-        //     availabilitiesError,
-        //     reservationsError,
-        //     priceError,
-        // })
-        if (
-            spaError ||
-            availabilitiesError ||
-            reservationsError ||
-            priceError
-        ) {
-            toast.error('an error occure on the client')
+        if (selectedDate?.from) {
+            if (
+                availableDates?.get(
+                    DateTime.fromJSDate(selectedDate.from).toISODate() as string
+                )?.partial === 'departure'
+            ) {
+                setSelectedDate({
+                    from: DateTime.fromJSDate(selectedDate.from)
+                        .minus({ day: 1 })
+                        .toJSDate(),
+                    to: selectedDate.from,
+                })
+            }
         }
-    }, [spaError, availabilitiesError, reservationsError, priceError])
+    }, [selectedDate, availableDates])
+
+    // useEffect(() => {
+    //     if (
+    //         spaError ||
+    //         availabilitiesError ||
+    //         reservationsError ||
+    //         priceError
+    //     ) {
+    //         toast.error('an error occure on the client')
+    //     }
+    // }, [spaError, availabilitiesError, reservationsError, priceError])
 
     // console.log(price)
 
@@ -365,6 +378,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
     // console.log(selectedMonth)
 
     if (!isSpaFetched) {
+        // ! try to know why the data is not loaded the same way in the admin part than in this part (prefetching data not here)
         return (
             <div className="w-full h-full flex items-center justify-center">
                 <Loader />
@@ -501,11 +515,20 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                                         //     ).toSQLDate() as string
                                         // ))
                                         return (
-                                            !availableDates.has(
+                                            !availableDates?.get(
                                                 DateTime.fromJSDate(
                                                     date
                                                 ).toSQLDate() as string
-                                            ) || new Date() > date
+                                            )?.isAvailable ||
+                                            new Date() > date ||
+                                            (closestUnreservableDate?.past
+                                                ? date <
+                                                  closestUnreservableDate.past.toJSDate()
+                                                : false) ||
+                                            (closestUnreservableDate?.future
+                                                ? date >
+                                                  closestUnreservableDate.future.toJSDate()
+                                                : false)
                                         )
                                     }}
                                     defaultValue={{ date: selectedDate }}
