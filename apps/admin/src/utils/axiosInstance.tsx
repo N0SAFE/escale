@@ -37,8 +37,7 @@ axiosInstance.interceptors.response.use(
                 return Promise.reject(redirect('/login'))
             }
             const session = await refreshToken(true)
-            if (await isLogin({session}
-                )) {
+            if (await isLogin({ session })) {
                 console.log('token as been refreshed')
                 const tokenType = session?.jwt?.type
                 const token = session?.jwt?.token
