@@ -10,7 +10,7 @@
     "start:build": "npm run start --prefix=./build",
     "start:build:ngrok": "npm run start:ngrok --prefix=./build",
     "stop:build": "node build/stop.js",
-    "build": "node ace build --production && echo run clean install && npm --prefix=./build ci --production && node ./post-build.js && node ./build/ace load:calendar && node ./build/ace generate:calendar",
+    "build": "node ace build --production && echo run clean install && npm --prefix=./build ci --production && node ./post-build.js && npm run db:migrate:build && node ./build/ace load:calendar && node ./build/ace generate:calendar",
     "test": "npm run db:unmigrate && node ace test && npm run db:fresh:seed",
     "lint": "eslint . --ext=.ts --fix",
     "format": "prettier --write .",
