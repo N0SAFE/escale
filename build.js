@@ -20,11 +20,6 @@ if (buildApi.status !== 0) {
     process.exit(1);
 }
 (async () => {
-    // const dbMigrateApi = spawnSync(`npm run db:migrate:api${useNgrok ? ":ngrok" : ""}`, { stdio: "inherit", shell: true });
-    if (dbMigrateApi.status !== 0) {
-        console.log("API database migration failed");
-        process.exit(1);
-    }
     const api = spawn(`npm run start:api${useNgrok ? ":ngrok" : ""}`, { stdio: "inherit", shell: true})
     let front;
     let admin;
