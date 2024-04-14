@@ -3,10 +3,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
-import Loader from './loader'
-import { Button } from './ui/button'
-import { SortableList } from './SortableList/SortableList'
-import { ScrollArea } from './ui/scroll-area'
+import Loader from '../atoms/Loader'
+import { Button } from '../../ui/button'
+import { SortableList } from '@/components/atomics/organisms/SortableList/SortableList'
+import { ScrollArea } from '../../ui/scroll-area'
 import { cn } from '@/lib/utils'
 
 type FileUploaderProps<D> = {

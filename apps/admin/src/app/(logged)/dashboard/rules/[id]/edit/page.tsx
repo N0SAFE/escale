@@ -3,7 +3,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useParams } from 'next/navigation'
 import { getImage } from '../../actions'
-import Loader from '@/components/loader'
+import Loader from '@/components/atomics/atoms/Loader'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useEffect, useState } from 'react'
@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { updateImage } from '../../actions'
 import { toast } from 'sonner'
 import { UpdateImage } from '@/types/index'
-import ApiImage from '@/components/ApiImage'
+import ApiImage from '@/components/atomics/atoms/ApiImage'
 
 export default function ServiceEdit() {
     const params = useParams<{ id: string }>()

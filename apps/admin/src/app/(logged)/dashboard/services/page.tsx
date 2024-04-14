@@ -46,7 +46,7 @@ import {
     Service,
 } from '@/types/index'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import Loader from '@/components/loader'
+import Loader from '@/components/atomics/atoms/Loader'
 import Link from 'next/link'
 import {
     AlertDialog,
@@ -60,10 +60,10 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import Image from 'next/image'
-import Combobox from '@/components/Combobox'
+import Combobox from '@/components/atomics/molecules/Combobox'
 import { Label } from '@/components/ui/label'
 import { getImages } from '../actions'
-import ApiImage from '@/components/ApiImage'
+import ApiImage from '@/components/atomics/atoms/ApiImage'
 import {
     Dialog,
     DialogContent,

@@ -17,8 +17,9 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover'
-import Loader from './loader'
-import { ScrollArea } from './ui/scroll-area'
+import Loader from '../atoms/Loader'
+import { ScrollArea } from '../../ui/scroll-area'
+import { nextTick } from 'process'
 
 type ComboboxMultipleProps<T> = {
     defaultValue?: T[]
@@ -70,10 +71,32 @@ export default function Combobox<T extends { id: number }>({
     Omit<React.ComponentProps<typeof Button>, keyof ComboboxProps<T>>) {
     const [open, setOpen] = React.useState(false)
     const [val, setVal] = React.useState(defaultValue)
+    const [isMounted, setIsMounted] = React.useState(false)
+    
+    React.useEffect(() => {
+        setIsMounted(true)
+    }, [])
 
     React.useEffect(() => {
-        setVal(value)
-    }, [value])
+        nextTick(
+            () => {
+                if (value === val) return
+                console.log('change value', value, val)
+                if (value === undefined && !isMounted) {
+                    return
+                }
+                setVal(value)
+            }
+        )
+    }, [value, val])
+    
+    console.log('value', value)
+    console.log('val', val)
+    console.log(items)
+    console.log(items?.find(
+        (framework) => framework.value.id === (val as T)?.id
+    ))
+    console.log(defaultValue)
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -98,7 +121,7 @@ export default function Combobox<T extends { id: number }>({
                                 ? preview
                                     ? preview(val as T)
                                     : items?.find(
-                                          (framework) => framework.value === val
+                                          (framework) => framework.value.id === (val as T).id
                                       )?.label || defaultPreviewText
                                 : defaultPreviewText}
                         </span>
@@ -136,8 +159,8 @@ export default function Combobox<T extends { id: number }>({
                                               | undefined
                                           return (
                                               <CommandItem
-                                                  key={item.label}
-                                                  value={item.label}
+                                              
+                                                  key={item.value.id}
                                                   onSelect={() => {
                                                       const newValue =
                                                           lastValue?.includes(
@@ -161,7 +184,7 @@ export default function Combobox<T extends { id: number }>({
                                                   }}
                                               >
                                                   {onRender?.(item.value) ||
-                                                      item.label}
+                                                      `${item.value.id}. ${item.label}`}
                                                   <Check
                                                       className={cn(
                                                           'ml-auto h-4 w-4',
@@ -179,7 +202,7 @@ export default function Combobox<T extends { id: number }>({
                                           const lastValue = val as T | undefined
                                           return (
                                               <CommandItem
-                                                  key={item.label}
+                                                  key={item.value.id}
                                                   value={item.label}
                                                   onSelect={(newValue) => {
                                                       setVal(
@@ -200,7 +223,7 @@ export default function Combobox<T extends { id: number }>({
                                                   }}
                                               >
                                                   {onRender?.(item.value) ||
-                                                      item.label}
+                                                      item.value.id}
                                                   <Check
                                                       className={cn(
                                                           'ml-auto h-4 w-4',

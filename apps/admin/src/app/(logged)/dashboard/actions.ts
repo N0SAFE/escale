@@ -1,6 +1,6 @@
 'use server'
 
-import { axiosInstance } from '@/utils/axiosInstance'
+import { xiorInstance } from '@/utils/xiorInstance'
 import { getSpas } from './spas/actions'
 import { getServices } from './services/actions'
 import { getImages } from './images/actions'
@@ -27,16 +27,18 @@ export async function getAvailableDates(
         includeExternalReservedCalendarEvents,
         includeReservations,
         includeAvailabilities,
+        avoidIds,
     }: {
         includeExternalBlockedCalendarEvents?: boolean
         includeExternalReservedCalendarEvents?: boolean
         includeReservations?: boolean
         includeAvailabilities?: boolean
+        avoidIds?: number[]
     } = {}
 ) {
     'use server'
 
-    const { data } = await axiosInstance.get<
+    const { data } = await xiorInstance.get<
         {
             date: string
             isAvailable: boolean
@@ -63,6 +65,7 @@ export async function getAvailableDates(
             includeExternalReservedCalendarEvents,
             includeReservations,
             includeAvailabilities,
+            avoidReservationIds: avoidIds,
         },
     })
 

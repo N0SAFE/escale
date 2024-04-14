@@ -2,7 +2,7 @@
 
 import { GroupsFilter, PaginationFilter, SearchFilter } from '@/types/filters'
 import { CreateSpa, Spa, SpaImage, UpdateSpa } from '@/types/index'
-import { axiosInstance } from '@/utils/axiosInstance'
+import { xiorInstance } from '@/utils/xiorInstance'
 
 export async function getSpas(
     filter: GroupsFilter & SearchFilter & PaginationFilter = {}
@@ -11,8 +11,8 @@ export async function getSpas(
 
     console.log('getSpas')
 
-    // console.log(axiosInstance.defaults.baseURL)
-    const { data } = await axiosInstance.get<Spa[]>('/spas', {
+    // console.log(xiorInstance.defaults.baseURL)
+    const { data } = await xiorInstance.get<Spa[]>('/spas', {
         params: {
             ...filter.search,
             groups: filter.groups,
@@ -28,14 +28,14 @@ export async function getSpas(
 export async function getSpa(id: number) {
     'use server'
 
-    const { data } = await axiosInstance.get<Spa>(`/spas/${id}`)
+    const { data } = await xiorInstance.get<Spa>(`/spas/${id}`)
     return data
 }
 
 export async function getImagesBySpa(id: number) {
     'use server'
 
-    const { data } = await axiosInstance.get<SpaImage[]>(`/spas/${id}/images`)
+    const { data } = await xiorInstance.get<SpaImage[]>(`/spas/${id}/images`)
     return data
 }
 
@@ -54,7 +54,7 @@ export async function createSpa(data: CreateSpa) {
             })) || [],
         services: data.services?.map((service) => service.id) || [],
     }
-    await axiosInstance.post<CreateSpa>('/spas', transformedData)
+    await xiorInstance.post<CreateSpa>('/spas', transformedData)
 }
 
 export async function updateSpa(id: number, data?: UpdateSpa) {
@@ -75,7 +75,7 @@ export async function updateSpa(id: number, data?: UpdateSpa) {
             })) || [],
         services: data.services?.map((service) => service.id) || [],
     }
-    await axiosInstance
+    await xiorInstance
         .patch(`/spas/${id}`, transformedData)
         .catch(function (e) {
             console.log(e)
@@ -86,5 +86,5 @@ export async function updateSpa(id: number, data?: UpdateSpa) {
 export async function deleteSpa(id: number) {
     'use server'
 
-    await axiosInstance.delete(`/spas/${id}`)
+    await xiorInstance.delete(`/spas/${id}`)
 }

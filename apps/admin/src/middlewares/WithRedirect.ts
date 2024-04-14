@@ -29,6 +29,10 @@ const withRedirect: MiddlewareFactory = (next: NextMiddleware) => {
                 return NextResponse.redirect(
                     new URL('/dashboard/spas', request.url)
                 )
+            case 'website':
+                return NextResponse.redirect(
+                    new URL('/dashboard/website/home', request.url)
+                )
             case 'main':
                 return NextResponse.redirect(new URL('/dashboard', request.url))
         }
@@ -43,4 +47,5 @@ export const matcher: Matcher = {
     dashboard: '^/dashboard$',
     reservations: '^/dashboard/reservations$',
     availabilities: '^/dashboard/availabilities$',
+    website: '^/dashboard/website$',
 }

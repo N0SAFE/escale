@@ -1,7 +1,9 @@
 import {
+  IsArray,
   IsBoolean,
   IsDefined,
   IsISO8601,
+  IsNumber,
   IsObject,
   IsOptional,
   ValidateNested,
@@ -17,6 +19,7 @@ import Spa from 'App/Models/Spa'
 import { DateTime } from 'luxon'
 import { EntityExist } from '../Decorator/EntityExist'
 import { Custom } from '../Decorator/Custom'
+import Reservation from 'App/Models/Reservation'
 
 function checkDateIsAfter (date1: string, args: ValidationArguments) {
   const [relatedPropertyName] = args.constraints
@@ -66,6 +69,13 @@ export class ReservationRessourceReservableQueryDto {
   @IsBoolean()
   @Transform(({ value }) => [true, 'enabled', 'true'].includes(value))
   public includeReservations: boolean
+
+  @IsOptional()
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @Type(() => Number)
+  @EntityExist(Reservation, { each: true })
+  public avoidReservationIds: number[]
 }
 
 export class ReservationRessourceReservableParamsDto {}
@@ -132,6 +142,7 @@ implements AsSameProperties<ReservationRessourceReservableQueryDto> {
   public includeExternalReservedCalendarEvents: boolean
   public includeAvailabilities: boolean
   public includeReservations: boolean
+  public avoidReservationIds: number[]
 }
 
 export class ReservationRessourceReservableParamsDtoAfter

@@ -11,7 +11,7 @@ import {
     CreateAvailability,
     UpdateAvailability,
 } from '@/types/index'
-import { axiosInstance } from '@/utils/axiosInstance'
+import { xiorInstance } from '@/utils/xiorInstance'
 
 export async function getAvailabilities(
     filter: GroupsFilter & SearchFilter & DatesFilter = {},
@@ -21,17 +21,14 @@ export async function getAvailabilities(
 
     console.log(filter)
 
-    const { data } = await axiosInstance.get<Availability[]>(
-        '/availabilities',
-        {
-            params: {
-                groups: filter.groups,
-                ...filter.search,
-                ...filter.dates,
-            },
-            signal,
-        }
-    )
+    const { data } = await xiorInstance.get<Availability[]>('/availabilities', {
+        params: {
+            groups: filter.groups,
+            ...filter.search,
+            ...filter.dates,
+        },
+        signal,
+    })
     console.log(data.length)
     return data
 }
@@ -43,7 +40,7 @@ export async function getClosestAvailabilities(
     'use server'
 
     const [upResponse, downResponse] = await Promise.all([
-        axiosInstance.get<Availability[]>('/availabilities', {
+        xiorInstance.get<Availability[]>('/availabilities', {
             params: {
                 groups: filter.groups,
                 ...filter.search,
@@ -58,7 +55,7 @@ export async function getClosestAvailabilities(
                 },
             },
         }),
-        axiosInstance.get<Availability[]>('/availabilities', {
+        xiorInstance.get<Availability[]>('/availabilities', {
             params: {
                 groups: filter.groups,
                 ...filter.search,
@@ -82,7 +79,7 @@ export async function getAvailability(id: number) {
     'use server'
 
     try {
-        const { data } = await axiosInstance.get<Availability>(
+        const { data } = await xiorInstance.get<Availability>(
             `/availabilities/${id}`
         )
         return { data }
@@ -98,7 +95,7 @@ export async function createAvailability(data: CreateAvailability) {
 
     console.log(data)
 
-    await axiosInstance.post<CreateAvailability>('/availabilities', data)
+    await xiorInstance.post<CreateAvailability>('/availabilities', data)
 }
 
 export async function updateAvailability(
@@ -114,11 +111,11 @@ export async function updateAvailability(
         ...data,
     }
     console.log(transformedData)
-    await axiosInstance.patch(`/availabilities/${id}`, transformedData)
+    await xiorInstance.patch(`/availabilities/${id}`, transformedData)
 }
 
 export async function deleteAvailability(id: number) {
     'use server'
 
-    await axiosInstance.delete(`/availabilities/${id}`)
+    await xiorInstance.delete(`/availabilities/${id}`)
 }

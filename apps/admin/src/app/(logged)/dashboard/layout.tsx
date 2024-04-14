@@ -1,6 +1,5 @@
 'use client'
 
-import { headers } from 'next/headers'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import {
@@ -22,7 +21,7 @@ import React, { Suspense } from 'react'
 import { MenubarSeparator } from '@/components/ui/menubar'
 import { logout } from '@/lib/auth'
 import { navigate } from '@/app/actions/navigate'
-import ClickHandler from '@/components/ClickHandler'
+import ClickHandler from '@/components/atomics/atoms/ClickHandler'
 import { usePathname } from 'next/navigation'
 import {
     Breadcrumb,
@@ -33,7 +32,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import Loader from '@/components/loader'
+import Loader from '@/components/atomics/atoms/Loader'
 import { v4 as uuid } from 'uuid'
 import {
     Sheet,
@@ -49,6 +48,7 @@ import {
     CalendarClock as CalendarClockIcon,
     Package2 as Package2Icon,
     ExternalLink as ExternalLinkIcon,
+    Presentation as PresentationIcon,
 } from 'lucide-react'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import dynamic from 'next/dynamic'
@@ -60,7 +60,6 @@ import {
     DrawerFooter,
     DrawerHeader,
     DrawerTitle,
-    DrawerTrigger,
 } from '@/components/ui/drawer'
 
 type RouteLink = {
@@ -135,6 +134,17 @@ export default function Layout({
             icon: <CalendarClockIcon size="16" />,
             active: false,
         },
+        {
+            type: 'component',
+            component: <MenubarSeparator className="bg-slate-400 my-4" />,
+        },
+        {
+            type: 'link',
+            name: 'website',
+            path: '/website',
+            icon: <PresentationIcon size="16" />,
+            active: false,
+        },
     ]
 
     // get the path after the last slash
@@ -202,22 +212,6 @@ export default function Layout({
                                 )
                             })}
                         </nav>
-                    </div>
-                    <div className="mt-auto p-4">
-                        <Card>
-                            <CardHeader className="pb-4">
-                                <CardTitle>Upgrade to Pro</CardTitle>
-                                <CardDescription>
-                                    Unlock all features and get unlimited access
-                                    to our support team
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <Button className="w-full" size="sm">
-                                    Upgrade
-                                </Button>
-                            </CardContent>
-                        </Card>
                     </div>
                 </div>
             </div>

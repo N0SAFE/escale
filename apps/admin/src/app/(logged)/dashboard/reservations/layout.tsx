@@ -2,7 +2,13 @@
 
 import { CreateReservation, Spa } from '@/types/index'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import React, { createContext, Suspense, useContext, useEffect } from 'react'
+import React, {
+    createContext,
+    Suspense,
+    useContext,
+    useEffect,
+    useMemo,
+} from 'react'
 import { createReservation, getClosestReservations } from './actions'
 import { toast } from 'sonner'
 import { TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -19,9 +25,10 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog'
-import ReservationEdit from '@/components/ReservationEdit'
+import ReservationEdit from '@/components/atomics/templates/ReservationEdit'
 import { AlertDialogFooter } from '@/components/ui/alert-dialog'
-import Loader from '@/components/loader'
+import Loader from '@/components/atomics/atoms/Loader'
+import { parseAsInteger, useQueryState } from 'nuqs'
 
 export const ReservationContext = createContext<{
     spas: {
@@ -49,6 +56,7 @@ export const useReservationContext = () => {
     return useContext(ReservationContext)
 }
 
+export const querySpaId = 'spaId'
 export default function AvailabilityLayout({
     children,
 }: React.PropsWithChildren<{}>) {
@@ -58,6 +66,8 @@ export default function AvailabilityLayout({
     const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false)
     const [createdReservation, setCreatedReservation] =
         React.useState<CreateReservation>()
+    const [selectedSpaId] = useQueryState(querySpaId, parseAsInteger)
+
     const {
         data: spas,
         isFetched: isSpaFetched,
@@ -70,6 +80,10 @@ export default function AvailabilityLayout({
             return await getSpas()
         },
     })
+    const defaultSelectedSpa = useMemo(() => {
+        return spas?.find((spa) => spa.id === selectedSpaId)
+    }, [spas, selectedSpaId])
+
     const reservationCreateMutation = useMutation({
         mutationFn: async (reservation?: CreateReservation) => {
             if (!reservation) {
@@ -130,22 +144,23 @@ export default function AvailabilityLayout({
                     <DialogTrigger asChild>
                         <Button variant="outline">+</Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[800px]">
-                        <DialogHeader>
-                            <DialogTitle>Create reservation</DialogTitle>
-                            <DialogDescription>
-                                create a new reservation and add it to the list
-                            </DialogDescription>
-                        </DialogHeader>
-                        <ReservationEdit
-                            getClostestReservations={async (date: string) =>
-                                (await getClosestReservations(date))!
-                            }
-                            spas={spas}
-                            onChange={(data) => {
-                                setCreatedReservation(data.reservation)
-                            }}
-                        />
+                    <DialogContent className="sm:max-w-[800px] h-full">
+                        <div className="overflow-auto scrollbar-none">
+                            <DialogHeader>
+                                <DialogTitle>Create reservation</DialogTitle>
+                                <DialogDescription>
+                                    create a new reservation and add it to the
+                                    list
+                                </DialogDescription>
+                            </DialogHeader>
+                            <ReservationEdit
+                                spas={spas}
+                                onChange={(data) => {
+                                    setCreatedReservation(data.reservation)
+                                }}
+                                defaultSelectedSpa={defaultSelectedSpa}
+                            />
+                        </div>
                         <AlertDialogFooter>
                             <Button
                                 className="relative"

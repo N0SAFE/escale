@@ -4,9 +4,9 @@ import { Reservation, CreateReservation, Spa } from '@/types/index'
 import React, { useEffect, useMemo, useState } from 'react'
 import { DateRange } from 'react-day-picker'
 import { DateTime } from 'luxon'
-import { Calendar } from './ui/calendar'
-import { Label } from './ui/label'
-import Combobox from './Combobox'
+import { Calendar } from '../../ui/calendar'
+import { Label } from '../../ui/label'
+import Combobox from '../molecules/Combobox'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import {
     getClosestUnreservable,
@@ -25,30 +25,22 @@ export type ReservationEditProps = {
     }) => void
     defaultValues?: Reservation
     onMonthChange?: (month: Date) => void
-    getClostestReservations?: (
-        date: string,
-        avoidIds?: number[]
-    ) => Promise<{
-        up: Reservation | undefined
-        down: Reservation | undefined
-    }>
     spas?: Spa[]
     isSpaLoading?: boolean
-    selectedSpa?: Spa
     disabled?: (date: Date) => boolean
     reservationsList?: Reservation[]
+    defaultSelectedSpa?: Spa
 }
 
 export default function ReservationEdit({
     defaultValues,
-    getClostestReservations,
     onMonthChange,
     onChange,
     spas,
     isSpaLoading,
-    selectedSpa,
     disabled,
     reservationsList,
+    defaultSelectedSpa,
 }: ReservationEditProps) {
     // Creates a new editor instance.
     const [selectedMonth, setSelectedMonth] = useState(
@@ -72,7 +64,7 @@ export default function ReservationEdit({
         React.useState<CreateReservation>({
             startAt: defaultValues?.startAt || '',
             endAt: defaultValues?.endAt || '',
-            spa: defaultValues?.spaId || -1,
+            spa: defaultValues?.spaId || defaultSelectedSpa?.id || -1,
             notes: defaultValues?.notes || '',
         })
     const [rangeDate, setRangeDate] = React.useState<DateRange | undefined>({
@@ -176,6 +168,9 @@ export default function ReservationEdit({
                           {
                               includeExternalReservedCalendarEvents: true,
                               includeReservations: true,
+                              avoidIds: defaultSelectedState?.id
+                                  ? [defaultSelectedState?.id]
+                                  : [],
                           }
                       ).then((r) => r.map((data) => [data.date, data]))
                   )
@@ -186,6 +181,8 @@ export default function ReservationEdit({
         },
         enabled: !!reservationState?.spa,
     })
+
+    console.log('reservationState', reservationState)
 
     useEffect(() => {
         if (!rangeDate?.from && !rangeDate?.to) {
@@ -281,8 +278,16 @@ export default function ReservationEdit({
         }
     }, [rangeDate, reservations, defaultSelectedState?.id])
 
+    console.log({
+        availableDates: availableDates,
+        closestUnreservableDate: {
+            past: closestUnreservableDate?.past?.toISODate(),
+            future: closestUnreservableDate?.future?.toISODate(),
+        },
+    })
+
     return (
-        <div className="grid gap-4 py-4  w-full">
+        <div className="grid gap-4 py-4 w-full">
             {reservationsList && reservationsList.length > 1 ? (
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label
@@ -350,6 +355,7 @@ export default function ReservationEdit({
                     }))}
                     isLoading={isSpaLoading || false}
                     defaultPreviewText="Select a spa..."
+                    defaultValue={defaultSelectedSpa}
                     value={
                         reservationState.spa
                             ? spas?.find(

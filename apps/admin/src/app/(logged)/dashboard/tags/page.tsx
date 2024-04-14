@@ -45,7 +45,7 @@ import {
     Image as ImageType,
 } from '@/types/index'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import Loader from '@/components/loader'
+import Loader from '@/components/atomics/atoms/Loader'
 import Link from 'next/link'
 import {
     AlertDialog,
@@ -68,7 +68,7 @@ import {
 } from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import { Label } from '@/components/ui/label'
-import FileInput from '@/components/FileInput'
+import FileInput from '@/components/atomics/atoms/FileInput'
 
 type Size = `${number}b` | `${number}kb` | `${number}mb` | `${number}gb`
 

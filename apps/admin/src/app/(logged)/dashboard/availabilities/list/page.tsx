@@ -67,8 +67,8 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import AvailabilityEdit from '@/components/AvailabillityEdit'
-import Loader from '@/components/loader'
+import AvailabilityEdit from '@/components/atomics/templates/AvailabillityEdit'
+import Loader from '@/components/atomics/atoms/Loader'
 import { useAvailabilityContext } from '../layout'
 
 const columns: ColumnDef<Availability>[] = [

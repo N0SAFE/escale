@@ -22,7 +22,7 @@ import { useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { useRouter } from 'next/router'
 import { useMutation } from '@tanstack/react-query'
-import Loader from '@/components/loader'
+import Loader from '@/components/atomics/atoms/Loader'
 import dynamic from 'next/dynamic'
 
 const FormSchema = z.object({

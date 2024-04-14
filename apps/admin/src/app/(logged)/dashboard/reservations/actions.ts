@@ -14,7 +14,7 @@ import {
     Unavailability,
     UpdateReservation,
 } from '@/types/index'
-import { axiosInstance } from '@/utils/axiosInstance'
+import { xiorInstance } from '@/utils/xiorInstance'
 
 export async function getUnreservableData(
     spa: number,
@@ -26,7 +26,7 @@ export async function getUnreservableData(
     console.log(from, to)
     console.log(spa)
 
-    const { data } = await axiosInstance.get<{
+    const { data } = await xiorInstance.get<{
         reservations: Reservation[]
         blockedEvents?: ExternalBlockedCalendarEvent[]
         reservedEvents?: ExternalReservedCalendarEvent[]
@@ -48,7 +48,7 @@ export async function getUnreservableData(
 export async function getExternalBlockedCalendarEvent(id: number) {
     'use server'
 
-    const { data } = await axiosInstance.get<ExternalBlockedCalendarEvent[]>(
+    const { data } = await xiorInstance.get<ExternalBlockedCalendarEvent[]>(
         `/external-calendars/${id}/events/blocked`
     )
     return data
@@ -57,7 +57,7 @@ export async function getExternalBlockedCalendarEvent(id: number) {
 export async function getExternalReservedCalendarEvent(id: number) {
     'use server'
 
-    const { data } = await axiosInstance.get<ExternalReservedCalendarEvent[]>(
+    const { data } = await xiorInstance.get<ExternalReservedCalendarEvent[]>(
         `/external-calendars/${id}/events/reserved`
     )
     return data
@@ -71,7 +71,7 @@ export async function getReservations(
 
     // console.log(filter)
 
-    const { data } = await axiosInstance.get<Reservation[]>('/reservations', {
+    const { data } = await xiorInstance.get<Reservation[]>('/reservations', {
         params: {
             groups: filter.groups,
             ...filter.search,
@@ -92,7 +92,7 @@ export async function getClosestReservations(
     'use server'
 
     const [upResponse, downResponse] = await Promise.all([
-        axiosInstance.get<Reservation[]>('/reservations', {
+        xiorInstance.get<Reservation[]>('/reservations', {
             params: {
                 groups: filter.groups,
                 ...filter.search,
@@ -108,7 +108,7 @@ export async function getClosestReservations(
                 notInIds: filter.avoidIds,
             },
         }),
-        axiosInstance.get<Reservation[]>('/reservations', {
+        xiorInstance.get<Reservation[]>('/reservations', {
             params: {
                 groups: filter.groups,
                 ...filter.search,
@@ -139,7 +139,7 @@ export async function getClosestUnreservable(
 ) {
     'use server'
 
-    const { data } = await axiosInstance.get<{
+    const { data } = await xiorInstance.get<{
         past?: string
         future?: string
     }>(`/reservations/closest-unreservable`, {
@@ -157,7 +157,7 @@ export async function getClosestUnreservable(
 export async function getReservation(id: number) {
     'use server'
 
-    const { data } = await axiosInstance.get<Reservation>(`/reservations/${id}`)
+    const { data } = await xiorInstance.get<Reservation>(`/reservations/${id}`)
     return data
 }
 
@@ -166,7 +166,7 @@ export async function createReservation(data: CreateReservation) {
 
     // console.log(Array.from(data.entries()))
 
-    await axiosInstance.post<CreateReservation>('/reservations', data)
+    await xiorInstance.post<CreateReservation>('/reservations', data)
 }
 
 export async function updateReservation(id: number, data?: UpdateReservation) {
@@ -180,11 +180,11 @@ export async function updateReservation(id: number, data?: UpdateReservation) {
     }
     console.log(id)
     console.log('transformedData', transformedData)
-    await axiosInstance.patch(`/reservations/${id}`, transformedData)
+    await xiorInstance.patch(`/reservations/${id}`, transformedData)
 }
 
 export async function deleteReservation(id: number) {
     'use server'
 
-    await axiosInstance.delete(`/reservations/${id}`)
+    await xiorInstance.delete(`/reservations/${id}`)
 }

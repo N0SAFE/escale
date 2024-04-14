@@ -4,12 +4,18 @@ type Props = {
     minHeight?: string
     className?: string
     size?: '4' | '8' | '12' | '16' | '24' | '32'
+    divClassName?: string
 }
 
-function Loader({ minHeight = '500px', className, size = '8' }: Props) {
+function Loader({
+    minHeight = '500px',
+    className,
+    size = '8',
+    divClassName,
+}: Props) {
     return (
         <>
-            <div role="status">
+            <div role="status" className={divClassName}>
                 <svg
                     aria-hidden="true"
                     className={`w-${size} h-${size} text-gray-200 animate-spin dark:text-gray-600 fill-blue-600 ${className}`}

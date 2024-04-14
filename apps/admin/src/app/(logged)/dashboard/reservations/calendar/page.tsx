@@ -1,7 +1,7 @@
 'use client'
 
 import { Reservation, Spa, UpdateReservation } from '@/types/index'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { getSpas } from '../../actions'
 import { useWindowSize } from '@uidotdev/usehooks'
 import {
@@ -13,7 +13,7 @@ import {
 import { DateTime } from 'luxon'
 import { block } from 'million/react'
 import {
-    deleteReservation,
+    deleteReservation,  
     getClosestReservations,
     updateReservation,
     getUnreservableData,
@@ -28,16 +28,17 @@ import {
 } from '@/components/ui/sheet'
 import { Calendar } from '@/components/ui/calendar'
 import { Button } from '@/components/ui/button'
-import Loader from '@/components/loader'
+import Loader from '@/components/atomics/atoms/Loader'
 import { toast } from 'sonner'
-import Combobox from '@/components/Combobox'
-import ReservationEdit from '@/components/ReservationEdit'
+import Combobox from '@/components/atomics/molecules/Combobox'
+import ReservationEdit from '@/components/atomics/templates/ReservationEdit'
+import { parseAsInteger, useQueryState } from 'nuqs'
+import { querySpaId } from '../layout'
 
 const ReservationCalendarView = () => {
-    console.log('render ReservationCalendarView')
     const queryClient = useQueryClient()
     const [selectedMonth, setSelectedMonth] = React.useState<Date>(new Date())
-    const [selectedSpa, setSelectedSpa] = React.useState<Spa>()
+    const [selectedSpaId, setSelectedSpaId] = useQueryState(querySpaId, parseAsInteger)
     const [sheetIsOpen, setSheetIsOpen] = React.useState(false)
     const [selectedReservations, setSelectedReservations] = React.useState<{
         list: Reservation[]
@@ -56,6 +57,12 @@ const ReservationCalendarView = () => {
             return await getSpas()
         },
     })
+    
+    const selectedSpa = useMemo(() => {
+        return spas?.find((spa) => spa.id === selectedSpaId)
+    }, [spas, selectedSpaId])
+    
+    console.log('selectedSpa', selectedSpa)
 
     const reservationUpdateMutation = useMutation({
         mutationFn: async ({
@@ -162,8 +169,8 @@ const ReservationCalendarView = () => {
                     isLoading={!spaIsFetched}
                     defaultPreviewText="Select a spa..."
                     value={selectedSpa}
-                    onSelect={(spa) => {
-                        setSelectedSpa(spa)
+                    onSelect={(spa): void => {
+                        setSelectedSpaId(spa?.id || null)
                     }}
                 />
             </div>
@@ -243,7 +250,7 @@ const ReservationCalendarView = () => {
                 triggerColorChangeOnHover
             />
 
-            <SheetContent className="sm:max-w-lg md:max-w-xl w-[100vw] h-screen flex flex-col justify-between">
+            <SheetContent className="sm:max-w-lg md:max-w-xl w-[100vw] flex flex-col justify-between">
                 <div className="overflow-auto scrollbar-none">
                     <SheetHeader>
                         <SheetTitle>
@@ -260,21 +267,6 @@ const ReservationCalendarView = () => {
                     <ReservationEdit
                         spas={spas}
                         isSpaLoading={!spaIsFetched}
-                        selectedSpa={
-                            updatedReservation?.reservation?.spa
-                                ? spas?.find(
-                                      (s) =>
-                                          s.id ===
-                                          updatedReservation?.reservation?.spa
-                                  )
-                                : undefined
-                        }
-                        getClostestReservations={async (
-                            date: string,
-                            avoidIds?: number[]
-                        ) =>
-                            (await getClosestReservations(date, { avoidIds }))!
-                        }
                         defaultValues={selectedReservations?.active}
                         reservationsList={selectedReservations?.list}
                         onChange={(data) => {

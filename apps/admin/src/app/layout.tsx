@@ -3,12 +3,12 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { isLogin } from '@/lib/auth'
 import axios from 'axios'
-import ClientStartup from '@/components/ClientStartup'
+import ClientStartup from '@/components/atomics/atoms/ClientStartup'
 import { redirect } from 'next/navigation'
 import { Toaster } from '@/components/ui/sonner'
 import ReactQueryProviders from '@/utils/ReactQueryProviders'
 import { Suspense } from 'react'
-import Loader from '@/components/loader'
+import Loader from '@/components/atomics/atoms/Loader'
 
 const inter = Inter({ subsets: ['latin'] })
 

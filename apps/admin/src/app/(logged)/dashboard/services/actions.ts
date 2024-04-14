@@ -1,13 +1,13 @@
 'use server'
 
 import { CreateService, Service, UpdateService } from '@/types/index'
-import { axiosInstance } from '@/utils/axiosInstance'
+import { xiorInstance } from '@/utils/xiorInstance'
 
 export async function getServices() {
     'use server'
 
-    // console.log(axiosInstance.defaults.baseURL)
-    const { data } = await axiosInstance.get<Service[]>('/services')
+    // console.log(xiorInstance.defaults.baseURL)
+    const { data } = await xiorInstance.get<Service[]>('/services')
     // console.log('data')
     // console.log(data)
     return data
@@ -16,7 +16,7 @@ export async function getServices() {
 export async function getService(id: number) {
     'use server'
 
-    const { data } = await axiosInstance.get<Service>(`/services/${id}`)
+    const { data } = await xiorInstance.get<Service>(`/services/${id}`)
     return data
 }
 
@@ -28,7 +28,7 @@ export async function createService(data: CreateService) {
         description: data.description,
         image: data.image?.id,
     }
-    await axiosInstance.post<CreateService>('/services', transformedData)
+    await xiorInstance.post<CreateService>('/services', transformedData)
 }
 
 export async function updateService(id: number, data?: UpdateService) {
@@ -42,7 +42,7 @@ export async function updateService(id: number, data?: UpdateService) {
         description: data.description,
         image: data.image?.id,
     }
-    await axiosInstance
+    await xiorInstance
         .patch(`/services/${id}`, transformedData)
         .catch(function (e) {
             console.log(e)
@@ -53,5 +53,5 @@ export async function updateService(id: number, data?: UpdateService) {
 export async function deleteService(id: number) {
     'use server'
 
-    await axiosInstance.delete(`/services/${id}`)
+    await xiorInstance.delete(`/services/${id}`)
 }

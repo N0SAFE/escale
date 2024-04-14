@@ -230,6 +230,7 @@ export default class ReservationsController {
       includeExternalReservedCalendarEvents,
       includeAvailabilities,
       includeReservations,
+      avoidReservationIds,
     } = query
 
     return response.ok(
@@ -238,6 +239,7 @@ export default class ReservationsController {
         includeExternalReservedCalendarEvents,
         includeAvailabilities,
         includeReservations,
+        avoidReservationIds
       })
     )
   }
@@ -355,6 +357,8 @@ export default class ReservationsController {
 
     await spa.load('externalCalendar')
 
+    console.log(avoidIds)
+
     const pastReservation = await spa
       .related('reservations')
       .query()
@@ -369,6 +373,9 @@ export default class ReservationsController {
       .whereNotIn('id', avoidIds)
       .orderBy('start_at', 'asc')
       .first()
+
+      console.log(pastReservation?.id)
+      console.log(futureReservation?.id)
 
     let pastUnavailability
     let futureUnavailability
@@ -451,6 +458,23 @@ export default class ReservationsController {
           : current
       }, undefined)
     }
+
+    console.log({
+      past: getClosestDate(
+        pastReservation?.endAt,
+        pastUnavailability?.endAt,
+        pastExternalBlockedEvent?.endAt,
+        pastExternalReservedEvent?.endAt,
+        pastLimit
+      )?.toISODate(),
+      future: getClosestDate(
+        futureReservation?.startAt,
+        futureUnavailability?.startAt,
+        futureExternalBlockedEvent?.startAt,
+        futureExternalReservedEvent?.startAt,
+        futureLimit
+      )?.toISODate(),
+    })
 
     return {
       past: getClosestDate(

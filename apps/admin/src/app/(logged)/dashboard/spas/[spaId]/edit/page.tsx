@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useParams } from 'next/navigation'
 import { getSpa } from '../../actions'
-import Loader from '@/components/loader'
+import Loader from '@/components/atomics/atoms/Loader'
 import { Button } from '@/components/ui/button'
 import { updateSpa } from '../../actions'
 import { toast } from 'sonner'
@@ -15,13 +15,15 @@ import { Label } from '@/components/ui/label'
 import dynamic from 'next/dynamic'
 import { SpaImage as SpaImageType, UpdateSpa } from '@/types/index'
 import { getImages, getServices } from '../../../actions'
-import ApiImage from '@/components/ApiImage'
-import Combobox from '@/components/Combobox'
+import ApiImage from '@/components/atomics/atoms/ApiImage'
+import Combobox from '@/components/atomics/molecules/Combobox'
 import { Reorder } from 'framer-motion'
 import { Card } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
-const Editor = dynamic(() => import('@/components/Editor'), { ssr: false })
+const Editor = dynamic(() => import('@/components/atomics/atoms/Editor'), {
+    ssr: false,
+})
 
 export default function SpasEdit() {
     const [isLoading, setIsLoading] = useState(true)

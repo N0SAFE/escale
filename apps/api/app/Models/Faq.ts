@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { column } from '@ioc:Adonis/Lucid/Orm'
+import { beforeCreate, beforeFetch, column } from '@ioc:Adonis/Lucid/Orm'
 import AppBaseModel from './AppBaseModel'
 
 export default class Faq extends AppBaseModel {
@@ -17,4 +17,21 @@ export default class Faq extends AppBaseModel {
 
   @column()
   public answer: string
+
+  @column()
+  public rank: number
+
+  @beforeFetch()
+  public static orderFaqByRank (query) {
+    query.orderBy('rank', 'asc')
+  }
+
+  @beforeCreate()
+  public static async setRank (faq: Faq) {
+    if (faq.rank) {
+      return
+    }
+    const lastFaq = await Faq.query().orderBy('rank', 'desc').first()
+    faq.rank = lastFaq ? lastFaq.rank + 1 : 1
+  }
 }

@@ -16,7 +16,7 @@ import { cookies } from 'next/headers'
 
 const withAuth: MiddlewareFactory = (next: NextMiddleware) => {
     return async (request: NextRequest, _next: NextFetchEvent) => {
-        const res = await next(request, _next)
+        const res = (await next(request, _next)) as NextResponse
         if (request.nextUrl.pathname.startsWith('/_next')) {
             return res
         }
@@ -31,14 +31,25 @@ const withAuth: MiddlewareFactory = (next: NextMiddleware) => {
                 'You need to login to access this page'
             )
         }
-        if (!(await isLogin({ request }))) {
+        if (!(await isLogin({ cookieStore: request.cookies }))) {
+            console.log('is not logged in')
+            const redirectResponse = NextResponse.redirect(redirectUrl)
             try {
-                await refreshToken(true, request)
-                if (!(await isLogin({ request }))) {
-                    return NextResponse.redirect(redirectUrl)
+                const session = await refreshToken(
+                    true,
+                    request.cookies,
+                    res.cookies,
+                    redirectResponse.cookies
+                )
+                if (
+                    !(await isLogin({ cookieStore: request.cookies, session }))
+                ) {
+                    console.log('is not logged in after refresh')
+                    return redirectResponse
                 }
             } catch (e) {
-                return NextResponse.redirect(redirectUrl)
+                console.error(e)
+                return redirectResponse
             }
         }
         return res

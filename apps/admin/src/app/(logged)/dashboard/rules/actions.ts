@@ -1,13 +1,13 @@
 'use server'
 
 import { CreateImage, Image, UpdateImage } from '@/types/index'
-import { axiosInstance } from '@/utils/axiosInstance'
+import { xiorInstance } from '@/utils/xiorInstance'
 
 export async function getImages() {
     'use server'
 
-    // console.log(axiosInstance.defaults.baseURL)
-    const { data } = await axiosInstance.get<Image[]>('/images')
+    // console.log(xiorInstance.defaults.baseURL)
+    const { data } = await xiorInstance.get<Image[]>('/images')
     // console.log('data')
     // console.log(data)
     return data
@@ -16,7 +16,7 @@ export async function getImages() {
 export async function getImage(id: number) {
     'use server'
 
-    const { data } = await axiosInstance.get<Image>(`/images/${id}`)
+    const { data } = await xiorInstance.get<Image>(`/images/${id}`)
     return data
 }
 
@@ -25,7 +25,7 @@ export async function createImage(data: FormData) {
 
     // console.log(Array.from(data.entries()))
 
-    await axiosInstance.post<CreateImage>('/images', data)
+    await xiorInstance.post<CreateImage>('/images', data)
 }
 
 export async function updateImage(id: number, data?: UpdateImage) {
@@ -38,7 +38,7 @@ export async function updateImage(id: number, data?: UpdateImage) {
         alt: data.alt,
         name: data.name,
     }
-    await axiosInstance
+    await xiorInstance
         .patch(`/images/${id}`, transformedData)
         .catch(function (e) {
             console.log(e)
@@ -49,5 +49,5 @@ export async function updateImage(id: number, data?: UpdateImage) {
 export async function deleteImage(id: number) {
     'use server'
 
-    await axiosInstance.delete(`/images/${id}`)
+    await xiorInstance.delete(`/images/${id}`)
 }

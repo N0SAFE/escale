@@ -1,9 +1,11 @@
 'use server'
 
-import { axiosInstance } from '@/utils/axiosInstance'
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import { xiorInstance } from '@/utils/xiorInstance'
+import {
+    RequestCookies,
+    ResponseCookies,
+} from 'next/dist/compiled/@edge-runtime/cookies'
 import { cookies } from 'next/headers'
-import { NextRequest, NextResponse } from 'next/server'
 
 export type Jwt = {
     token?: string
@@ -40,7 +42,7 @@ export type Session =
 
 export async function setSession(
     session: Session,
-    request?: NextRequest
+    cookiesStore?: RequestCookies | ResponseCookies
 ): Promise<Session | null> {
     const expiresAt = (() => {
         if (session?.isAuthenticated) {
@@ -51,11 +53,9 @@ export async function setSession(
         }
     })()
 
-    // console.log("expiresAt", expiresAt);
-    // console.log(session)
-    // console.log(session?.jwt?.refreshToken)
-    // console.log(response) {
-    const cookieStore = request ? request.cookies : cookies()
+    console.log('set new session')
+
+    const cookieStore = cookiesStore ? cookiesStore : cookies()
     cookieStore.set('session', JSON.stringify(session), {
         path: '/',
         httpOnly: false,
@@ -68,7 +68,7 @@ export async function setSession(
         JSON.stringify({
             token: session?.jwt?.token,
             type: session?.jwt?.type,
-            expires_at: session?.jwt?.expires_at,
+            expires_at: expiresAt,
         }) || '',
         {
             path: '/',
@@ -85,6 +85,8 @@ export async function setSession(
         secure: process.env.NODE_ENV === 'production',
     })
 
+    // console.log('session', session)
+
     return session
 }
 
@@ -100,11 +102,11 @@ export async function updateSession(
 }
 
 export async function getSession(
-    request?: NextRequest
+    cookiesStore?: RequestCookies | ResponseCookies
 ): Promise<Session | null> {
     'use server'
 
-    const cookieStore = request ? request.cookies : cookies()
+    const cookieStore = cookiesStore ? cookiesStore : cookies()
     const sessionString = cookieStore.get('session')?.value
     const jwtString = cookieStore.get('jwt')?.value
     // console.log(jwtString)
@@ -147,26 +149,24 @@ export async function cookiesGetAll() {
 
 export async function refreshToken(
     retry?: boolean,
-    request?: NextRequest
+    readCookieStore?: RequestCookies | ResponseCookies,
+    writeCookieStoreOnSucess?: RequestCookies | ResponseCookies,
+    writeCookieStoreOnError?: RequestCookies | ResponseCookies
 ): Promise<Session> {
     'use server'
 
-    // console.log('refreshing token')
-    // console.log((await getSession())?.jwt?.refreshToken)
-
-    return axiosInstance
-        .post<any, AxiosResponse<any, { _retry: boolean }>>('/refresh', {}, {
-            withCredentials: true,
+    return xiorInstance
+        .post<any>('/refresh', {}, {
+            // withCredentials: true,
             headers: {
-                refresh_token: (await getSession(request))?.jwt?.refreshToken,
+                refresh_token: (await getSession(readCookieStore))?.jwt
+                    ?.refreshToken,
             },
             _retry: retry,
         } as any)
         .then(async (res) => {
-            // console.log(res)
             const jwt = res.data
-            // console.log("refreshToken", res.data);
-            return axiosInstance
+            return xiorInstance
                 .get<Session>('/whoami', {
                     withCredentials: true,
                     headers: {
@@ -174,18 +174,15 @@ export async function refreshToken(
                     },
                 })
                 .then(async (res) => {
-                    // console.log(res)
                     const session = {
                         ...res.data,
                         jwt: jwt,
                     }
-                    await setSession(session, request)
+                    await setSession(session, writeCookieStoreOnSucess)
                     return session
                 })
         })
         .catch(async function (e) {
-            // console.log("refresh error")
-            // console.log(e) // ! i am here
             await setSession(
                 {
                     authenticationAttempted: true,
@@ -195,7 +192,7 @@ export async function refreshToken(
                     jwt: null,
                     user: null,
                 },
-                request
+                writeCookieStoreOnError
             )
             return {
                 authenticationAttempted: true,
@@ -212,7 +209,7 @@ export async function whoami(): Promise<Session> {
     'use server'
 
     const jwt = (await getSession())?.jwt
-    const whoami = await axiosInstance
+    const whoami = await xiorInstance
         .get('/whoami', {
             withCredentials: true,
             headers: {
@@ -239,7 +236,7 @@ export async function login(
 ): Promise<Session | null> {
     'use server'
 
-    return axiosInstance
+    return xiorInstance
         .post(
             '/login',
             {
@@ -249,8 +246,9 @@ export async function login(
             { withCredentials: true }
         )
         .then(async (res) => {
+            console.log(res.data)
             const jwt = res.data
-            return axiosInstance
+            return xiorInstance
                 .get<Session>('/whoami', {
                     withCredentials: true,
                     headers: {
@@ -276,12 +274,9 @@ export async function login(
 export async function logout() {
     'use server'
 
-    // console.log('logout')
-
     const token = (await getSession())?.jwt?.token
-    // console.log(await getSession())
 
-    return axiosInstance
+    return xiorInstance
         .post(
             '/logout',
             {},
@@ -308,7 +303,7 @@ export async function logout() {
 export async function recreteJwt() {
     'use server'
 
-    return axiosInstance
+    return xiorInstance
         .get('/recreate-jwt', {
             // todo
             withCredentials: true,
@@ -318,7 +313,7 @@ export async function recreteJwt() {
         })
         .then(async (res) => {
             const jwt = res.data
-            return axiosInstance
+            return xiorInstance
                 .get<Session>('/whoami', {
                     withCredentials: true,
                     headers: {
@@ -338,10 +333,10 @@ export async function recreteJwt() {
 
 export async function isLogin(options?: {
     session?: Session
-    request?: NextRequest
+    cookieStore?: RequestCookies | ResponseCookies
 }) {
     if (options?.session) {
         return options?.session?.isAuthenticated
     }
-    return getSession(options?.request)?.then((res) => res?.isAuthenticated)
+    return getSession(options?.cookieStore)?.then((res) => res?.isAuthenticated)
 }

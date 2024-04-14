@@ -3,7 +3,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useParams } from 'next/navigation'
 import { getService } from '../../actions'
-import Loader from '@/components/loader'
+import Loader from '@/components/atomics/atoms/Loader'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useEffect, useState } from 'react'
@@ -12,9 +12,9 @@ import { updateService } from '../../actions'
 import { toast } from 'sonner'
 import { UpdateService } from '@/types/index'
 import { getImages } from '../../../actions'
-import ApiImage from '@/components/ApiImage'
+import ApiImage from '@/components/atomics/atoms/ApiImage'
 import { useMemo } from 'react'
-import Combobox from '@/components/Combobox'
+import Combobox from '@/components/atomics/molecules/Combobox'
 
 export default function ServiceEdit() {
     const params = useParams<{ id: string }>()

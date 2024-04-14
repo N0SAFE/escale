@@ -1,7 +1,7 @@
 'use client'
 
 import { Availability, Spa, UpdateAvailability } from '@/types/index'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { getSpas } from '../../actions'
 import { useWindowSize } from '@uidotdev/usehooks'
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
@@ -22,16 +22,18 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet'
 import { Calendar } from '@/components/ui/calendar'
-import AvailabilityEdit from '@/components/AvailabillityEdit'
+import AvailabilityEdit from '@/components/atomics/templates/AvailabillityEdit'
 import { Button } from '@/components/ui/button'
-import Loader from '@/components/loader'
+import Loader from '@/components/atomics/atoms/Loader'
 import { toast } from 'sonner'
-import Combobox from '@/components/Combobox'
+import Combobox from '@/components/atomics/molecules/Combobox'
 import { Select } from '@/components/ui/select'
+import { parseAsInteger, useQueryState } from 'nuqs'
+import { querySpaId } from '../layout'
 
 const AvailabilityCalendarView = () => {
     const [selectedMonth, setSelectedMonth] = React.useState<Date>(new Date())
-    const [selectedSpa, setSelectedSpa] = React.useState<Spa>()
+    const [selectedSpaId, setSelectedSpaId] = useQueryState(querySpaId, parseAsInteger)
     const [sheetIsOpen, setSheetIsOpen] = React.useState(false)
     const [selectedAvailability, setSelectedAvailability] =
         React.useState<Availability>()
@@ -46,6 +48,10 @@ const AvailabilityCalendarView = () => {
             return await getSpas()
         },
     })
+    
+    const selectedSpa = useMemo(() => {
+        return spas?.find((spa) => spa.id === selectedSpaId)
+    }, [spas, selectedSpaId])
 
     const availabilityUpdateMutation = useMutation({
         mutationFn: async ({
@@ -154,7 +160,7 @@ const AvailabilityCalendarView = () => {
                     defaultPreviewText="Select a spa..."
                     value={selectedSpa}
                     onSelect={(spa) => {
-                        setSelectedSpa(spa)
+                        setSelectedSpaId(spa?.id || null)
                     }}
                 />
             </div>
@@ -196,7 +202,7 @@ const AvailabilityCalendarView = () => {
                 }}
                 triggerColorChangeOnHover
             />
-            <SheetContent className="sm:max-w-lg md:max-w-xl w-[100vw] h-screen flex flex-col justify-between">
+            <SheetContent className="sm:max-w-lg md:max-w-xl w-[100vw] flex flex-col justify-between">
                 <div className="overflow-auto scrollbar-none">
                     <SheetHeader>
                         <SheetTitle>

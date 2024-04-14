@@ -91,13 +91,16 @@ export default class AvailabilityService implements AppBaseService {
       includeExternalReservedCalendarEvents,
       includeReservations,
       includeAvailabilities,
+      avoidReservationIds,
     }: {
       includeExternalBlockedCalendarEvents: boolean
       includeExternalReservedCalendarEvents: boolean
       includeReservations: boolean
       includeAvailabilities: boolean
+      avoidReservationIds: number[]
     }
   ): Promise<AvailableDate[]> {
+    console.log(avoidReservationIds)
     async function getExternalBlockedEvents (externalCalendar: ExternalCalendar | null) {
       if (!externalCalendar) {
         return []
@@ -186,6 +189,7 @@ export default class AvailabilityService implements AppBaseService {
             .query()
             .where('end_at', '>=', from.toSQLDate()!)
             .where('start_at', '<=', to.toSQLDate()!)
+            .whereNotIn('id', avoidReservationIds)
             .exec()
           : Promise.resolve([]),
       ])

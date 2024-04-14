@@ -63,8 +63,8 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import ReservationEdit from '@/components/ReservationEdit'
-import Loader from '@/components/loader'
+import ReservationEdit from '@/components/atomics/templates/ReservationEdit'
+import Loader from '@/components/atomics/atoms/Loader'
 import { useReservationContext } from '../layout'
 
 const columns: ColumnDef<Reservation>[] = [
@@ -407,26 +407,6 @@ export default function AvailabilityListView({}: ListViewProps) {
                                                         spas={spas?.data}
                                                         isSpaLoading={
                                                             spas.isLoading
-                                                        }
-                                                        selectedSpa={
-                                                            updatedReservation
-                                                                ?.reservation
-                                                                ?.spa
-                                                                ? spas?.data?.find(
-                                                                      (s) =>
-                                                                          s.id ===
-                                                                          updatedReservation
-                                                                              ?.reservation
-                                                                              ?.spa
-                                                                  )
-                                                                : undefined
-                                                        }
-                                                        getClostestReservations={async (
-                                                            date: string
-                                                        ) =>
-                                                            (await getClosestReservations(
-                                                                date
-                                                            ))!
                                                         }
                                                         defaultValues={
                                                             row.original

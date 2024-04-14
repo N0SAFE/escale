@@ -12,7 +12,7 @@ import {
     useQuery,
     useQueryClient,
 } from '@tanstack/react-query'
-import React, { createContext, Suspense, useContext, useEffect } from 'react'
+import React, { createContext, Suspense, useContext, useEffect, useMemo } from 'react'
 import {
     createAvailability,
     deleteAvailability,
@@ -35,10 +35,11 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog'
-import AvailabilityEdit from '@/components/AvailabillityEdit'
+import AvailabilityEdit from '@/components/atomics/templates/AvailabillityEdit'
 import { AlertDialogFooter } from '@/components/ui/alert-dialog'
-import Loader from '@/components/loader'
+import Loader from '@/components/atomics/atoms/Loader'
 import { DateTime } from 'luxon'
+import { parseAsInteger, useQueryState } from 'nuqs'
 
 export const AvailabilityContext = createContext<{
     spas: {
@@ -66,6 +67,8 @@ export const useAvailabilityContext = () => {
     return useContext(AvailabilityContext)
 }
 
+export const querySpaId = 'spaId'
+
 export default function AvailabilityLayout({
     children,
 }: React.PropsWithChildren<{}>) {
@@ -76,6 +79,7 @@ export default function AvailabilityLayout({
     const [createdAvailability, setCreatedAvailability] =
         React.useState<CreateAvailability>()
     const [selectedMonth, setSelectedMonth] = React.useState<Date>(new Date())
+    const [selectedSpaId] = useQueryState(querySpaId, parseAsInteger)
     const {
         data: spas,
         isFetched: isSpaFetched,
@@ -88,6 +92,11 @@ export default function AvailabilityLayout({
             return await getSpas()
         },
     })
+    
+    const defaultSelectedSpa = useMemo(() => {
+        return spas?.find((spa) => spa.id === selectedSpaId)
+    }, [spas, selectedSpaId])
+    
     const availabilityCreateMutation = useMutation({
         mutationFn: async (availability?: CreateAvailability) => {
             if (!availability) {
@@ -180,23 +189,30 @@ export default function AvailabilityLayout({
                     <DialogTrigger asChild>
                         <Button variant="outline">+</Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[800px]">
-                        <DialogHeader>
-                            <DialogTitle>Create availability</DialogTitle>
-                            <DialogDescription>
-                                create a new availability and add it to the list
-                            </DialogDescription>
-                        </DialogHeader>
-                        <AvailabilityEdit
-                            getClostestAvailabilities={async (date: string) =>
-                                (await getClosestAvailabilities(date))?.data!
-                            }
-                            onMonthChange={setSelectedMonth}
-                            spas={spas}
-                            onChange={(data) => {
-                                setCreatedAvailability(data.availability)
-                            }}
-                        />
+                    <DialogContent className="sm:max-w-[800px] h-full">
+                        <div className="overflow-auto scrollbar-none">
+                            <DialogHeader>
+                                <DialogTitle>Create availability</DialogTitle>
+                                <DialogDescription>
+                                    create a new availability and add it to the
+                                    list
+                                </DialogDescription>
+                            </DialogHeader>
+                            <AvailabilityEdit
+                                getClostestAvailabilities={async (
+                                    date: string
+                                ) =>
+                                    (await getClosestAvailabilities(date))
+                                        ?.data!
+                                }
+                                onMonthChange={setSelectedMonth}
+                                spas={spas}
+                                onChange={(data) => {
+                                    setCreatedAvailability(data.availability)
+                                }}
+                                defaultSelectedSpa={defaultSelectedSpa}
+                            />
+                        </div>
                         <AlertDialogFooter>
                             <Button
                                 className="relative"

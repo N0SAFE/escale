@@ -118,10 +118,8 @@ export default class AuthController {
     if (!refreshToken) {
       return response.unauthorized({ message: 'no refresh token provided', success: false })
     }
-    // console.log(refreshToken)
     try {
       const jwt = await auth.use('jwt').loginViaRefreshToken(refreshToken)
-      // console.log('io')
       response.cookie('access_token', jwt.accessToken, {
         httpOnly: true,
         path: '/',
@@ -136,7 +134,7 @@ export default class AuthController {
       })
       return response.ok({ ...jwt.toJSON(), success: true })
     } catch (error) {
-      // console.log(error)
+      console.log(error)
       return response.unauthorized({ message: 'invalid refresh token', success: false })
     }
   }

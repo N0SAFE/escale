@@ -9,10 +9,10 @@ import { days } from '@/types/utils'
 import React, { useEffect, useMemo, useState } from 'react'
 import { DateRange } from 'react-day-picker'
 import { DateTime, Info } from 'luxon'
-import { Input } from './ui/input'
-import { Calendar } from './ui/calendar'
-import { Label } from './ui/label'
-import Combobox from './Combobox'
+import { Input } from '../../ui/input'
+import { Calendar } from '../../ui/calendar'
+import { Label } from '../../ui/label'
+import Combobox from '../molecules/Combobox'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { getAvailabilities } from '@/app/(logged)/dashboard/availabilities/actions'
 
@@ -60,6 +60,7 @@ export type AvailabilityEditProps = {
     isSpaLoading?: boolean
     selectedSpa?: Spa
     disabled?: (date: Date) => boolean
+    defaultSelectedSpa?: Spa
 }
 
 export default function AvailabilityEdit({
@@ -71,6 +72,7 @@ export default function AvailabilityEdit({
     isSpaLoading,
     selectedSpa,
     disabled,
+    defaultSelectedSpa,
 }: AvailabilityEditProps) {
     const [selectedMonth, setSelectedMonth] = useState(
         defaultValues?.startAt
@@ -84,7 +86,7 @@ export default function AvailabilityEdit({
         React.useState<CreateAvailability>({
             startAt: defaultValues?.startAt || '',
             endAt: defaultValues?.endAt || '',
-            spa: defaultValues?.spa?.id || -1,
+            spa: defaultValues?.spa?.id || defaultSelectedSpa?.id || -1,
             monPrice: {
                 day: (defaultValues?.monPrice?.day || 0) / 100,
                 night: (defaultValues?.monPrice?.night || 0) / 100,
@@ -396,6 +398,7 @@ export default function AvailabilityEdit({
                             spa: spa?.id || -1,
                         })
                     }}
+                    defaultValue={defaultSelectedSpa}
                 />
             </div>
             <div className="flex flex-row md:flex-col">

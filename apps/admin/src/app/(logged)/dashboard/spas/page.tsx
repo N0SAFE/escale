@@ -1,50 +1,14 @@
 'use client'
 
 import * as React from 'react'
-import {
-    CaretSortIcon,
-    ChevronDownIcon,
-    DotsHorizontalIcon,
-} from '@radix-ui/react-icons'
-import {
-    ColumnDef,
-    ColumnFiltersState,
-    SortingState,
-    VisibilityState,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    useReactTable,
-} from '@tanstack/react-table'
+import { Table } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import {
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table'
 import { createSpa, deleteSpa, getSpas } from './actions'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import Loader from '@/components/loader'
-import Link from 'next/link'
+import Loader from '@/components/atomics/atoms/Loader'
 import {
     AlertDialog,
-    AlertDialogTrigger,
     AlertDialogContent,
     AlertDialogDescription,
     AlertDialogFooter,
@@ -66,127 +30,21 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import Combobox from '@/components/Combobox'
+import Combobox from '@/components/atomics/molecules/Combobox'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Reorder } from 'framer-motion'
 import { getImages, getServices } from '../actions'
-import ApiImage from '@/components/ApiImage'
+import ApiImage from '@/components/atomics/atoms/ApiImage'
 import { Card } from '@/components/ui/card'
 import dynamic from 'next/dynamic'
 import { toast } from 'sonner'
-
-const columns: ColumnDef<Spa>[] = [
-    {
-        id: 'select',
-        header: ({ table }) => (
-            <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && 'indeterminate')
-                }
-                onCheckedChange={(value: boolean) =>
-                    table.toggleAllPageRowsSelected(!!value)
-                }
-                aria-label="Select all"
-            />
-        ),
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value: boolean) =>
-                    row.toggleSelected(!!value)
-                }
-                aria-label="Select row"
-            />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-    },
-    {
-        accessorKey: 'title',
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === 'asc')
-                    }
-                >
-                    Title
-                    <CaretSortIcon className="ml-2 h-4 w-4" />
-                </Button>
-            )
-        },
-        cell: ({ row }) => (
-            <div className="capitalize">{row.getValue('title')}</div>
-        ),
-    },
-    {
-        accessorKey: 'description',
-        header: 'Description',
-        cell: ({ row }) => (
-            <div className="lowercase">{row.getValue('description')}</div>
-        ),
-    },
-    {
-        id: 'actions',
-        enableHiding: false,
-        header: 'Actions',
-        cell: ({ row, table, ...rest }) => {
-            const spa = row.original
-
-            const { setSelectedSpaToDelete } = table.options.meta as {
-                setSelectedSpaToDelete: (spa: Spa) => void
-            }
-
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <DotsHorizontalIcon className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                            <Link
-                                className="w-full"
-                                href={`/dashboard/spas/${spa.id}`}
-                            >
-                                Details
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                            <Link
-                                className="w-full"
-                                href={`/dashboard/spas/${spa.id}/edit`}
-                            >
-                                Edit
-                            </Link>
-                        </DropdownMenuItem>
-                        <AlertDialogTrigger
-                            asChild
-                            className="bg-red-600 hover:bg-red-500 text-white cursor-pointer"
-                        >
-                            <DropdownMenuItem
-                                onClick={() => setSelectedSpaToDelete(spa)}
-                            >
-                                Delete
-                            </DropdownMenuItem>
-                        </AlertDialogTrigger>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            )
-        },
-    },
-]
+import { useColumns } from './columns'
+import { DataTable } from '@/components/atomics/organisms/DataTable/index'
+import { DataTableViewOptions } from '@/components/atomics/organisms/DataTable/DataTableViewOptions'
 
 export default function SpasTable() {
     const {
         data: spas,
-        error,
         isFetched,
         refetch,
     } = useQuery({
@@ -202,7 +60,7 @@ export default function SpasTable() {
         },
         onSuccess: async (data) => {
             toast.success('spa created')
-            setOpen(false)
+            setIsCreateDialogOpen(false)
             await refetch()
         },
     })
@@ -219,216 +77,78 @@ export default function SpasTable() {
             await refetch()
         },
     })
-    const [open, setOpen] = React.useState(false)
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [columnFilters, setColumnFilters] =
-        React.useState<ColumnFiltersState>([])
-    const [columnVisibility, setColumnVisibility] =
-        React.useState<VisibilityState>({})
-    const [rowSelection, setRowSelection] = React.useState({})
-    const [selectedSpaToDelete, setSelectedSpaToDelete] = React.useState<Spa>()
-    const [isDeletDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
 
-    const table = useReactTable({
-        data: spas ?? [],
-        columns,
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
-        getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        onColumnVisibilityChange: setColumnVisibility,
-        onRowSelectionChange: setRowSelection,
-        state: {
-            sorting,
-            columnFilters,
-            columnVisibility,
-            rowSelection,
+    const tableRef = React.useRef<Table<Spa>>(null)
+
+    const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false)
+    const [isDeletDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
+    const [selectedSpaToDelete, setSelectedSpaToDelete] = React.useState<Spa>()
+
+    const columns = useColumns({
+        onRowDelete: async ({ row }) => {
+            setSelectedSpaToDelete(row.original)
+            setIsDeleteDialogOpen(true)
         },
-        meta: {
-            setSelectedSpaToDelete,
-        },
+        useLoaderOnRowDelete: true,
     })
 
     return (
         <div className="w-full">
-            <div className="flex items-center py-4 justify-between">
-                <Input
-                    placeholder="Filter spas..."
-                    value={
-                        (table
-                            .getColumn('title')
-                            ?.getFilterValue() as string) ?? ''
-                    }
-                    onChange={(event) =>
-                        table
-                            .getColumn('title')
-                            ?.setFilterValue(event.target.value)
-                    }
-                    className="max-w-sm"
-                />
-                <div className="flex gap-2">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline">
-                                Columns{' '}
-                                <ChevronDownIcon className="ml-2 h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            {table
-                                .getAllColumns()
-                                .filter((column) => column.getCanHide())
-                                .map((column) => {
-                                    return (
-                                        <DropdownMenuCheckboxItem
-                                            key={column.id}
-                                            className="capitalize"
-                                            checked={column.getIsVisible()}
-                                            onCheckedChange={(value) =>
-                                                column.toggleVisibility(!!value)
-                                            }
-                                        >
-                                            {column.id}
-                                        </DropdownMenuCheckboxItem>
-                                    )
-                                })}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                    <Dialog open={open} onOpenChange={setOpen}>
-                        <DialogTrigger asChild>
-                            <Button variant="outline">+</Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[800px]">
-                            <DialogHeader>
-                                <DialogTitle>Create spa</DialogTitle>
-                                <DialogDescription>
-                                    create a new spa and add it to the list
-                                </DialogDescription>
-                            </DialogHeader>
-                            <CreateSpa
-                                onSubmit={spaCreateMutation.mutate}
-                                isLoading={spaCreateMutation.isPending}
-                            />
-                        </DialogContent>
-                    </Dialog>
-                </div>
-            </div>
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
-                                    return (
-                                        <TableHead key={header.id}>
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(
-                                                      header.column.columnDef
-                                                          .header,
-                                                      header.getContext()
-                                                  )}
-                                        </TableHead>
-                                    )
-                                })}
-                            </TableRow>
-                        ))}
-                    </TableHeader>
-                    <TableBody>
-                        <AlertDialog
-                            open={isDeletDialogOpen}
-                            onOpenChange={setIsDeleteDialogOpen}
+            <AlertDialog
+                open={isDeletDialogOpen}
+                onOpenChange={setIsDeleteDialogOpen}
+            >
+                <AlertDialogContent>
+                    <DeleteSpa
+                        onDelete={() =>
+                            spaDeleteMutation.mutate(selectedSpaToDelete?.id!)
+                        }
+                        isLoading={spaDeleteMutation.isPending}
+                        onCancel={() => setIsDeleteDialogOpen(false)}
+                    />
+                </AlertDialogContent>
+            </AlertDialog>
+            <div className="flex flex-col gap-4">
+                <div className="flex justify-end">
+                    <div className="flex gap-2">
+                        <DataTableViewOptions
+                            className="h-full"
+                            table={
+                                tableRef.current === null
+                                    ? undefined
+                                    : tableRef.current
+                            }
+                        />
+                        <Dialog
+                            open={isCreateDialogOpen}
+                            onOpenChange={setIsCreateDialogOpen}
                         >
-                            {isFetched ? (
-                                table.getRowModel().rows?.length ? (
-                                    table.getRowModel().rows.map((row) => (
-                                        <TableRow
-                                            key={row.id}
-                                            data-state={
-                                                row.getIsSelected() &&
-                                                'selected'
-                                            }
-                                        >
-                                            {row
-                                                .getVisibleCells()
-                                                .map((cell) => (
-                                                    <TableCell key={cell.id}>
-                                                        {flexRender(
-                                                            cell.column
-                                                                .columnDef.cell,
-                                                            cell.getContext()
-                                                        )}
-                                                    </TableCell>
-                                                ))}
-                                        </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell
-                                            colSpan={columns.length}
-                                            className="h-24 text-center"
-                                        >
-                                            <span className="flex items-center justify-center">
-                                                no spas found
-                                            </span>
-                                        </TableCell>
-                                    </TableRow>
-                                )
-                            ) : (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={columns.length}
-                                        className="h-24 text-center"
-                                    >
-                                        <span className="flex items-center justify-center">
-                                            <Loader></Loader>
-                                        </span>
-                                    </TableCell>
-                                </TableRow>
-                            )}
-
-                            <AlertDialogContent>
-                                <DeleteSpa
-                                    onDelete={() =>
-                                        spaDeleteMutation.mutate(
-                                            selectedSpaToDelete?.id!
-                                        )
-                                    }
-                                    isLoading={spaDeleteMutation.isPending}
-                                    onCancel={() =>
-                                        setIsDeleteDialogOpen(false)
-                                    }
+                            <DialogTrigger asChild>
+                                <Button variant="outline">+</Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[800px]">
+                                <DialogHeader>
+                                    <DialogTitle>Create service</DialogTitle>
+                                    <DialogDescription>
+                                        create a new service and add it to the
+                                        list
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <CreateSpa
+                                    onSubmit={spaCreateMutation.mutate}
+                                    isLoading={spaCreateMutation.isPending}
                                 />
-                            </AlertDialogContent>
-                        </AlertDialog>
-                    </TableBody>
-                </Table>
-            </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex-1 text-sm text-muted-foreground">
-                    {table.getFilteredSelectedRowModel().rows.length} of{' '}
-                    {table.getFilteredRowModel().rows.length} row(s) selected.
+                            </DialogContent>
+                        </Dialog>
+                    </div>
                 </div>
-                <div className="space-x-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        Previous
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        Next
-                    </Button>
-                </div>
+                <DataTable
+                    columns={columns}
+                    data={spas ?? []}
+                    isLoading={!isFetched}
+                    notFound="no spas found"
+                    tableRef={tableRef}
+                />
             </div>
         </div>
     )
@@ -471,7 +191,9 @@ function DeleteSpa({ isLoading, onDelete, onCancel }: DeleteImageProps) {
     )
 }
 
-const Editor = dynamic(() => import('@/components/Editor'), { ssr: false })
+const Editor = dynamic(() => import('@/components/atomics/atoms/Editor'), {
+    ssr: false,
+})
 
 type CreateSpaProps = {
     isLoading?: boolean
