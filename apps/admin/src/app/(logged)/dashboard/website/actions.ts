@@ -1,6 +1,6 @@
 'use server'
 
-import { CreateFaq, Faq, Home, UpdateFaq, UpdateHome } from '@/types/index'
+import { CreateFaq, Faq, UpdateFaq } from '@/types/index'
 import { xiorInstance } from '@/utils/xiorInstance'
 
 export const getFaqs = async () => {
@@ -52,27 +52,6 @@ export const deleteFaq = async (id: number) => {
 
     console.log('delete faq')
     await xiorInstance.delete(`/faqs/${id}`)
-}
-
-export const getHomeDetails = async () => {
-    "use server"
-    
-    console.log('get home details')
-    const { data } = await xiorInstance.get<Home>('/home')
-    return data
-}
-
-export const updateHomeDetails = async (data: UpdateHome) => {
-    "use server"
-    
-    console.log('update home details')
-    const transformedData = {
-        description: data.description,
-        imageId: data.imageId,
-        videoId: data.videoId,
-        commentsId: data.commentsId,
-    }
-    await xiorInstance.patch('/home', transformedData)
 }
 
 export const getSpas = async () => {

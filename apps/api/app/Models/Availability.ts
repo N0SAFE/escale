@@ -226,7 +226,7 @@ export default class Availability extends compose(AppBaseModel, Filterable) {
 
   @beforeUpdate()
   public static async changeUnavailabilitiesOnUpdate (availability: Availability) {
-    console.log('before update')
+    // console.log('before update')
     const availabilityRepository = new AvaialbilityRepository()
     const previousAvailability = await availabilityRepository.getClosestAvailabilityBefore(
       availability.startAt.toSQLDate()!,

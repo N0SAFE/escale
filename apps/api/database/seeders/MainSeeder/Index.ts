@@ -10,6 +10,8 @@ import Faq from '../Faq'
 import Rule from '../Rule'
 import Reservation from '../Reservation'
 import ExternalCalendar from '../ExternalCalendar'
+import Video from '../Video'
+import Home from '../Home'
 
 export default class IndexSeeder extends BaseSeeder {
   private async runSeeder (Seeders: typeof BaseSeeder | (typeof BaseSeeder)[]) {
@@ -47,6 +49,8 @@ export default class IndexSeeder extends BaseSeeder {
       Rule,
       Reservation,
       ExternalCalendar,
+      Video,
+      Home,
     ])
   }
 }

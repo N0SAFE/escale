@@ -71,3 +71,21 @@ export async function getAvailableDates(
 
     return data
 }
+
+export async function getVideos() {
+    'use server'
+
+    return xiorInstance.get('/videos').then(function (videos) {
+        return videos
+    })
+}
+
+export async function getSourcesByVideoId(videoId: number) {
+    'use server'
+
+    return xiorInstance
+        .get(`/videos/${videoId}/sources`)
+        .then(function (sources) {
+            return sources
+        })
+}

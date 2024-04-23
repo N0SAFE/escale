@@ -12,116 +12,111 @@ import { CommandEmpty } from 'cmdk'
 import { Upload } from 'lucide-react'
 import Image from 'next/image'
 import React, { useEffect, useMemo } from 'react'
+import { cn } from '@/lib/utils'
+import {
+    ContextMenu,
+    ContextMenuContent,
+    ContextMenuItem,
+    ContextMenuTrigger,
+} from '@/components/ui/context-menu'
+import ApiImage from '../atoms/ApiImage'
+import Loader from '../atoms/Loader'
+import { toast } from 'sonner'
 
-type FileType = {
-    id: number
-    file: File
-}
-
-type SelectedFileType<T extends FileType> =
-    | {
-          new: true
-          file: Blob
-      }
-    | {
-          new: false
-          file: T
-      }
-
-type FileSelectorProps<T extends FileType> = {
-    onFileSelect?: (file: SelectedFileType<T>) => void
+type FileSelectorProps<T extends { id: number }> = {
+    inputAccept?: string
+    onFileSelect?: (selectedFile: T) => void
+    onFileUpload?: (file: Blob) => T | Promise<T>
+    onFileDelete?: (file: T) => void
     files: T[] | undefined
     renderNull?: () => React.ReactNode
-    renderFile?: (selectedFile: SelectedFileType<T>) => React.ReactNode
-    renderFileList?: (selectedFile: SelectedFileType<T>) => React.ReactNode
+    renderFile?: (selectedFile: T) => React.ReactNode
+    renderFileList?: (selectedFile: T) => React.ReactNode
     defaultSelectedFile?: T
+    defaultSelectedFileId?: number
+    isUploading?: boolean
+    isLoading?: boolean
 }
 
-export default function FileSelector<T extends FileType>({
+export default function FileSelector<T extends { id: number }>({
+    inputAccept,
     files,
     onFileSelect,
+    onFileUpload,
+    onFileDelete,
     renderFile,
     renderFileList,
     renderNull,
     defaultSelectedFile,
+    defaultSelectedFileId,
+    isLoading,
 }: FileSelectorProps<T>) {
+    console.log('render file selector')
     const inputRef = React.useRef<HTMLInputElement>(null)
-    const [selectedFile, setSelectedFile] = React.useState<
-        | {
-              new: true
-              file: Blob
-          }
-        | {
-              new: false
-              file: T
-          }
-        | null
-    >(
-        defaultSelectedFile
-            ? {
-                  new: false,
-                  file: defaultSelectedFile,
-              }
-            : null
+    const [selectedFile, setSelectedFile] = React.useState<T | null>(
+        defaultSelectedFile || null
     )
-
-    const url = useMemo(() => {
-        if (selectedFile?.new) {
-            return URL.createObjectURL(selectedFile.file)
-        } else if (selectedFile?.file) {
-            return (
-                process.env.NEXT_PUBLIC_API_URL +
-                '/attachment/image/' +
-                selectedFile.file.id
-            )
-        }
-        return null
-    }, [selectedFile])
+    console.log('selected file', selectedFile)
+    const [isUploading, setIsUploading] = React.useState(false)
 
     const handleFileSelect = (file: T) => {
-        setSelectedFile({
-            new: false,
-            file,
-        })
-        onFileSelect?.({
-            new: false,
-            file,
-        })
+        setSelectedFile(file)
+        onFileSelect?.(file)
     }
 
     useEffect(() => {
         if (defaultSelectedFile) {
-            setSelectedFile({
-                new: false,
-                file: defaultSelectedFile,
-            })
+            setSelectedFile(defaultSelectedFile)
         }
     }, [defaultSelectedFile])
+
+    useEffect(() => {
+        if (defaultSelectedFileId) {
+            const file = files?.find(
+                (file) => file.id === defaultSelectedFileId
+            )
+            if (file) {
+                setSelectedFile(file)
+            }
+        }
+    }, [defaultSelectedFileId])
 
     return (
         <div className="flex flex-col gap-4">
             <div className="h-24 flex justify-center items-center">
-                <div className="h-8 w-8 cursor-pointer bg-slate-800 rounded-full flex items-center justify-center">
-                    <Upload
-                        className="w-4 h-4"
-                        onClick={function () {
-                            inputRef?.current?.click?.()
-                        }}
-                    />
+                <div
+                    className="h-8 w-8 cursor-pointer bg-slate-800 rounded-full flex items-center justify-center "
+                    onClick={function () {
+                        inputRef?.current?.click?.()
+                    }}
+                >
+                    {isUploading ? (
+                        <Loader className="h-4 w-4" />
+                    ) : (
+                        <Upload className="w-4 h-4" />
+                    )}
                 </div>
                 <Input
+                    accept={inputAccept ? inputAccept : 'image/*'}
                     className="hidden"
                     type="file"
                     ref={inputRef}
-                    onChange={function (e) {
+                    onChange={async function (e) {
                         const file = e.target.files?.[0]
                         if (file) {
-                            const selectedFile = {
-                                new: true as const,
-                                file,
+                            setIsUploading(true)
+                            try {
+                                const uploadedFile = await onFileUpload?.(file)
+                                setIsUploading(false)
+                                if (!uploadedFile) return
+                                setSelectedFile(uploadedFile)
+                                onFileSelect?.(uploadedFile)
+                            } catch {
+                                setIsUploading(false)
+                                toast.error(
+                                    'an error occured while uploading file'
+                                )
                             }
-                            setSelectedFile(selectedFile)
-                            onFileSelect?.(selectedFile)
                         }
                     }}
                 />
@@ -132,10 +127,10 @@ export default function FileSelector<T extends FileType>({
                     renderFile ? (
                         renderFile(selectedFile)
                     ) : (
-                        <Image
+                        <ApiImage
                             alt="Product image"
-                            className="h-full object-cover w-full"
-                            src={url!}
+                            className="h-full object-none w-full"
+                            identifier={selectedFile.id}
                             width="200"
                             height="200"
                         />
@@ -146,7 +141,7 @@ export default function FileSelector<T extends FileType>({
                             renderNull()
                         ) : (
                             <Image
-                                className="h-full object-cover w-full"
+                                className="h-full object-none w-full"
                                 src="/placeholder.svg"
                                 alt="Empty file"
                                 width={400}
@@ -159,48 +154,85 @@ export default function FileSelector<T extends FileType>({
 
             <Card className="w-full max-h-96 overflow-y-auto">
                 <CardContent>
-                    <Command>
+                    <Command
+                        value={selectedFile ? `${selectedFile.id}` : undefined}
+                    >
                         <CommandList className="scrollbar-thin scrollbar-thumb-secondary scrollbar-track-transparent">
-                            <CommandInput
-                                className="flex flex-col items-center justify-center"
-                                placeholder="search file"
-                            />
-                            <CommandEmpty className="flex flex-col items-center justify-center">
-                                <Upload className="w-16 h-16" />
-                                <div className="text-gray-500">Select file</div>
-                            </CommandEmpty>
-                            <div className="grid grid-cols-4 gap-2">
-                                {files?.map((file) => (
-                                    <CommandItem
-                                        value={file.file.name}
-                                        key={file.id}
-                                    >
-                                        <Button
-                                            key={file.id}
-                                            className="w-full max-w-full h-full"
-                                            variant={'ghost'}
-                                            onClick={() =>
-                                                handleFileSelect(file)
-                                            }
-                                        >
-                                            <span className="sr-only">
-                                                Select image
-                                            </span>
-                                            <Image
-                                                alt="Product image"
-                                                className="w-16 rounded-md object-cover h-16"
-                                                src={
-                                                    process.env
-                                                        .NEXT_PUBLIC_API_URL +
-                                                    '/attachment/image/' +
-                                                    file.id
-                                                }
-                                                width="200"
-                                                height="200"
-                                            />
-                                        </Button>
-                                    </CommandItem>
-                                ))}
+                            <div className="flex flex-col gap-2">
+                                <CommandInput
+                                    className="flex flex-col items-center justify-center"
+                                    placeholder="search file"
+                                />
+                                <CommandEmpty className="flex flex-col items-center justify-center">
+                                    <Upload className="w-16 h-16" />
+                                    <div className="text-gray-500">
+                                        Select file
+                                    </div>
+                                </CommandEmpty>
+                                <div className="grid grid-cols-4 gap-2">
+                                    {files?.map((file) => (
+                                        <ContextMenu key={file.id}>
+                                            <ContextMenuTrigger>
+                                                <CommandItem
+                                                    value={`${file.id}`}
+                                                >
+                                                    <Button
+                                                        key={file.id}
+                                                        className={
+                                                            'w-full max-w-full h-full'
+                                                        }
+                                                        variant={'ghost'}
+                                                        onClick={() => {
+                                                            handleFileSelect(
+                                                                file
+                                                            )
+                                                            console.log(
+                                                                'selected file',
+                                                                file
+                                                            )
+                                                            setSelectedFile(
+                                                                file
+                                                            )
+                                                        }}
+                                                    >
+                                                        {renderFileList ? (
+                                                            renderFileList(file)
+                                                        ) : (
+                                                            <>
+                                                                <span className="sr-only">
+                                                                    Select image
+                                                                </span>
+                                                                <ApiImage
+                                                                    alt="Product image"
+                                                                    className="w-16 rounded-md object-none h-16"
+                                                                    identifier={
+                                                                        file.id
+                                                                    }
+                                                                    width="200"
+                                                                    height="200"
+                                                                />
+                                                            </>
+                                                        )}
+                                                    </Button>
+                                                </CommandItem>
+                                            </ContextMenuTrigger>
+                                            <ContextMenuContent>
+                                                <ContextMenuItem
+                                                    onClick={() =>
+                                                        onFileDelete?.(file)
+                                                    }
+                                                    className={cn(
+                                                        'text-red-500',
+                                                        'hover:bg-red-500',
+                                                        'hover:text-white'
+                                                    )}
+                                                >
+                                                    Delete
+                                                </ContextMenuItem>
+                                            </ContextMenuContent>
+                                        </ContextMenu>
+                                    ))}
+                                </div>
                             </div>
                         </CommandList>
                     </Command>

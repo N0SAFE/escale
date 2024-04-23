@@ -1,9 +1,7 @@
 import { useRef } from 'react'
-import Image, {ImageProps} from 'next/image'
+import Image, { ImageProps } from 'next/image'
 
-export default function InputImage(
-    props: ImageProps
-) {
+export default function InputImage(props: ImageProps) {
     const inputRef = useRef<HTMLInputElement>(null)
     return (
         <>

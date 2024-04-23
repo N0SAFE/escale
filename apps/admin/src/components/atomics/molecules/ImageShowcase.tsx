@@ -33,9 +33,7 @@ export default function ImageShowcase({ useUpload }: ImageShowcaseProps) {
                         src="/placeholder.svg"
                         width="84"
                     />
-                    <div className="absolute top-2 right-2">
-                        +2
-                    </div>
+                    <div className="absolute top-2 right-2">+2</div>
                 </button>
                 <button className="flex aspect-square w-full items-center justify-center rounded-md border border-dashed">
                     {useUpload ? (

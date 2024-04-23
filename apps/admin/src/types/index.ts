@@ -2,7 +2,8 @@
 // if i get the mode Spa i want to have some extra prop that are not fetch by default
 
 import { v4 as uuid } from 'uuid'
-import { IdedEntity, Entity, UnwrapEntity, Pretify } from './utils';
+import { IdedEntity, Entity, UnwrapEntity } from './model/utils'
+import { Pretify } from './utils'
 
 export type File = IdedEntity<
     Entity<{
@@ -15,37 +16,23 @@ export type File = IdedEntity<
     }>
 >
 
-export type Video<Nullable extends null | false = false> = IdedEntity<
-    Entity<{
-        id: number
-        alt: string
-        file: File
-    }>,
-    Nullable
+export type Image<Nullable extends null | false = false> = Pretify<
+    IdedEntity<
+        Entity<{
+            id: number
+            alt: string
+            file: File
+        }>,
+        Nullable
+    >
 >
 
-export type CreateVideo = Omit<Video, 'id' | 'file'> & {
-    file: Blob
-    name?: string
-}
-
-export type UpdateVideo = Partial<Omit<Video, 'id' | 'file'>> & {
-    name?: string
-}
-
-export type Image<Nullable extends null | false = false> = Pretify<IdedEntity<
-    Entity<{
-        id: number
-        alt: string
-        file: File
-    }>,
-    Nullable
->>
-
-export type CreateImage = Pretify<Omit<UnwrapEntity<Image>, 'id' | 'file' | 'fileId'> & {
-    file?: Blob
-    name?: string
-}>
+export type CreateImage = Pretify<
+    Omit<UnwrapEntity<Image>, 'id' | 'file' | 'fileId'> & {
+        file?: Blob
+        name?: string
+    }
+>
 
 export type UpdateImage = Partial<
     Omit<Image, 'id' | 'file'> & {
@@ -143,23 +130,9 @@ export type Faq = Entity<{
     rank: number
 }>
 
-export type Comment = Readonly<{
-    id: number
-    text: string
-}>
-
 export type CreateFaq = Omit<Faq, 'id'>
 
 export type UpdateFaq = Partial<Omit<Faq, 'id'>>
-
-export type Home = Entity<{
-    description: string
-    image?: Image
-    video?: Video
-    comments: IdedEntity<Comment[]>
-}>
-
-export type UpdateHome = Partial<UnwrapEntity<Home>>
 
 export type Unavailability<T extends boolean = false> = {
     id: number

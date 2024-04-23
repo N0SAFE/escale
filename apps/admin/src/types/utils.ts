@@ -154,87 +154,12 @@ export type TupleIndices<A extends any[]> = A extends [any, ...infer T]
     : never
 
 export type Pretify<T> = {
+    // @ts-ignore
     [K in keyof T]: T[K]
 } & {}
 export type OmitNever<T extends {}> = {
+    // @ts-ignore
     [K in keyof T as T[K] extends never ? never : K]: T[K]
 }
 
 export const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
-
-export const IdedSymbol = Symbol('Ided')
-export const IdedNullableSymbol = Symbol('IdedNullable')
-export type id = number
-
-export type OptionsHas<O, K> = O extends K ? 1 : 0
-// IdedEntity is a type use to define where the id for another entity is defined in an entity and if it is nullable
-export type IdedEntity<
-    T extends
-        | {
-              id: id
-          }
-        | {
-              id: id
-          }[],
-    Nullable extends null | false = false
-> =
-    | (T & {
-          [IdedSymbol]: true
-          [IdedNullableSymbol]: Nullable extends null ? true : false
-      })
-    | (Nullable extends true ? null : never)
-export type Entity<T extends {}> = Pretify<
-    T &
-        OmitNever<{
-            [K in keyof T as Extract<K, string> extends never
-                ? never
-                : T[Extract<K, string>] extends
-                      | {
-                            [IdedSymbol]: true
-                        }
-                      | undefined
-                      | null
-                ? `${Extract<K, string>}Id`
-                : never]-?: Exclude<T[K], undefined> extends
-                | {
-                      [IdedSymbol]: true
-                  }
-                | undefined
-                | null
-                ? Exclude<T[K], undefined> extends any[]
-                    ? Exclude<T[K], undefined> extends {
-                          [IdedNullableSymbol]: true
-                      }
-                        ? id[] | null
-                        : id[]
-                    : Exclude<T[K], undefined> extends {
-                          [IdedNullableSymbol]: true
-                      }
-                    ? id | null
-                    : id
-                : never
-        }>
->
-
-export type UnwrapIdedEntity<T> = T extends
-    | {
-          [IdedSymbol]: boolean | null
-      }
-    | {
-          [IdedNullableSymbol]: boolean | null
-      }
-    ? never
-    : T
-export type UnwrapEntity<T> = Pretify<{
-    [K in keyof T as Extract<K, string> extends never
-        ? never
-        : T[K] extends
-              | {
-                    [IdedSymbol]: boolean | null
-                }
-              | {
-                    [IdedNullableSymbol]: boolean | null
-                }
-        ? never
-        : K]: UnwrapEntity<T[K]>
-}>

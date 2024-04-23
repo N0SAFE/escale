@@ -46,7 +46,7 @@ export default class AvailabilitySeeder extends BaseSeeder {
     const maxNightPrice = 30000
 
     for (let index = 0; index < numberOfAvailabiltiesToTry; index++) {
-      console.log(`trying creating availability ${index + 1} of ${numberOfAvailabiltiesToTry}`)
+      // console.log(`trying creating availability ${index + 1} of ${numberOfAvailabiltiesToTry}`)
       const startAt =
         Math.random() < 0.5
           ? startDate.plus({ days: Math.floor(Math.random() * dayFromNowToCreateAvailabilities) })
@@ -62,7 +62,7 @@ export default class AvailabilitySeeder extends BaseSeeder {
       })
 
       if (availabilityIntersects) {
-        console.log()
+        // console.log()
         continue
       }
 
@@ -82,13 +82,13 @@ export default class AvailabilitySeeder extends BaseSeeder {
         )
       }
 
-      console.log('creating prices')
+      // console.log('creating prices')
 
       const prices = await Promise.all(promisePrices)
       const usedPrices: Set<AvailabilityPrice> = new Set()
       const promises: any[] = []
 
-      console.log('associating prices')
+      // console.log('associating prices')
 
       const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
       const avaialbilityPrices: Record<`${(typeof days)[number]}PriceId`, number> = {} as any
@@ -101,14 +101,14 @@ export default class AvailabilitySeeder extends BaseSeeder {
         avaialbilityPrices[day + 'PriceId'] = price.id
       }
 
-      console.log('creating availability')
+      // console.log('creating availability')
       const availability = await Availability.create({
         startAt: startAt,
         endAt: endAt,
         spaId: firstSpa.id,
         ...avaialbilityPrices,
       })
-      console.log('created availability end')
+      // console.log('created availability end')
 
       for (const price of usedPrices) {
         const exist = prices.some((p) => p.id === price.id)
@@ -118,15 +118,15 @@ export default class AvailabilitySeeder extends BaseSeeder {
         promises.push(price.delete())
       }
 
-      console.log('waiting for promises')
+      // console.log('waiting for promises')
 
       await Promise.all(promises)
 
-      console.log('pushing availability')
+      // console.log('pushing availability')
 
       availabilities.push(availability)
 
-      console.log()
+      // console.log()
     }
   }
 }

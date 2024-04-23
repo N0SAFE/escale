@@ -1,8 +1,6 @@
-import { z } from "zod";
+import { z } from 'zod'
 
 export const Route = {
-  name: "LoggedDashboardWebsiteFaq",
-  params: z.object({
-  })
-};
-
+    name: 'LoggedDashboardWebsiteFaq',
+    params: z.object({}),
+}

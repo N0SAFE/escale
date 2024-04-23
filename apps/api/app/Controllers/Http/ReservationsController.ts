@@ -239,7 +239,7 @@ export default class ReservationsController {
         includeExternalReservedCalendarEvents,
         includeAvailabilities,
         includeReservations,
-        avoidReservationIds
+        avoidReservationIds,
       })
     )
   }
@@ -374,8 +374,8 @@ export default class ReservationsController {
       .orderBy('start_at', 'asc')
       .first()
 
-      console.log(pastReservation?.id)
-      console.log(futureReservation?.id)
+    console.log(pastReservation?.id)
+    console.log(futureReservation?.id)
 
     let pastUnavailability
     let futureUnavailability

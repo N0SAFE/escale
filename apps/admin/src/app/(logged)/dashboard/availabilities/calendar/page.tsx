@@ -33,7 +33,10 @@ import { querySpaId } from '../layout'
 
 const AvailabilityCalendarView = () => {
     const [selectedMonth, setSelectedMonth] = React.useState<Date>(new Date())
-    const [selectedSpaId, setSelectedSpaId] = useQueryState(querySpaId, parseAsInteger)
+    const [selectedSpaId, setSelectedSpaId] = useQueryState(
+        querySpaId,
+        parseAsInteger
+    )
     const [sheetIsOpen, setSheetIsOpen] = React.useState(false)
     const [selectedAvailability, setSelectedAvailability] =
         React.useState<Availability>()
@@ -48,7 +51,7 @@ const AvailabilityCalendarView = () => {
             return await getSpas()
         },
     })
-    
+
     const selectedSpa = useMemo(() => {
         return spas?.find((spa) => spa.id === selectedSpaId)
     }, [spas, selectedSpaId])

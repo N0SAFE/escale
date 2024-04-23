@@ -31,12 +31,15 @@ import {
 import Image from 'next/image'
 import { Textarea } from '@/components/ui/textarea'
 import { usePathname } from 'next/navigation'
-import { Comment, Home, Image as ImageType } from '@/types/index'
+import { Image as ImageType } from '@/types/model/Image'
+import { Video as VideoType } from '@/types/model/Video'
+import { Comment } from '@/types/model/Comment'
+import { Home } from '@/types/model/Home'
 import { useEffect, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { getHomeDetails } from '../actions'
-import { getComments } from '../../comments/actions'
-import { getImages } from '../../images/actions'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { getHomeDetails, updateHomeDetails } from '@/app/actions/home/index'
+import { getComments } from '@/app/actions/comment'
+import { createImage, deleteImage, getImages } from '../../images/actions'
 import Combobox from '@/components/atomics/molecules/Combobox'
 import {
     Carousel,
@@ -71,38 +74,96 @@ import {
 import { TooltipContent } from '@radix-ui/react-tooltip'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import FileSelector from '@/components/atomics/molecules/FileSelector'
+import ApiImage from '@/components/atomics/atoms/ApiImage'
+import HomeRelations from '@/types/model/Home'
+import VideoRelations from '@/types/model/Video'
+import ApiVideo from '@/components/atomics/atoms/ApiVideo'
+import { createVideo, getVideos } from '@/app/actions/video/index'
+import { toast } from 'sonner'
+import Loader from '@/components/atomics/atoms/Loader'
 
 export default function HomeWebsitePage() {
-    const { data: homeData } = useQuery({
+    const queryClient = useQueryClient()
+
+    const [isSaving, setIsSaving] = useState(false)
+
+    const { data: homeData, isFetched } = useQuery({
         queryKey: ['home'],
         queryFn: async () => getHomeDetails(),
     })
-    console.log(homeData)
 
     const { data: comments } = useQuery({
         queryKey: ['comments'],
         queryFn: async () => getComments(),
     })
-    console.log(comments)
 
     const { data: images } = useQuery({
         queryKey: ['images'],
         queryFn: async () => getImages(),
     })
 
-    console.log(homeData?.comments)
+    const { data: videos } = useQuery({
+        queryKey: ['videos'],
+        queryFn: async () => getVideos(),
+    })
 
     const [hilightedComments, setHilightedComments] = useState<
         Comment[] | undefined
-    >(homeData?.comments)
+    >(homeData?.homeComments.map((hc) => hc.comment))
 
-    console.log(hilightedComments)
-
-    const [homeState, setHomeState] = useState<Home | undefined>(homeData)
+    const [homeState, setHomeState] = useState(homeData)
 
     useEffect(() => {
-        setHilightedComments(homeData?.comments)
+        setHilightedComments(homeData?.homeComments.map((hc) => hc.comment))
     }, [homeData])
+
+    useEffect(() => {
+        setHomeState(homeData)
+    }, [homeData])
+
+    const homeMutation = useMutation({
+        mutationKey: ['home'],
+        mutationFn: async (home: typeof homeState) => {
+            return await updateHomeDetails({
+                imageId: home?.imageId,
+                videoId: home?.videoId,
+                description: home?.description,
+                commentIds: hilightedComments?.map((c) => c.id) || [],
+            })
+        },
+        onMutate: () => {
+            setIsSaving(true)
+        },
+        onError: async (error, variables, context) => {
+            console.log(error)
+            toast.error('Error saving product')
+        },
+        onSettled: async () => {
+            setIsSaving(false)
+        },
+        onSuccess: async (data) => {
+            toast.success('Product saved')
+            await queryClient.invalidateQueries({
+                queryKey: ['home'],
+            })
+        },
+    })
+
+    const save = async () => {
+        console.log(homeState)
+        setIsSaving(true)
+        console.log('isSaving')
+        await homeMutation.mutateAsync(homeState)
+        setIsSaving(false)
+    }
+
+    if (!isFetched) {
+        return (
+            <div className="h-full w-full flex justify-center items-center">
+                <Loader size="8" />
+            </div>
+        )
+    }
 
     return (
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
@@ -122,7 +183,23 @@ export default function HomeWebsitePage() {
                         <Button variant="outline" size="sm">
                             Discard
                         </Button>
-                        <Button size="sm">Save Product</Button>
+                        <Button size="sm" onClick={() => save()}>
+                            {isSaving ? (
+                                <>
+                                    <div className="relative flex items-center justify-center h-full w-full">
+                                        <span className="invisible">
+                                            Save Product
+                                        </span>
+                                        <Loader
+                                            divClassName="absolute"
+                                            size="4"
+                                        />
+                                    </div>
+                                </>
+                            ) : (
+                                <span>Save Product</span>
+                            )}
+                        </Button>
                     </div>
                 </div>
                 <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-3 lg:gap-8">
@@ -143,8 +220,15 @@ export default function HomeWebsitePage() {
                                         </Label>
                                         <Textarea
                                             id="description"
-                                            defaultValue="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl nec ultricies ultricies, nunc nisl ultricies nunc, nec ultricies nunc nisl nec nunc."
+                                            value={homeState?.description}
                                             className="min-h-32"
+                                            onChange={(e) => {
+                                                setHomeState({
+                                                    ...homeState,
+                                                    description:
+                                                        e.currentTarget.value,
+                                                } as Required<typeof homeData>)
+                                            }}
                                         />
                                     </div>
                                 </div>
@@ -168,20 +252,25 @@ export default function HomeWebsitePage() {
                                             Image
                                         </Label>
                                         <AspectRatio ratio={16 / 9}>
-                                            <Image
-                                                alt="Product image"
-                                                className="w-full rounded-md object-cover h-full"
-                                                height="300"
-                                                src={
-                                                    homeState
-                                                        ? process.env
-                                                              .NEXT_PUBLIC_API_URL +
-                                                          '/attachment/image/' +
-                                                          homeState.imageId
-                                                        : '/placeholder.svg'
-                                                }
-                                                width="300"
-                                            ></Image>
+                                            {homeState?.imageId ? (
+                                                <ApiImage
+                                                    alt="Product image"
+                                                    className="w-full rounded-md object-cover h-full"
+                                                    height="300"
+                                                    identifier={
+                                                        homeState?.imageId
+                                                    }
+                                                    width="300"
+                                                />
+                                            ) : (
+                                                <Image
+                                                    alt="Product image"
+                                                    className="w-full rounded-md object-cover h-full"
+                                                    height="300"
+                                                    src={'/placeholder.svg'}
+                                                    width="300"
+                                                />
+                                            )}
                                         </AspectRatio>
                                         <Dialog>
                                             <DialogTrigger asChild>
@@ -195,73 +284,62 @@ export default function HomeWebsitePage() {
                                                 </Button>
                                             </DialogTrigger>
                                             <DialogContent>
-                                                <FileSelector files={images as ImageType[]} />
-                                                {/* <Command className="rounded-lg border shadow-md">
-                                                    <CommandList className="gap-2 max-h-48 overflow-auto scrollbar-thin scrollbar-thumb-secondary scrollbar-track-transparent">
-                                                        <CommandEmpty className="text-slate-400">
-                                                            please upload a file
-                                                            before selecting one
-                                                            <LoggedDashboardImages.Link className="underline decoration-pink-500">
-                                                                here
-                                                            </LoggedDashboardImages.Link>
-                                                        </CommandEmpty>
-                                                        {images?.map(
-                                                            (image, index) => {
-                                                                return (
-                                                                    <CommandItem
-                                                                        className="flex justify-center items-center text-xs h-full"
-                                                                        key={
-                                                                            index
-                                                                        }
-                                                                        value={`${image.id}`}
-                                                                    >
-                                                                        <TooltipProvider>
-                                                                            <Tooltip
-                                                                                disableHoverableContent
-                                                                            >
-                                                                                <TooltipTrigger>
-                                                                                    <Button
-                                                                                        className="w-full max-w-full h-full"
-                                                                                        variant={
-                                                                                            'ghost'
-                                                                                        }
-                                                                                    >
-                                                                                        <span className="sr-only">
-                                                                                            Select
-                                                                                            image
-                                                                                        </span>
-                                                                                        <Image
-                                                                                            alt="Product image"
-                                                                                            className="w-16 rounded-md object-cover h-16"
-                                                                                            src={
-                                                                                                process
-                                                                                                    .env
-                                                                                                    .NEXT_PUBLIC_API_URL +
-                                                                                                '/attachment/image/' +
-                                                                                                image.id
-                                                                                            }
-                                                                                            width="200"
-                                                                                            height="200"
-                                                                                        />
-                                                                                    </Button>
-                                                                                </TooltipTrigger>
-                                                                                <TooltipContent>
-                                                                                    <p className="bg-slate-900 text-white p-2 rounded-md">
-                                                                                        {
-                                                                                            image
-                                                                                                .file
-                                                                                                .name
-                                                                                        }
-                                                                                    </p>
-                                                                                </TooltipContent>
-                                                                            </Tooltip>
-                                                                        </TooltipProvider>
-                                                                    </CommandItem>
-                                                                )
+                                                <FileSelector
+                                                    defaultSelectedFileId={
+                                                        homeState?.imageId
+                                                    }
+                                                    files={
+                                                        images as ImageType[]
+                                                    }
+                                                    onFileSelect={(image) => {
+                                                        setHomeState({
+                                                            ...(homeState as Awaited<
+                                                                ReturnType<
+                                                                    typeof getHomeDetails
+                                                                >
+                                                            >),
+                                                            imageId: image.id,
+                                                        } as Required<typeof homeData>)
+                                                    }}
+                                                    onFileUpload={async (
+                                                        file
+                                                    ) => {
+                                                        const formData =
+                                                            new FormData()
+                                                        formData.append(
+                                                            'alt',
+                                                            'alt'
+                                                        )
+                                                        formData.append(
+                                                            'image',
+                                                            file
+                                                        )
+                                                        const data =
+                                                            createImage(
+                                                                formData
+                                                            )
+                                                        await queryClient.invalidateQueries(
+                                                            {
+                                                                queryKey: [
+                                                                    'images',
+                                                                ],
                                                             }
-                                                        )}
-                                                    </CommandList>
-                                                </Command> */}
+                                                        )
+                                                        return data
+                                                    }}
+                                                    onFileDelete={async (
+                                                        image
+                                                    ) => {
+                                                        deleteImage(image.id)
+                                                        await queryClient.invalidateQueries(
+                                                            {
+                                                                queryKey: [
+                                                                    'images',
+                                                                ],
+                                                            }
+                                                        )
+                                                    }}
+                                                />
                                             </DialogContent>
                                         </Dialog>
                                     </div>
@@ -270,19 +348,145 @@ export default function HomeWebsitePage() {
                                             Video
                                         </Label>
                                         <AspectRatio ratio={16 / 9}>
-                                            <InputVideo
-                                                className="w-full rounded-md object-cover h-full"
-                                                src="localhost:3000/video_lescale.mp4"
-                                                defaultImageProps={{
-                                                    alt: 'Product image',
-                                                    className:
-                                                        'w-full rounded-md object-cover h-full',
-                                                    height: '300',
-                                                    src: '/placeholder.svg',
-                                                    width: '300',
-                                                }}
-                                            />
+                                            {homeState?.videoId ? (
+                                                <ApiVideo
+                                                    alt="Product image"
+                                                    className="w-full rounded-md object-cover h-full"
+                                                    sourcesIdentifier={homeState?.video?.sources.map(
+                                                        (s) => s.id
+                                                    )}
+                                                    autoPlay
+                                                    loop
+                                                    muted
+                                                    width="300"
+                                                    height="300"
+                                                />
+                                            ) : (
+                                                <Image
+                                                    alt="Product image"
+                                                    className="w-full rounded-md object-cover h-full"
+                                                    height="300"
+                                                    src={'/placeholder.svg'}
+                                                    width="300"
+                                                />
+                                            )}
                                         </AspectRatio>
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <Button
+                                                    className="w-full gap-2"
+                                                    variant="outline"
+                                                    size="sm"
+                                                >
+                                                    <Upload className="w-4 h-4" />
+                                                    <span>Upload</span>
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <FileSelector
+                                                    inputAccept="video/*"
+                                                    renderFile={(video) => {
+                                                        return (
+                                                            <ApiVideo
+                                                                alt="Product image"
+                                                                className="w-full rounded-md object-cover h-full"
+                                                                sourcesIdentifier={video.sources.map(
+                                                                    (s) => s.id
+                                                                )}
+                                                                autoPlay
+                                                                loop
+                                                                muted
+                                                                width="300"
+                                                                height="300"
+                                                            />
+                                                        )
+                                                    }}
+                                                    renderFileList={(video) => {
+                                                        return (
+                                                            <ApiVideo
+                                                                alt="Product image"
+                                                                className="w-full rounded-md object-cover h-full"
+                                                                sourcesIdentifier={video.sources.map(
+                                                                    (s) => s.id
+                                                                )}
+                                                                autoPlay
+                                                                loop
+                                                                muted
+                                                                width="300"
+                                                                height="300"
+                                                            />
+                                                        )
+                                                    }}
+                                                    defaultSelectedFileId={
+                                                        homeState?.videoId
+                                                    }
+                                                    files={videos}
+                                                    onFileSelect={(video) => {
+                                                        setHomeState({
+                                                            ...(homeState as Awaited<
+                                                                ReturnType<
+                                                                    typeof getHomeDetails
+                                                                >
+                                                            >),
+                                                            videoId: video.id,
+                                                            video: video,
+                                                        } as Required<typeof homeData>)
+                                                    }}
+                                                    onFileUpload={async (
+                                                        file
+                                                    ) => {
+                                                        const formData =
+                                                            new FormData()
+                                                        formData.append(
+                                                            'alt',
+                                                            'alt'
+                                                        )
+                                                        formData.append(
+                                                            'sources[]',
+                                                            file
+                                                        )
+                                                        const promise =
+                                                            createVideo(
+                                                                formData
+                                                            )
+                                                        toast.promise(promise, {
+                                                            loading:
+                                                                'Uploading video...',
+                                                            success:
+                                                                'Video uploaded!',
+                                                            error: 'Error uploading video',
+                                                        })
+                                                        const video =
+                                                            await promise
+                                                        // formData
+                                                        await queryClient.invalidateQueries(
+                                                            {
+                                                                queryKey: [
+                                                                    'videos',
+                                                                ],
+                                                            }
+                                                        )
+                                                        return video as VideoType<
+                                                            [
+                                                                VideoRelations.sources
+                                                            ]
+                                                        >
+                                                    }}
+                                                    onFileDelete={async (
+                                                        image
+                                                    ) => {
+                                                        deleteImage(image.id)
+                                                        await queryClient.invalidateQueries(
+                                                            {
+                                                                queryKey: [
+                                                                    'images',
+                                                                ],
+                                                            }
+                                                        )
+                                                    }}
+                                                />
+                                            </DialogContent>
+                                        </Dialog>
                                     </div>
                                 </div>
                             </CardContent>
@@ -306,8 +510,9 @@ export default function HomeWebsitePage() {
                                                     value: comment,
                                                 }
                                             })}
-                                            defaultValue={hilightedComments}
+                                            value={hilightedComments}
                                             onSelect={(value) => {
+                                                console.log(value)
                                                 setHilightedComments(value)
                                             }}
                                         />
@@ -320,7 +525,7 @@ export default function HomeWebsitePage() {
                                                         Selected
                                                     </CardTitle>
                                                 </CardHeader>
-                                                {!hilightedComments ? (
+                                                {!hilightedComments?.length ? (
                                                     <div className="flex items-center justify-center gap-2 w-full h-full">
                                                         <span className="text-muted-foreground text-center">
                                                             No comments selected

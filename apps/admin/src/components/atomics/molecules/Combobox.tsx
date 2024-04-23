@@ -72,31 +72,20 @@ export default function Combobox<T extends { id: number }>({
     const [open, setOpen] = React.useState(false)
     const [val, setVal] = React.useState(defaultValue)
     const [isMounted, setIsMounted] = React.useState(false)
-    
+
     React.useEffect(() => {
         setIsMounted(true)
     }, [])
 
     React.useEffect(() => {
-        nextTick(
-            () => {
-                if (value === val) return
-                console.log('change value', value, val)
-                if (value === undefined && !isMounted) {
-                    return
-                }
-                setVal(value)
+        nextTick(() => {
+            if (value === val) return
+            if (value === undefined && !isMounted) {
+                return
             }
-        )
+            setVal(value)
+        })
     }, [value, val])
-    
-    console.log('value', value)
-    console.log('val', val)
-    console.log(items)
-    console.log(items?.find(
-        (framework) => framework.value.id === (val as T)?.id
-    ))
-    console.log(defaultValue)
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -121,7 +110,9 @@ export default function Combobox<T extends { id: number }>({
                                 ? preview
                                     ? preview(val as T)
                                     : items?.find(
-                                          (framework) => framework.value.id === (val as T).id
+                                          (framework) =>
+                                              framework.value.id ===
+                                              (val as T).id
                                       )?.label || defaultPreviewText
                                 : defaultPreviewText}
                         </span>
@@ -159,7 +150,6 @@ export default function Combobox<T extends { id: number }>({
                                               | undefined
                                           return (
                                               <CommandItem
-                                              
                                                   key={item.value.id}
                                                   onSelect={() => {
                                                       const newValue =

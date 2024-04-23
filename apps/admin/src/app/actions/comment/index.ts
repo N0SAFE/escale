@@ -1,6 +1,6 @@
 'use server'
 
-import { Comment } from '@/types/index'
+import { Comment } from '@/types/model/Comment'
 import { xiorInstance } from '@/utils/xiorInstance'
 
 export async function getComments() {

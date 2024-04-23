@@ -20,12 +20,13 @@ export async function getImage(id: number) {
     return data
 }
 
-export async function createImage(data: FormData) {
+export async function createImage(formData: FormData) {
     'use server'
 
     // console.log(Array.from(data.entries()))
 
-    await xiorInstance.post<CreateImage>('/images', data)
+    const { data } = await xiorInstance.post<CreateImage>('/images', formData)
+    return data as unknown as Image
 }
 
 export async function updateImage(id: number, data?: UpdateImage) {

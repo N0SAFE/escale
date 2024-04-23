@@ -12,7 +12,13 @@ import {
     useQuery,
     useQueryClient,
 } from '@tanstack/react-query'
-import React, { createContext, Suspense, useContext, useEffect, useMemo } from 'react'
+import React, {
+    createContext,
+    Suspense,
+    useContext,
+    useEffect,
+    useMemo,
+} from 'react'
 import {
     createAvailability,
     deleteAvailability,
@@ -92,11 +98,11 @@ export default function AvailabilityLayout({
             return await getSpas()
         },
     })
-    
+
     const defaultSelectedSpa = useMemo(() => {
         return spas?.find((spa) => spa.id === selectedSpaId)
     }, [spas, selectedSpaId])
-    
+
     const availabilityCreateMutation = useMutation({
         mutationFn: async (availability?: CreateAvailability) => {
             if (!availability) {

@@ -15,8 +15,11 @@ import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { CellContext, ColumnDef } from '@tanstack/react-table'
 import Link from 'next/link'
 import React, { useMemo } from 'react'
-import { LoggedDashboardSpasId, LoggedDashboardSpasIdEdit } from '@/routes/index'
-import { id } from '../../../../types/utils';
+import {
+    LoggedDashboardSpasId,
+    LoggedDashboardSpasIdEdit,
+} from '@/routes/index'
+import { id } from '../../../../types/utils'
 
 type Promised<T> = T | Promise<T>
 
@@ -119,12 +122,18 @@ const ActionsCell = ({ cellContext, options }: ActionsCellProps) => {
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                    <LoggedDashboardSpasId.Link spaId={spa.id} className="w-full" >
+                    <LoggedDashboardSpasId.Link
+                        spaId={spa.id}
+                        className="w-full"
+                    >
                         Details
                     </LoggedDashboardSpasId.Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                    <LoggedDashboardSpasIdEdit.Link spaId={spa.id} className="w-full">
+                    <LoggedDashboardSpasIdEdit.Link
+                        spaId={spa.id}
+                        className="w-full"
+                    >
                         Edit
                     </LoggedDashboardSpasIdEdit.Link>
                 </DropdownMenuItem>

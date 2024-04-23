@@ -1,8 +1,6 @@
-import { z } from "zod";
+import { z } from 'zod'
 
 export const Route = {
-  name: "LoggedDashboardAvailabilitiesCalendar",
-  params: z.object({
-  })
-};
-
+    name: 'LoggedDashboardAvailabilitiesCalendar',
+    params: z.object({}),
+}

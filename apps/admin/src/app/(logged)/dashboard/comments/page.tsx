@@ -256,9 +256,7 @@ export default function ServicesTable() {
     //     React.useState<ImageType>()
     // const [isDeletDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
     // const [isDeleting, setIsDeleting] = React.useState(false)
-
     // console.log({ data, error, isFetched })
-
     // const table = useReactTable({
     //     data: data ?? [],
     //     columns,
@@ -280,9 +278,7 @@ export default function ServicesTable() {
     //         setSelectedImageToDelete,
     //     },
     // })
-
     // console.log(isDeletDialogOpen)
-
     // return (
     //     <div className="w-full">
     //         <div className="flex items-center py-4 justify-between">
@@ -514,7 +510,6 @@ function CreateImage({ isLoading, onSubmit }: CreateImageProps) {
     //     queryKey: ['images'],
     //     queryFn: async () => getImages(),
     // })
-
     // const [imageState, setImageState] = React.useState<CreateImageType>({
     //     alt: '',
     // })

@@ -13,7 +13,7 @@ import {
 import { DateTime } from 'luxon'
 import { block } from 'million/react'
 import {
-    deleteReservation,  
+    deleteReservation,
     getClosestReservations,
     updateReservation,
     getUnreservableData,
@@ -38,7 +38,10 @@ import { querySpaId } from '../layout'
 const ReservationCalendarView = () => {
     const queryClient = useQueryClient()
     const [selectedMonth, setSelectedMonth] = React.useState<Date>(new Date())
-    const [selectedSpaId, setSelectedSpaId] = useQueryState(querySpaId, parseAsInteger)
+    const [selectedSpaId, setSelectedSpaId] = useQueryState(
+        querySpaId,
+        parseAsInteger
+    )
     const [sheetIsOpen, setSheetIsOpen] = React.useState(false)
     const [selectedReservations, setSelectedReservations] = React.useState<{
         list: Reservation[]
@@ -57,11 +60,11 @@ const ReservationCalendarView = () => {
             return await getSpas()
         },
     })
-    
+
     const selectedSpa = useMemo(() => {
         return spas?.find((spa) => spa.id === selectedSpaId)
     }, [spas, selectedSpaId])
-    
+
     console.log('selectedSpa', selectedSpa)
 
     const reservationUpdateMutation = useMutation({

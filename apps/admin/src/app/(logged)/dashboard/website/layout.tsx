@@ -29,7 +29,7 @@ export default function Websitelayout({
     const selectedTab = pathname.slice(basePath.length)
 
     return (
-        <div>
+        <>
             <Tabs
                 className="w-full flex justify-center pb-2"
                 value={selectedTab || 'calendar'}
@@ -53,6 +53,6 @@ export default function Websitelayout({
             >
                 {children}
             </Suspense>
-        </div>
+        </>
     )
 }

@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useParams } from 'next/navigation'
-import { getComment } from '../../actions'
+import { getComment } from '@/app/actions/comment'
 import Loader from '@/components/atomics/atoms/Loader'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -31,14 +31,12 @@ export default function ServiceEdit() {
     //         toast.success('Service updated')
     //     },
     // })
-
     // useEffect(() => {
     //     setImageState({
     //         name: image?.file?.name,
     //         alt: image?.alt,
     //     })
     // }, [image])
-
     // if (!isFetched) {
     //     return (
     //         <div className="w-full h-full flex items-center justify-center">
@@ -47,7 +45,6 @@ export default function ServiceEdit() {
     //     )
     // }
     // console.log(image)
-
     // return (
     //     <div className="flex flex-col gap-16 min-h-full justify-between">
     //         <div className="flex gap-4 lg:gap-16 w-full">

@@ -1,5 +1,17 @@
 export const spaImagesData = [
   {
+    image: '/20240212_192351.jpg',
+    data: {
+      alt: 'main page image',
+    },
+    file: {
+      data: {
+        name: '20240212_192351.jpg',
+        extname: 'jpg',
+      },
+    },
+  },
+  {
     image: '/Facetune_16-02-2024-08-52-24.jpeg',
     data: {
       alt: 'image 1',
@@ -205,5 +217,24 @@ export const serviceImagesData = [
         extname: 'png',
       },
     },
+  },
+]
+
+export const spaVideosData = [
+  {
+    data: {
+      alt: 'video lescale.mp4',
+    },
+    sources: [
+      {
+        path: '/video lescale.mp4',
+        file: {
+          data: {
+            name: 'video lescale.mp4',
+            extname: 'mp4',
+          },
+        },
+      },
+    ],
   },
 ]

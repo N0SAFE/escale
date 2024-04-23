@@ -24,7 +24,6 @@ import HealthCheck from '@ioc:Adonis/Core/HealthCheck'
 // check db connection
 Route.get('health', async ({ response }) => {
   const report = await HealthCheck.getReport()
-
   return report.healthy ? response.ok(report) : response.badRequest(report)
 })
 
@@ -44,8 +43,15 @@ Route.group(() => {
   Route.post('refresh', 'AuthController.refresh')
   Route.get('whoami', 'AuthController.whoami')
   Route.post('try/ical', 'IcalsController.parse')
+  Route.get('home', 'HomeController.index')
 
   Route.group(() => {
+    Route.resource('videos', 'VideosController').apiOnly().only(['store', 'update', 'destroy'])
+    Route.resource('videos/sources', 'VideoSourcesController')
+      .apiOnly()
+      .only(['store', 'update', 'destroy'])
+    Route.patch('home', 'HomeController.update')
+    Route.put('home', 'HomeController.edit')
     Route.delete('spas/:spa/images/:spaImage', 'SpasController.deleteImage')
     Route.resource('images', 'ImagesController').apiOnly().only(['store', 'update', 'destroy'])
     Route.resource('contact', 'ContactsController')
@@ -55,7 +61,7 @@ Route.group(() => {
     Route.resource('rules', 'RulesController').apiOnly().only(['store', 'update', 'destroy'])
     Route.resource('users', 'UsersController')
       .apiOnly()
-      .only(['index', 'store', 'update', 'destroy'])
+      .only(['index', 'store', 'update', 'destroy', 'show'])
     Route.resource('reservations', 'ReservationsController')
       .apiOnly()
       .only(['store', 'update', 'destroy'])
@@ -66,6 +72,8 @@ Route.group(() => {
     Route.resource('services', 'ServicesController').apiOnly().only(['update', 'store', 'destroy'])
     Route.resource('tags', 'TagsController').apiOnly().only(['store', 'update', 'destroy'])
     Route.resource('comments', 'CommentsController').apiOnly().only(['store', 'update', 'destroy'])
+    Route.post('spas/:spa/images', 'SpasController.postImages')
+    Route.post('spas/:spa/images/sort', 'SpasController.sortImages')
   }).middleware(['connected', 'hasRole:admin'])
 
   Route.group(() => {
@@ -73,6 +81,8 @@ Route.group(() => {
   }).middleware('connected')
 
   Route.group(() => {
+    Route.resource('videos', 'VideosController').apiOnly().only(['index', 'show'])
+    Route.resource('videos/sources', 'VideoSourcesController').apiOnly().only(['index', 'show'])
     Route.get(
       'external-calendars/:externalCalendar/events/blocked',
       'ExternalEventsController.getBlockedDates'
@@ -85,17 +95,15 @@ Route.group(() => {
       .apiOnly()
       .only(['index', 'show'])
     Route.get('reservations/price', 'ReservationsController.price')
-    Route.post('spas/:spa/images', 'SpasController.postImages')
     Route.get('spas/:spa/images', 'SpasController.getImages')
-    Route.post('spas/:spa/images/sort', 'SpasController.sortImages')
     // todo Route.nestedResource('spas/:spa/images', 'SpasController').apiOnly().only(['index']).methodSuffix('images')
     Route.get('attachment/image/:id', 'AttachmentsController.imageById')
     Route.get('attachment/calendar/:id', 'AttachmentsController.calendarById')
+    Route.get('attachment/video/:id', 'AttachmentsController.videoSourceById')
     Route.resource('images', 'ImagesController').apiOnly().only(['index', 'show'])
     Route.resource('faqs', 'FaqsController').apiOnly().only(['index', 'show'])
     Route.resource('rules', 'RulesController').apiOnly().only(['index', 'show'])
     Route.resource('contact', 'ContactsController').apiOnly().only(['store'])
-    Route.resource('users', 'UsersController').apiOnly().only(['show'])
     Route.get('reservations/reservable', 'ReservationsController.getReservableDates')
     Route.get(
       'reservations/closest-unreservable',
@@ -122,80 +130,3 @@ Route.group(() => {
     })
   }).middleware(['connected', 'hasRole:admin'])
 }).middleware('loadJwtUser')
-
-// Route.group(() => {
-//   Route.post('login', 'AuthController.login')
-//   Route.post('logout', 'AuthController.logout')
-//   Route.post('register', 'AuthController.register')
-//   Route.post('refresh', 'AuthController.refresh')
-//   Route.get('whoami', 'AuthController.whoami')
-// }).middleware(async ({ auth, request, response }, next) => {
-//   if (!request.headers().authorization && request.cookie('access_token')) {
-//     request.headers().authorization = `Bearer ${request.cookie('access_token')}`
-//   }
-//   Env.get('NODE_ENV') === 'development' && Logger.info('authenticating')
-//   try {
-//     await auth.use('jwt').authenticate()
-//   } catch (e) {
-//     if (request.cookie('refresh_token')) {
-//       const refreshToken = request.cookie('refresh_token')
-//       try {
-//         const jwt = await auth.use('jwt').loginViaRefreshToken(refreshToken)
-//         response.cookie('access_token', jwt.accessToken, {
-//           httpOnly: true,
-//           path: '/',
-//           sameSite: 'none',
-//           secure: true,
-//         })
-//         response.cookie('refresh_token', jwt.refreshToken, {
-//           httpOnly: true,
-//           path: '/',
-//           sameSite: 'none',
-//           secure: true,
-//         })
-//       } catch (e) {}
-//     }
-//   }
-//   return await next()
-// })
-
-// async ({ auth, response, request }: HttpContextContract, next) => {
-//   if (!request.headers().authorization && request.cookie('access_token')) {
-//     request.headers().authorization = `Bearer ${request.cookie('access_token')}`
-//   }
-//
-//   Env.get('NODE_ENV') === 'development' && Logger.info('authenticating')
-//   try {
-//     await auth.use('jwt').authenticate()
-//   } catch (e) {
-//     Env.get('NODE_ENV') === 'development' && Logger.error('auth failed')
-//     Env.get('NODE_ENV') === 'development' && Logger.error(e)
-//     if (Env.get('NODE_ENV') === 'development') {
-//       if (!request.cookie('refresh_token')) {
-//         return response.unauthorized({ error: 401, message: 'invalid credentials' })
-//       }
-//       Logger.info('refreshing token')
-//       const refreshToken = request.cookie('refresh_token')
-//       try {
-//         const jwt = await auth.use('jwt').loginViaRefreshToken(refreshToken)
-//         response.cookie('access_token', jwt.accessToken, {
-//           httpOnly: true,
-//           path: '/',
-//           sameSite: 'none',
-//           secure: true,
-//         })
-//         response.cookie('refresh_token', jwt.refreshToken, {
-//           httpOnly: true,
-//           path: '/',
-//           sameSite: 'none',
-//           secure: true,
-//         })
-//       } catch (e) {
-//         return response.unauthorized({ error: 401, message: 'invalid credentials' })
-//       }
-//     } else {
-//       return response.unauthorized({ error: 401, message: 'invalid credentials' })
-//     }
-//   }
-//   return await next()
-// }
