@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ChevronLeft, PlusCircle, Upload } from 'lucide-react'
+import { ChevronLeft, Pencil, PlusCircle, Upload } from 'lucide-react'
 import {
     Table,
     TableBody,
@@ -57,6 +57,7 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuTrigger,
+    DropdownMenuItem,
 } from '@/components/ui/dropdown-menu'
 import {
     Popover,
@@ -113,6 +114,8 @@ export default function HomeWebsitePage() {
 
     const [homeState, setHomeState] = useState(homeData)
 
+    const [editButtonIsOpen, setEditButtonIsOpen] = useState(false)
+
     useEffect(() => {
         setHilightedComments(homeData?.homeComments.map((hc) => hc.comment))
     }, [homeData])
@@ -140,6 +143,7 @@ export default function HomeWebsitePage() {
         },
         onSettled: async () => {
             setIsSaving(false)
+            setEditButtonIsOpen(false)
         },
         onSuccess: async (data) => {
             toast.success('Product saved')
@@ -179,6 +183,51 @@ export default function HomeWebsitePage() {
                     {/* <Badge variant="outline" className="ml-auto sm:ml-0">
                         In stock
                     </Badge> */}
+                    <DropdownMenu
+                        open={editButtonIsOpen}
+                        onOpenChange={(e) => {
+                            console.log(e)
+                            setEditButtonIsOpen(e)
+                        }}
+                    >
+                        <DropdownMenuTrigger className="flex md:hidden items-center ml-auto">
+                            <Button variant="outline" size="sm">
+                                <Pencil />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="flex flex-col gap-2 p-2">
+                            <DropdownMenuItem asChild>
+                                <Button
+                                    size="sm"
+                                    onClick={(e) => {
+                                        save()
+                                        e.preventDefault()
+                                    }}
+                                >
+                                    {isSaving ? (
+                                        <>
+                                            <div className="relative flex items-center justify-center h-full w-full">
+                                                <span className="invisible">
+                                                    Save Product
+                                                </span>
+                                                <Loader
+                                                    divClassName="absolute"
+                                                    size="4"
+                                                />
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <span>Save Product</span>
+                                    )}
+                                </Button>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Button variant="outline" size="sm">
+                                    Discard
+                                </Button>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                     <div className="hidden items-center gap-2 md:ml-auto md:flex">
                         <Button variant="outline" size="sm">
                             Discard
@@ -360,6 +409,7 @@ export default function HomeWebsitePage() {
                                                     muted
                                                     width="300"
                                                     height="300"
+                                                    crossOrigin="use-credentials"
                                                 />
                                             ) : (
                                                 <Image
@@ -563,12 +613,6 @@ export default function HomeWebsitePage() {
                             </CardContent>
                         </Card>
                     </div>
-                </div>
-                <div className="flex items-center justify-center gap-2 md:hidden">
-                    <Button variant="outline" size="sm">
-                        Discard
-                    </Button>
-                    <Button size="sm">Save Product</Button>
                 </div>
             </div>
         </main>

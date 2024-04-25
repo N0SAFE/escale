@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ChevronLeft, PlusCircle, Upload } from 'lucide-react'
+import { ChevronLeft, Pencil, PlusCircle, Upload } from 'lucide-react'
 import {
     Table,
     TableBody,
@@ -38,6 +38,12 @@ import { CreateFaq, Editable, UpdateFaq, Uuidable } from '@/types/index'
 import { v4 as uuid } from 'uuid'
 import Loader from '@/components/atomics/atoms/Loader'
 import { toast } from 'sonner'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuTrigger,
+    DropdownMenuItem,
+} from '@/components/ui/dropdown-menu'
 
 export default function FaqWebsitePage() {
     const {
@@ -85,6 +91,8 @@ export default function FaqWebsitePage() {
             }
         },
     })
+
+    const [editButtonIsOpen, setEditButtonIsOpen] = React.useState(false)
 
     const [faqsState, setFaqsState] = React.useState<
         Uuidable<Editable<CreateFaq>>[] | undefined
@@ -267,6 +275,51 @@ export default function FaqWebsitePage() {
                     <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
                         Edit faq
                     </h1>
+                    <DropdownMenu
+                        open={editButtonIsOpen}
+                        onOpenChange={(e) => {
+                            console.log(e)
+                            setEditButtonIsOpen(e)
+                        }}
+                    >
+                        <DropdownMenuTrigger className="flex md:hidden items-center ml-auto">
+                            <Button variant="outline" size="sm">
+                                <Pencil />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="flex flex-col gap-2 p-2">
+                            <DropdownMenuItem asChild>
+                                <Button
+                                    size="sm"
+                                    onClick={(e) => {
+                                        save()
+                                        e.preventDefault()
+                                    }}
+                                >
+                                    {isSaving ? (
+                                        <>
+                                            <div className="relative flex items-center justify-center h-full w-full">
+                                                <span className="invisible">
+                                                    Save Product
+                                                </span>
+                                                <Loader
+                                                    divClassName="absolute"
+                                                    size="4"
+                                                />
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <span>Save Product</span>
+                                    )}
+                                </Button>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Button variant="outline" size="sm">
+                                    Discard
+                                </Button>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                     <div className="hidden items-center gap-2 md:ml-auto md:flex">
                         <Button
                             variant="outline"
@@ -358,18 +411,6 @@ export default function FaqWebsitePage() {
                             </Button>
                         </CardFooter>
                     </Card>
-                </div>
-                <div className="flex items-center justify-center gap-2 md:hidden">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => discard()}
-                    >
-                        Discard
-                    </Button>
-                    <Button size="sm" onClick={() => save()}>
-                        Save Faqs
-                    </Button>
                 </div>
             </div>
         </main>
