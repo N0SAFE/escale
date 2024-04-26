@@ -19,7 +19,6 @@ import {
     LoggedDashboardSpasId,
     LoggedDashboardSpasIdEdit,
 } from '@/routes/index'
-import { id } from '../../../../types/utils'
 
 type Promised<T> = T | Promise<T>
 
