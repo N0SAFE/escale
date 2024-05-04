@@ -22,6 +22,7 @@ import { HasOne } from '@ioc:Adonis/Lucid/Orm'
 import InternalCalendar from './InternalCalendar'
 import ExternalCalendar from './ExternalCalendar'
 import Unavailability from './Unavailability'
+import Comment from './Comment'
 
 export default class Spa extends compose(AppBaseModel, Filterable) {
   public static $filter = () => SpaFilter
@@ -43,6 +44,9 @@ export default class Spa extends compose(AppBaseModel, Filterable) {
 
   @hasMany(() => SpaImage)
   public spaImages: HasMany<typeof SpaImage>
+
+  @hasMany(() => Comment)
+  public comments: HasMany<typeof Comment>
 
   // @manyToMany(() => Image, {
   //   pivotTable: 'image_spa',
@@ -83,29 +87,9 @@ export default class Spa extends compose(AppBaseModel, Filterable) {
   @hasOne(() => InternalCalendar)
   public internalCalendar: HasOne<typeof InternalCalendar>
 
-  // @beforeUpdate()
-  // public static async updateOrder (spa: Spa) {
-  //   console.log(spa.$dirty)
-  //   if (spa.$dirty.images) {
-  //     console.log(spa.$dirty)
-  //     // spa.related('images').pivotQuery().where('spa_id', spa.id).where('image_id').update({ order: 0 })
-  //     // const images = await spa.related('images').query()
-  //     // for (let i = 0; i < images.length; i++) {
-  //     //   images[i].$attributes.order = i
-  //     //   // images[i].pivot.order = i
-  //     //   // await images[i].pivot.save()
-  //     // }
-  //   }
-  // }
-
   @beforeFind()
   @beforeFetch()
   public static async preloadImages (query) {
     query.preload('spaImages')
   }
-
-  // @beforeUpdate()
-  // public static async updateOrder (spa: Spa) {
-  //   console.log(spa.$dirty)
-  // }
 }

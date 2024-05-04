@@ -63,26 +63,4 @@ export default class Image extends compose(AppBaseModel, Filterable) {
   public static async preloadFile (query) {
     query.preloadChain('file')
   }
-
-  // @afterFind()
-  // @afterFetch()
-  // public static async preloadFile (modelInstance: Image) {
-  //   // console.log(modelInstance)
-  //   // console.log(modelInstance.file)
-  //   // console.log(query.knexQuery._statements)
-  //   // if (query.knexQuery._statements.length === 0) {
-  //   //   console.log('preloadFile')
-  //   //   console.log('preloadFile')
-  //   //   query.preload('file')
-  //   // }else {
-  //   //   query.knexQuery._statements.forEach((statement) => {
-  //   //     console.log(statement)
-  //   //     console.log(statement.value.includes('file_id'))
-  //   //     if (statement.value.includes('file_id')) {
-  //   //       console.log('preloadFile 2')
-  //   //       query.preload('file')
-  //   //     }
-  //   //   })
-  //   // }
-  // }
 }

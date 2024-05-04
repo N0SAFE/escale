@@ -26,9 +26,7 @@ export default class VideosController {
     return response.ok(await videoQuery.exec())
   }
 
-  public async create ({}: HttpContextContract) {
-    console.log('ui')
-  }
+  public async create ({}: HttpContextContract) {}
 
   public async store ({ request, response }: HttpContextContract) {
     const dto = VideoRessourcePostDto.fromRequest(request)
@@ -41,7 +39,6 @@ export default class VideosController {
     const sourcesFiles = files.sources
 
     const video = await Video.create(body)
-    console.log('video')
     const sourcesData = await Promise.all(
       sourcesFiles.map(async (sourceFile) => {
         const fileInstance = await File.create({
@@ -66,14 +63,12 @@ export default class VideosController {
     try {
       await Promise.all(
         sourcesData.map(async ({ videoSourceInstance, sourceFile }) => {
-          console.log(videoSourceInstance.file)
           await sourceFile.moveToDisk(videoSourceInstance.directory, {
             name: videoSourceInstance.file.uuid + '.' + videoSourceInstance.file.extname,
           })
         })
       )
     } catch (error) {
-      console.log(error)
       await Promise.all(
         sourcesData.map(async ({ fileInstance, videoSourceInstance }) => {
           await Drive.delete(
@@ -90,8 +85,6 @@ export default class VideosController {
     await video
       .related('sources')
       .saveMany(sourcesData.map(({ videoSourceInstance }) => videoSourceInstance))
-
-    console.log('ui')
   }
 
   public async show ({}: HttpContextContract) {}

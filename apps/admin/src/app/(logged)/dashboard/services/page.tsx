@@ -239,8 +239,6 @@ export default function ServicesTable() {
         React.useState<Service>()
     const [isDeletDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
 
-    console.log({ data, error, isFetched })
-
     const table = useReactTable({
         data: data ?? [],
         columns,
@@ -508,7 +506,6 @@ function CreateService({ isLoading, onSubmit }: CreateSpaProps) {
         description: '',
         image: null,
     })
-    console.log(isLoading)
     return (
         <div>
             <div className="grid gap-4 py-4  w-full">

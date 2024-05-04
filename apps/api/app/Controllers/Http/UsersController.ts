@@ -26,7 +26,6 @@ export default class UsersController {
     }
 
     const dto = new UsersRessourcePatchDto({ body: request.body(), query: ['test'] })
-    console.log(dto)
     const error = await dto.validate()
     if (error.length > 0) {
       return response.badRequest(error)

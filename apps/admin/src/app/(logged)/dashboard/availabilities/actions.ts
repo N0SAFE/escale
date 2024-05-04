@@ -19,8 +19,6 @@ export async function getAvailabilities(
 ) {
     'use server'
 
-    console.log(filter)
-
     const { data } = await xiorInstance.get<Availability[]>('/availabilities', {
         params: {
             groups: filter.groups,
@@ -29,7 +27,6 @@ export async function getAvailabilities(
         },
         signal,
     })
-    console.log(data.length)
     return data
 }
 
@@ -91,10 +88,6 @@ export async function getAvailability(id: number) {
 export async function createAvailability(data: CreateAvailability) {
     'use server'
 
-    // console.log(Array.from(data.entries()))
-
-    console.log(data)
-
     await xiorInstance.post<CreateAvailability>('/availabilities', data)
 }
 
@@ -110,7 +103,6 @@ export async function updateAvailability(
     const transformedData = {
         ...data,
     }
-    console.log(transformedData)
     await xiorInstance.patch(`/availabilities/${id}`, transformedData)
 }
 

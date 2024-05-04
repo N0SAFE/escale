@@ -29,7 +29,6 @@ export default function ServiceEdit() {
     const [serviceState, setServiceState] = useState<UpdateService>()
     const serviceMutation = useMutation({
         mutationFn: async (serviceState: UpdateService) => {
-            console.log(serviceState)
             return await updateService(+params.id, {
                 label: serviceState?.label,
                 description: serviceState?.description,
@@ -66,7 +65,6 @@ export default function ServiceEdit() {
             </div>
         )
     }
-    console.log(service)
 
     return (
         <div className="flex flex-col gap-16 min-h-full justify-between">

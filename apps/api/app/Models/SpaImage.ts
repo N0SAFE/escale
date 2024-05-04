@@ -31,24 +31,6 @@ export default class SpaImage extends AppBaseModel {
   @column()
   public order: number
 
-  // @beforeCreate()
-  // @beforeUpdate()
-  // public static async reorder (imageSpa: ImageSpa) {
-  //   // if (imageSpa.$dirty.order) {
-  //   //   const images = await ImageSpa.query().where('spa_id', imageSpa.spaId).orderBy('order', 'asc')
-  //   //   for (let i = 0; i < images.length; i++) {
-  //   //     images[i].order = i
-  //   //     await images[i].save()
-  //   //   }
-  //   // }
-  //   // const images = await ImageSpa.query().where('spa_id', imageSpa.spaId).orderBy('order', 'asc')
-  //   // console.log(images)
-  //   // for (let i = 0; i < images.length; i++) {
-  //   //   images[i].order = i
-  //   //   await images[i].save()
-  //   // }
-  // }
-
   @beforeFetch()
   public static async preloadImage (query) {
     query.orderBy('order', 'asc').preload('image')

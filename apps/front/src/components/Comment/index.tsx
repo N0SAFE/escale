@@ -11,13 +11,11 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import './style.css'
+import { createAttachmentUrl } from '@/hooks/useAttachmentUrl'
+import { Comment as CommentType } from '@/types/model/Comment'
 
 type Props = {
-    comments: {
-        id: string
-        text: string
-        user: { id: string; name: string; avatar: string }
-    }[]
+    comments: CommentType[]
 }
 
 export default function Comment({ comments }: Props) {
@@ -60,7 +58,6 @@ export default function Comment({ comments }: Props) {
             spaceBetween={50}
             slidesPerView={3}
             navigation
-            onSwiper={(swiper) => console.log(swiper)}
         >
             {comments.map((comment) => (
                 <SwiperSlide
@@ -70,20 +67,23 @@ export default function Comment({ comments }: Props) {
                     <div className="flex flex-col items-center text-center w-80">
                         <Avatar>
                             <AvatarImage
-                                alt="Lisa"
-                                src={`https://picsum.photos/48?random=${comment.id}`}
+                                alt={'avatar of ' + comment.user.username}
+                                src={
+                                    createAttachmentUrl(
+                                        comment.user.avatarId!,
+                                        'image'
+                                    )!
+                                }
                             />
                         </Avatar>
                         <p className="mt-4 text-sm text-slate-200">
-                            &quot;Franchement, vraiment TOP on a passé un super
-                            week-end. Merci pour tout et on compte réserver
-                            encore !&quot;
+                            &quot;{comment.text}&quot;
                         </p>
                         <p className="mt-2 font-semibold text-slate-300">
-                            Lisa
+                            {comment.user.username}
                         </p>
                         <p className="text-xs text-slate-100">
-                            Rumilly, France
+                            {comment.user.address}
                         </p>
                     </div>
                 </SwiperSlide>

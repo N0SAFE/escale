@@ -22,7 +22,6 @@ export default function ServiceEdit() {
     const [imageState, setImageState] = useState<UpdateImage>()
     const serviceMutation = useMutation({
         mutationFn: async (imageState: UpdateImage) => {
-            console.log(imageState)
             return await updateImage(+params.id, imageState)
         },
         onError: (error) => {
@@ -47,7 +46,6 @@ export default function ServiceEdit() {
             </div>
         )
     }
-    console.log(image)
 
     return (
         <div className="flex flex-col gap-16 min-h-full justify-between">

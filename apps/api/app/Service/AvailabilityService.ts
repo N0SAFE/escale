@@ -100,13 +100,11 @@ export default class AvailabilityService implements AppBaseService {
       avoidReservationIds: number[]
     }
   ): Promise<AvailableDate[]> {
-    console.log(avoidReservationIds)
     async function getExternalBlockedEvents (externalCalendar: ExternalCalendar | null) {
       if (!externalCalendar) {
         return []
       }
       if (includeExternalBlockedCalendarEvents) {
-        console.log('getting external blocked events')
         const airbnbEvents = await externalCalendar
           .related('airbnbEvents')
           .query()
@@ -133,7 +131,6 @@ export default class AvailabilityService implements AppBaseService {
         return []
       }
       if (includeExternalReservedCalendarEvents) {
-        console.log('getting external reserved events')
         const airbnbEvents = await externalCalendar
           .related('airbnbEvents')
           .query()
@@ -184,13 +181,20 @@ export default class AvailabilityService implements AppBaseService {
             .exec()
           : Promise.resolve([]),
         includeReservations
-          ? spa
-            .related('reservations')
-            .query()
-            .where('end_at', '>=', from.toSQLDate()!)
-            .where('start_at', '<=', to.toSQLDate()!)
-            .whereNotIn('id', avoidReservationIds)
-            .exec()
+          ? avoidReservationIds
+            ? spa
+              .related('reservations')
+              .query()
+              .where('end_at', '>=', from.toSQLDate()!)
+              .where('start_at', '<=', to.toSQLDate()!)
+              .whereNotIn('id', avoidReservationIds)
+              .exec()
+            : spa
+              .related('reservations')
+              .query()
+              .where('end_at', '>=', from.toSQLDate()!)
+              .where('start_at', '<=', to.toSQLDate()!)
+              .exec()
           : Promise.resolve([]),
       ])
 

@@ -4,16 +4,15 @@ import { Textarea } from '@/components/ui/textarea'
 import { CreateFaq, Editable, Uuidable } from '@/types/index'
 import { ColumnDef } from '@tanstack/react-table'
 import { ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
-import React, { memo, useEffect, useMemo } from 'react'
-
-export type DType = Uuidable<Editable<CreateFaq>>
+import React, { memo, useEffect } from 'react'
+import { DType } from './type'
 
 export type OnFaqQuestionUpdate = (data: DType, question: string) => void
 export type OnFaqResponseUpdate = (data: DType, answer: string) => void
 export type OnFaqDelete = (data: DType) => void
 export type OnFaqMove = (data: DType, direction: 'up' | 'down') => void
 
-type ColumnOptions = {
+export type ColumnOptions = {
     onFaqQuestionUpdate: OnFaqQuestionUpdate
     onFaqResponseUpdate: OnFaqResponseUpdate
     onFaqDelete: OnFaqDelete
@@ -25,7 +24,7 @@ export const useColumns = (options?: ColumnOptions) => {
         {
             accessorKey: 'question',
             header: 'Question',
-            cell: ({ row }) => {
+            cell: ({ row, table, getValue, cell, column }) => {
                 const onUpdateCallback = (value: string) => {
                     options?.onFaqQuestionUpdate(row.original, value)
                 }
@@ -70,19 +69,17 @@ export const useColumns = (options?: ColumnOptions) => {
                         {/* button arrow up and down */}
                         <Button
                             variant="ghost"
-                            onClick={() => {
+                            onClick={() =>
                                 options?.onFaqMove(row.original, 'up')
-                                console.log('up')
-                            }}
+                            }
                         >
                             <ChevronUp />
                         </Button>
                         <Button
                             variant="ghost"
-                            onClick={() => {
+                            onClick={() =>
                                 options?.onFaqMove(row.original, 'down')
-                                console.log('down')
-                            }}
+                            }
                         >
                             <ChevronDown />
                         </Button>

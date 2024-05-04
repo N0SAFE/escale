@@ -9,9 +9,6 @@ export async function getSpas(
 ) {
     'use server'
 
-    console.log('getSpas')
-
-    // console.log(xiorInstance.defaults.baseURL)
     const { data } = await xiorInstance.get<Spa[]>('/spas', {
         params: {
             ...filter.search,
@@ -20,8 +17,6 @@ export async function getSpas(
             limit: filter.limit,
         },
     })
-    // console.log('data')
-    // console.log(data)
     return data
 }
 
@@ -75,12 +70,7 @@ export async function updateSpa(id: number, data?: UpdateSpa) {
             })) || [],
         services: data.services?.map((service) => service.id) || [],
     }
-    await xiorInstance
-        .patch(`/spas/${id}`, transformedData)
-        .catch(function (e) {
-            console.log(e)
-            throw e
-        })
+    await xiorInstance.patch(`/spas/${id}`, transformedData)
 }
 
 export async function deleteSpa(id: number) {

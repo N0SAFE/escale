@@ -28,13 +28,18 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { DataTable } from '@/components/atomics/organisms/DataTable/index'
 import {
     OnFaqDelete,
-    OnFaqMove,
     OnFaqQuestionUpdate,
     OnFaqResponseUpdate,
     useColumns,
 } from './columns'
 import React, { useCallback, useEffect, useMemo } from 'react'
-import { CreateFaq, Editable, UpdateFaq, Uuidable } from '@/types/index'
+import {
+    CreateFaq,
+    Editable,
+    Orderable,
+    UpdateFaq,
+    Uuidable,
+} from '@/types/index'
 import { v4 as uuid } from 'uuid'
 import Loader from '@/components/atomics/atoms/Loader'
 import { toast } from 'sonner'
@@ -44,6 +49,9 @@ import {
     DropdownMenuTrigger,
     DropdownMenuItem,
 } from '@/components/ui/dropdown-menu'
+import { arrayMove } from '@dnd-kit/sortable'
+import { DType } from './type'
+import { UniqueIdentifier } from '@dnd-kit/core'
 
 export default function FaqWebsitePage() {
     const {
@@ -62,7 +70,7 @@ export default function FaqWebsitePage() {
                 isEdited: false,
                 isNew: false,
                 isDeleted: false,
-            })) as Uuidable<Editable<CreateFaq>>[]
+            })) as DType[]
         },
     })
 
@@ -76,30 +84,24 @@ export default function FaqWebsitePage() {
 
     const faqUpdateMutation = useMutation({
         mutationFn: async ({ id, data }: { id: number; data: UpdateFaq }) => {
-            console.log('update faq fn')
             return await updateFaq(id, data)
         },
     })
 
     const faqCreateMutation = useMutation({
         mutationFn: async (data: CreateFaq) => {
-            try {
-                await createFaq(data)
-                console.log('create faq fn')
-            } catch (e) {
-                console.log(e)
-            }
+            await createFaq(data)
         },
     })
 
     const [editButtonIsOpen, setEditButtonIsOpen] = React.useState(false)
 
-    const [faqsState, setFaqsState] = React.useState<
-        Uuidable<Editable<CreateFaq>>[] | undefined
-    >(faqs)
+    const [faqsState, setFaqsState] = React.useState<DType[] | undefined>(faqs)
 
-    const faqsStateByRank = useMemo(() => {
-        return faqsState?.sort((a, b) => a.data.rank - b.data.rank)
+    const faqsStateByRankNotDeleted = useMemo(() => {
+        return faqsState
+            ?.filter((faq) => !faq.isDeleted)
+            ?.sort((a, b) => a.data.rank - b.data.rank)
     }, [faqsState])
 
     useEffect(() => {
@@ -112,8 +114,6 @@ export default function FaqWebsitePage() {
                 return faq.data.rank > acc ? faq.data.rank : acc
             }, 0)
         }, [faqsState]) || 0
-
-    // console.log('faqs', faqsState)
 
     const onFaqQuestionUpdate = useCallback<OnFaqQuestionUpdate>(
         (editedFaq, question) => {
@@ -151,7 +151,6 @@ export default function FaqWebsitePage() {
                 return editableFaq
             })
             setFaqsState(updatedFaqs)
-            console.log('answer', editedFaq, answer)
         },
         [faqsState]
     )
@@ -172,71 +171,79 @@ export default function FaqWebsitePage() {
         [faqsState]
     )
 
-    const onFaqMove = useCallback<OnFaqMove>(
-        (movedFaq, direction) => {
-            if (!faqsStateByRank) return
-            const movedFaqIndex = faqsStateByRank?.findIndex(
-                (faq) => faq.uuid === movedFaq.uuid
-            )
-            const movedToIndex =
-                direction === 'up' ? movedFaqIndex - 1 : movedFaqIndex + 1
-            console.log(movedFaqIndex)
-            console.log(movedToIndex)
-            const updatedFaqs = faqsStateByRank
-                ?.map((editableFaq, index) => {
-                    if (movedToIndex === index) {
-                        return {
-                            ...editableFaq,
-                            data: {
-                                ...editableFaq.data,
-                                rank: movedFaq.data.rank,
-                            },
-                            isEdited: editableFaq.isNew ? false : true,
-                        }
-                    } else if (editableFaq.uuid === movedFaq.uuid) {
-                        return {
-                            ...editableFaq,
-                            data: {
-                                ...editableFaq.data,
-                                rank: faqsStateByRank[movedToIndex].data.rank,
-                            },
-                            isEdited: editableFaq.isNew ? false : true,
-                        }
-                    }
-                    return editableFaq
-                })
-                ?.sort((a, b) => a.data.rank - b.data.rank)
-            console.log(updatedFaqs)
-            setFaqsState(updatedFaqs)
-        },
-        [faqsStateByRank]
-    )
+    const onFaqMove = useCallback<
+        (activeId: UniqueIdentifier, overId: UniqueIdentifier) => void
+    >((activeId, overId) => {
+        setFaqsState((faqs) => {
+            if (!faqs) return []
+            const activeObject = faqs.find((faq) => faq.uuid === activeId)!
+            const overObject = faqs.find((faq) => faq.uuid === overId)!
+            return faqs.map((faq) => ({
+                ...faq,
+                data: {
+                    ...faq.data,
+                    rank:
+                        faq.uuid === activeId
+                            ? overObject.data.rank
+                            : faq.uuid === overId
+                            ? activeObject.data.rank
+                            : faq.data.rank,
+                },
+                isEdited:
+                    faq.uuid === activeId || faq.uuid === overId
+                        ? !faq.isNew
+                        : faq.isEdited,
+            }))
+        })
+        // setFaqsState((faqs) => {
+        //     if (!faqs) return []
+        //     const lastActiveRank = faqs[activeIndex].data.rank
+        //     const lastOverRank = faqs[overIndex].data.rank
+        //     faqs[activeIndex].data.rank = lastOverRank
+        //     faqs[overIndex].data.rank = lastActiveRank
+        //     faqs[activeIndex].isEdited = faqs[activeIndex].isNew ? false : true
+        //     faqs[overIndex].isEdited = faqs[overIndex].isNew ? false : true
+        //     return arrayMove(faqs, activeIndex, overIndex)
+        // })
+    }, [])
 
     const useColumnsOptions = useMemo(() => {
-        console.log('render useColumnsOptions')
         return {
             onFaqQuestionUpdate,
             onFaqResponseUpdate,
             onFaqDelete,
-            onFaqMove,
+            onFaqMove(movedFaq: DType, direction: 'up' | 'down') {
+                if (!faqsStateByRankNotDeleted) return
+                const movedFaqIndex = faqsStateByRankNotDeleted?.findIndex(
+                    (faq) => faq.uuid === movedFaq.uuid
+                )
+                const movedFaqUuid =
+                    faqsStateByRankNotDeleted[
+                        direction === 'up'
+                            ? movedFaqIndex - 1
+                            : movedFaqIndex + 1
+                    ].uuid
+                onFaqMove(movedFaq.uuid, movedFaqUuid)
+            },
         }
-    }, [onFaqQuestionUpdate, onFaqResponseUpdate, onFaqDelete, onFaqMove])
-
-    const columns = useColumns(useColumnsOptions)
+    }, [
+        onFaqQuestionUpdate,
+        onFaqResponseUpdate,
+        onFaqDelete,
+        onFaqMove,
+        faqsStateByRankNotDeleted,
+    ])
 
     const discard = () => {
         setFaqsState(faqs)
     }
 
     const save = async () => {
-        console.log(faqsState)
         setIsSaving(true)
-        console.log('isSaving')
         const editedPromises = Promise.all(
             faqsState
                 ?.filter((faq) => faq.isEdited)
                 ?.map(async (faq) => {
-                    console.log('update ' + (faq as any).id)
                     return await faqUpdateMutation.mutateAsync({
                         id: (faq as any).data.id,
                         data: faq.data,
@@ -247,7 +254,6 @@ export default function FaqWebsitePage() {
             faqsState
                 ?.filter((faq) => faq.isNew)
                 ?.map(async (faq) => {
-                    console.log('create')
                     return await faqCreateMutation.mutateAsync(faq.data)
                 }) || []
         )
@@ -255,18 +261,18 @@ export default function FaqWebsitePage() {
             faqsState
                 ?.filter((faq) => faq.isDeleted && !faq.isNew)
                 ?.map(async (faq) => {
-                    console.log('delete')
                     return await faqDeleteMutation.mutateAsync(
                         (faq as any).data.id
                     )
                 }) || []
         )
-        console.log('await promise')
         await Promise.all([editedPromises, newPromises, deletedPromises])
         toast.success('Faqs saved')
         setIsSaving(false)
         refetch()
     }
+
+    const columns = useColumns(useColumnsOptions)
 
     return (
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
@@ -277,10 +283,7 @@ export default function FaqWebsitePage() {
                     </h1>
                     <DropdownMenu
                         open={editButtonIsOpen}
-                        onOpenChange={(e) => {
-                            console.log(e)
-                            setEditButtonIsOpen(e)
-                        }}
+                        onOpenChange={(e) => setEditButtonIsOpen(e)}
                     >
                         <DropdownMenuTrigger className="flex md:hidden items-center ml-auto">
                             <Button variant="outline" size="sm">
@@ -360,12 +363,58 @@ export default function FaqWebsitePage() {
                         </CardHeader>
                         <CardContent>
                             <DataTable
+                                useDragabble
+                                rowIsDraggable
                                 divClassname="max-h-[500px]"
                                 columns={columns}
-                                data={faqsStateByRank?.filter(
-                                    (faq) => !faq.isDeleted
-                                )}
+                                data={faqsStateByRankNotDeleted}
                                 isLoading={!isFetched}
+                                onReorder={({ active, over }) => {
+                                    if (!faqsStateByRankNotDeleted) return
+                                    if (
+                                        active &&
+                                        over &&
+                                        active.id !== over.id
+                                    ) {
+                                        onFaqMove(
+                                            faqsStateByRankNotDeleted.findIndex(
+                                                (faq) => faq.uuid === active.id
+                                            ),
+                                            faqsStateByRankNotDeleted.findIndex(
+                                                (faq) => faq.uuid === over.id
+                                            )
+                                        )
+                                        setFaqsState((faqs) => {
+                                            if (!faqs) return []
+                                            const activeObject = faqs.find(
+                                                (faq) => faq.uuid === active.id
+                                            )!
+                                            const overObject = faqs.find(
+                                                (faq) => faq.uuid === over.id
+                                            )!
+                                            return faqs.map((faq) => ({
+                                                ...faq,
+                                                data: {
+                                                    ...faq.data,
+                                                    rank:
+                                                        faq.uuid === active.id
+                                                            ? overObject.data
+                                                                  .rank
+                                                            : faq.uuid ===
+                                                              over.id
+                                                            ? activeObject.data
+                                                                  .rank
+                                                            : faq.data.rank,
+                                                },
+                                                isEdited:
+                                                    faq.uuid === active.id ||
+                                                    faq.uuid === over.id
+                                                        ? !faq.isNew
+                                                        : faq.isEdited,
+                                            }))
+                                        })
+                                    }
+                                }}
                             />
                         </CardContent>
                         <CardFooter className="justify-center border-t p-4">

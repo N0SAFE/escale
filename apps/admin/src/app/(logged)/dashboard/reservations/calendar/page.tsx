@@ -52,8 +52,6 @@ const ReservationCalendarView = () => {
         reservation: UpdateReservation
     }>()
 
-    // console.log('updatedReservation', updatedReservation)
-
     const { data: spas, isFetched: spaIsFetched } = useQuery({
         queryKey: ['spas'],
         queryFn: async () => {
@@ -65,8 +63,6 @@ const ReservationCalendarView = () => {
         return spas?.find((spa) => spa.id === selectedSpaId)
     }, [spas, selectedSpaId])
 
-    console.log('selectedSpa', selectedSpa)
-
     const reservationUpdateMutation = useMutation({
         mutationFn: async ({
             id,
@@ -75,7 +71,6 @@ const ReservationCalendarView = () => {
             id: number
             reservation: UpdateReservation
         }) => {
-            // console.log('reservation', id, reservation)
             if (!reservation) {
                 return
             }

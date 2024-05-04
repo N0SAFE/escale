@@ -20,7 +20,6 @@ export default function Reorder<T>({
     const [itemsState, setItemsState] = useState(items)
 
     useEffect(() => {
-        console.log(items)
         setItemsState(items)
     }, [items])
 

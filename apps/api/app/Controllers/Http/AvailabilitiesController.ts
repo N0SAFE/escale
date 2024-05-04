@@ -35,16 +35,6 @@ export default class AvailabilitiesController {
     //   spaQuery.select('id')
     // })
 
-    // console.log(availabilityQuery)
-
-    // console.log(availabilityQuery)
-
-    // // console.log(availabilityQuery.toSQL().sql)
-
-    // // console.log(await availabilityQuery.exec())
-
-    console.log(availabilityQuery.toSQL().sql)
-
     return response.ok(await availabilityQuery.exec())
 
     // const availabilityQuery = Availability.query()
@@ -118,8 +108,6 @@ export default class AvailabilitiesController {
     const priceMap = new Map<string, AvailabilityPrice>()
     const daysMap = new Map<string, AvailabilityPrice>()
 
-    console.log(daysPrice)
-
     for (const { name, price } of daysPrice) {
       if (price) {
         if (priceMap.has(JSON.stringify(price))) {
@@ -135,8 +123,6 @@ export default class AvailabilitiesController {
         }
       }
     }
-
-    console.log(daysMap)
 
     await Promise.all(
       Array.from(daysMap).map(async function ([key, value]) {
@@ -247,7 +233,6 @@ export default class AvailabilitiesController {
     const pricesToDelete = await AvailabilityPrice.findMany(prices)
     await Promise.all(
       pricesToDelete.map(async (price) => {
-        console.log('deleting price ' + price.id)
         await price.delete()
       })
     )

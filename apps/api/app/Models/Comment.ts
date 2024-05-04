@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BelongsTo, HasOne, belongsTo, column, hasOne } from '@ioc:Adonis/Lucid/Orm'
+import { BelongsTo, beforeFetch, beforeFind, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import User from './User'
 import Spa from './Spa'
 import AppBaseModel from './AppBaseModel'
@@ -18,7 +18,7 @@ export default class Comment extends AppBaseModel {
   public text: string
 
   @column()
-  public userId: number
+  public userId: number | null = null
 
   @column()
   public spaId: number
@@ -26,6 +26,12 @@ export default class Comment extends AppBaseModel {
   @belongsTo(() => User)
   public user: BelongsTo<typeof User>
 
-  @hasOne(() => Spa)
-  public spa: HasOne<typeof Spa>
+  @belongsTo(() => Spa)
+  public spa: BelongsTo<typeof Spa>
+
+  @beforeFind()
+  @beforeFetch()
+  public static async fetchComments (query) {
+    query.preload('user')
+  }
 }

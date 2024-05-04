@@ -122,9 +122,7 @@ Route.group(() => {
 
   Route.group(() => {
     Route.group(() => {
-      Route.get('try/admin', async ({ response, auth }) => {
-        console.log('try admin')
-        console.log(auth.use('jwt').user)
+      Route.get('try/admin', async ({ response }) => {
         return response.ok({ message: 'you are admin' })
       })
     })

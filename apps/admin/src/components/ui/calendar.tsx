@@ -43,17 +43,12 @@ function DurationDay<T extends { id: number }>(
         selected: true,
     }
 
-    // console.log(DateTime.fromJSDate(props.date).toISODate()!)
-    // console.log(displayedpropsMap.get(DateTime.fromJSDate(props.date).toISODate()!))
-
     if (dayRender.isHidden) {
         return <></>
     }
     if (!dayRender.isButton) {
         return <div {...dayRender.divProps} />
     }
-
-    // console.log('dayRender', dayRender.activeModifiers)
 
     return <ReactDayPickerButton {...dayRender.buttonProps} ref={buttonRef} />
 }
@@ -134,12 +129,9 @@ function Calendar<T extends { id: number }>({
     onDisplayedRangeOut,
     ...props
 }: CalendarProps<T>) {
-    // console.log('render CalendarComponent')
     const [hoveredItems, setHoveredItems] = React.useState<
         DisplayedProps<T>[] | null
     >(null)
-    // console.log('triggerColorChangeOnHover', triggerColorChangeOnHover)
-    // console.log(displayedRange)
     const displayedRangeMap = React.useMemo(() => {
         const map = new Map<
             string,
@@ -149,14 +141,10 @@ function Calendar<T extends { id: number }>({
             }[]
         >()
         colors.forEach((color) => {
-            // console.log(color)
             displayedRange?.[color]?.forEach((item) => {
-                // console.log(displayedRange?.[color])
                 const numberOfDays = item.to.diff(item.from, 'days').days
-                // console.log(numberOfDays)
                 Array.from({ length: numberOfDays + 1 }, (_, i) => {
                     const date = item.from.plus({ days: i })
-                    // console.log(date.toISODate())
                     if (map.has(date.toISODate()!)) {
                         map.set(date.toISODate()!, [
                             ...map.get(date.toISODate()!)!,
@@ -178,7 +166,6 @@ function Calendar<T extends { id: number }>({
         })
         return map
     }, [displayedRange])
-    // console.log(displayedRangeMap)
     const duration = React.useMemo(() => {
         const d = {
             ...colors.reduce(
@@ -374,9 +361,6 @@ function Calendar<T extends { id: number }>({
         }, {})
     }, [triggerColorChangeOnHover])
 
-    // console.log(triggerColorChangeOnHover)
-    // console.log(modifiersClassNamesComputed)
-
     const modifiersComputed = React.useMemo(() => {
         return {
             ...[
@@ -429,9 +413,6 @@ function Calendar<T extends { id: number }>({
                         }`
                         const middleInactiveKey = `middle-inactive-${color}`
                         const middleActiveKey = `middle-active-${color}`
-                        // console.log(startActiveKey, startInactiveKey)
-                        // console.log(endActiveKey, endInactiveKey)
-                        // console.log(triggerColorChangeOnHover)
 
                         if (hoveredItems && triggerColorChangeOnHover) {
                             if (
@@ -518,8 +499,6 @@ function Calendar<T extends { id: number }>({
             ...modifiers,
         }
     }, [hoveredItems, duration, modifiers, triggerColorChangeOnHover])
-
-    // console.log(modifiersClassNamesComputed)
 
     return (
         <div

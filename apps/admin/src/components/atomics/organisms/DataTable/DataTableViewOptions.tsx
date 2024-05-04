@@ -25,7 +25,6 @@ export function DataTableViewOptions<TData>({
     className,
     ...props
 }: DataTableViewOptionsProps<TData>) {
-    console.log('render DataTableViewOptions')
     const [_, forceUpdate] = useReducer((x) => x + 1, 0)
     return (
         <DropdownMenu>

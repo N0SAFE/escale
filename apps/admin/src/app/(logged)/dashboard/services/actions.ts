@@ -5,11 +5,7 @@ import { xiorInstance } from '@/utils/xiorInstance'
 
 export async function getServices() {
     'use server'
-
-    // console.log(xiorInstance.defaults.baseURL)
     const { data } = await xiorInstance.get<Service[]>('/services')
-    // console.log('data')
-    // console.log(data)
     return data
 }
 
@@ -42,12 +38,7 @@ export async function updateService(id: number, data?: UpdateService) {
         description: data.description,
         image: data.image?.id,
     }
-    await xiorInstance
-        .patch(`/services/${id}`, transformedData)
-        .catch(function (e) {
-            console.log(e)
-            throw e
-        })
+    await xiorInstance.patch(`/services/${id}`, transformedData)
 }
 
 export async function deleteService(id: number) {

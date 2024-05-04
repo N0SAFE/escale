@@ -23,9 +23,6 @@ export async function getUnreservableData(
 ) {
     'use server'
 
-    console.log(from, to)
-    console.log(spa)
-
     const { data } = await xiorInstance.get<{
         reservations: Reservation[]
         blockedEvents?: ExternalBlockedCalendarEvent[]
@@ -69,8 +66,6 @@ export async function getReservations(
 ) {
     'use server'
 
-    // console.log(filter)
-
     const { data } = await xiorInstance.get<Reservation[]>('/reservations', {
         params: {
             groups: filter.groups,
@@ -79,7 +74,6 @@ export async function getReservations(
         },
         signal,
     })
-    // console.log(data.length)
     return data
 }
 
@@ -164,8 +158,6 @@ export async function getReservation(id: number) {
 export async function createReservation(data: CreateReservation) {
     'use server'
 
-    // console.log(Array.from(data.entries()))
-
     await xiorInstance.post<CreateReservation>('/reservations', data)
 }
 
@@ -178,8 +170,6 @@ export async function updateReservation(id: number, data?: UpdateReservation) {
     const transformedData = {
         ...data,
     }
-    console.log(id)
-    console.log('transformedData', transformedData)
     await xiorInstance.patch(`/reservations/${id}`, transformedData)
 }
 

@@ -17,7 +17,6 @@ import {
 } from '@/components/ui/alert-dialog'
 import {
     CreateSpa as CreateSpaType,
-    Spa,
     SpaImage as SpaImageType,
 } from '@/types/index'
 import {
@@ -41,6 +40,8 @@ import { toast } from 'sonner'
 import { useColumns } from './columns'
 import { DataTable } from '@/components/atomics/organisms/DataTable/index'
 import { DataTableViewOptions } from '@/components/atomics/organisms/DataTable/DataTableViewOptions'
+import { DType } from './type'
+import { spasAccessor } from './utils'
 
 export default function SpasTable() {
     const {
@@ -49,7 +50,10 @@ export default function SpasTable() {
         refetch,
     } = useQuery({
         queryKey: ['spas'],
-        queryFn: async () => getSpas(),
+        queryFn: async () =>
+            spasAccessor().then((spas) =>
+                spas.map((s) => ({ ...s, uuid: s.id }))
+            ) as Promise<DType[]>,
     })
     const spaCreateMutation = useMutation({
         mutationFn: async (spa?: CreateSpaType) => {
@@ -78,11 +82,12 @@ export default function SpasTable() {
         },
     })
 
-    const tableRef = React.useRef<Table<Spa>>(null)
+    const tableRef = React.useRef<Table<DType>>(null)
 
     const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false)
     const [isDeletDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
-    const [selectedSpaToDelete, setSelectedSpaToDelete] = React.useState<Spa>()
+    const [selectedSpaToDelete, setSelectedSpaToDelete] =
+        React.useState<DType>()
 
     const columns = useColumns({
         onRowDelete: async ({ row }) => {
@@ -274,7 +279,6 @@ function CreateSpa({ isLoading, onSubmit }: CreateSpaProps) {
         spaImages: [],
         services: [],
     })
-    console.log(isLoading)
     return (
         <div>
             <div className="grid gap-4 grid-cols-2">
@@ -419,10 +423,6 @@ function CreateSpa({ isLoading, onSubmit }: CreateSpaProps) {
                         <Label htmlFor="description">Description</Label>
                         <div className="overflow-y-auto max-h-96">
                             <Editor
-                                onReady={(editor) => {
-                                    console.log('ready')
-                                    // setIsLoading(false);
-                                }}
                                 data={spaState?.description}
                                 onChange={(event, editor) => {
                                     setSpaState({

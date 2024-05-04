@@ -10,7 +10,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Spa } from '@/types/index'
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { CellContext, ColumnDef } from '@tanstack/react-table'
 import Link from 'next/link'
@@ -19,18 +18,19 @@ import {
     LoggedDashboardSpasId,
     LoggedDashboardSpasIdEdit,
 } from '@/routes/index'
+import { DType } from './type'
 
 type Promised<T> = T | Promise<T>
 
 type ColumnOptions = {
     onRowDelete?: (
-        props: CellContext<Spa, unknown>
+        props: CellContext<DType, unknown>
     ) => Promised<((callback: () => void) => void) | void>
     useLoaderOnRowDelete?: boolean
 }
 
 export const useColumns = (options?: ColumnOptions) => {
-    const columns: ColumnDef<Spa>[] = [
+    const columns: ColumnDef<DType>[] = [
         {
             id: 'select',
             header: ({ table }) => (
@@ -95,7 +95,7 @@ export const useColumns = (options?: ColumnOptions) => {
 }
 
 type ActionsCellProps = {
-    cellContext: CellContext<Spa, unknown>
+    cellContext: CellContext<DType, unknown>
     options?: ColumnOptions
 }
 

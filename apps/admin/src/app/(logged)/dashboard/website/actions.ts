@@ -18,8 +18,6 @@ export const getFaq = async (id: number) => {
 export const updateFaq = async (id: number, data: UpdateFaq) => {
     'use server'
 
-    console.log('update faq')
-
     const transformedData = {
         question: data.question,
         answer: data.answer,
@@ -31,26 +29,17 @@ export const updateFaq = async (id: number, data: UpdateFaq) => {
 export const createFaq = async (data: CreateFaq) => {
     'use server'
 
-    console.log('create faq')
     const transformedData = {
         question: data.question,
         answer: data.answer,
         rank: data.rank,
     }
-    console.log(transformedData)
-    try {
-        console.log(
-            await xiorInstance.post<CreateFaq>('/faqs', transformedData)
-        )
-    } catch (e) {
-        console.log(e)
-    }
+    await xiorInstance.post<CreateFaq>('/faqs', transformedData)
 }
 
 export const deleteFaq = async (id: number) => {
     'use server'
 
-    console.log('delete faq')
     await xiorInstance.delete(`/faqs/${id}`)
 }
 

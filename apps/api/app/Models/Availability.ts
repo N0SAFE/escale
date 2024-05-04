@@ -226,7 +226,6 @@ export default class Availability extends compose(AppBaseModel, Filterable) {
 
   @beforeUpdate()
   public static async changeUnavailabilitiesOnUpdate (availability: Availability) {
-    // console.log('before update')
     const availabilityRepository = new AvaialbilityRepository()
     const previousAvailability = await availabilityRepository.getClosestAvailabilityBefore(
       availability.startAt.toSQLDate()!,
@@ -253,14 +252,12 @@ export default class Availability extends compose(AppBaseModel, Filterable) {
       newBeforeUnavailability.endAt = availability.startAt.minus({ days: 1 })
       newBeforeUnavailability.spaId = availability.spaId
       await newBeforeUnavailability.save()
-      console.log('create before unavailability ' + newBeforeUnavailability.id)
 
       const newAfterUnavailability = new Unavailability()
       newAfterUnavailability.startAt = availability.endAt.plus({ days: 1 })
       newAfterUnavailability.endAt = nextAvailability.startAt.minus({ days: 1 })
       newAfterUnavailability.spaId = availability.spaId
       await newAfterUnavailability.save()
-      console.log('create after unavailability ' + newAfterUnavailability.id)
     } else if (nextAvailability) {
       const unavailabilities = await Unavailability.query()
         .where('startAt', '<=', nextAvailability.startAt.toSQLDate()!)

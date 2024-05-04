@@ -129,6 +129,7 @@ export default function HomeWebsitePage() {
         mutationFn: async (home: typeof homeState) => {
             return await updateHomeDetails({
                 imageId: home?.imageId,
+                commentBackgroundImageId: home?.commentBackgroundImageId,
                 videoId: home?.videoId,
                 description: home?.description,
                 commentIds: hilightedComments?.map((c) => c.id) || [],
@@ -138,7 +139,6 @@ export default function HomeWebsitePage() {
             setIsSaving(true)
         },
         onError: async (error, variables, context) => {
-            console.log(error)
             toast.error('Error saving product')
         },
         onSettled: async () => {
@@ -154,9 +154,7 @@ export default function HomeWebsitePage() {
     })
 
     const save = async () => {
-        console.log(homeState)
         setIsSaving(true)
-        console.log('isSaving')
         await homeMutation.mutateAsync(homeState)
         setIsSaving(false)
     }
@@ -185,10 +183,7 @@ export default function HomeWebsitePage() {
                     </Badge> */}
                     <DropdownMenu
                         open={editButtonIsOpen}
-                        onOpenChange={(e) => {
-                            console.log(e)
-                            setEditButtonIsOpen(e)
-                        }}
+                        onOpenChange={(e) => setEditButtonIsOpen(e)}
                     >
                         <DropdownMenuTrigger className="flex md:hidden items-center ml-auto">
                             <Button variant="outline" size="sm">
@@ -294,7 +289,7 @@ export default function HomeWebsitePage() {
                                     adipiscing elit
                                 </CardDescription>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="flex flex-col gap-2">
                                 <div className="flex gap-2 w-full">
                                     <div className="flex flex-col w-full gap-2">
                                         <Label className="text-muted-foreground">
@@ -305,19 +300,17 @@ export default function HomeWebsitePage() {
                                                 <ApiImage
                                                     alt="Product image"
                                                     className="w-full rounded-md object-cover h-full"
-                                                    height="300"
                                                     identifier={
                                                         homeState?.imageId
                                                     }
-                                                    width="300"
+                                                    fill
                                                 />
                                             ) : (
                                                 <Image
                                                     alt="Product image"
                                                     className="w-full rounded-md object-cover h-full"
-                                                    height="300"
                                                     src={'/placeholder.svg'}
-                                                    width="300"
+                                                    fill
                                                 />
                                             )}
                                         </AspectRatio>
@@ -340,7 +333,9 @@ export default function HomeWebsitePage() {
                                                     files={
                                                         images as ImageType[]
                                                     }
-                                                    onFileSelect={(image) => {
+                                                    onFileSelect={(
+                                                        image: ImageType
+                                                    ) => {
                                                         setHomeState({
                                                             ...(homeState as Awaited<
                                                                 ReturnType<
@@ -407,17 +402,14 @@ export default function HomeWebsitePage() {
                                                     autoPlay
                                                     loop
                                                     muted
-                                                    width="300"
-                                                    height="300"
                                                     crossOrigin="use-credentials"
                                                 />
                                             ) : (
                                                 <Image
                                                     alt="Product image"
                                                     className="w-full rounded-md object-cover h-full"
-                                                    height="300"
                                                     src={'/placeholder.svg'}
-                                                    width="300"
+                                                    fill
                                                 />
                                             )}
                                         </AspectRatio>
@@ -539,6 +531,95 @@ export default function HomeWebsitePage() {
                                         </Dialog>
                                     </div>
                                 </div>
+                                <div className="flex flex-col w-full gap-2">
+                                    <Label className="text-muted-foreground">
+                                        home comment background image
+                                    </Label>
+                                    <AspectRatio ratio={16 / 9}>
+                                        {homeState?.imageId ? (
+                                            <ApiImage
+                                                alt="Product image"
+                                                className="w-full rounded-md object-cover h-full"
+                                                identifier={
+                                                    homeState?.commentBackgroundImageId
+                                                }
+                                                fill
+                                            />
+                                        ) : (
+                                            <Image
+                                                alt="Product image"
+                                                className="w-full rounded-md object-cover h-full"
+                                                src={'/placeholder.svg'}
+                                                fill
+                                            />
+                                        )}
+                                    </AspectRatio>
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <Button
+                                                className="w-full gap-2"
+                                                variant="outline"
+                                                size="sm"
+                                            >
+                                                <Upload className="w-4 h-4" />
+                                                <span>Upload</span>
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent>
+                                            <FileSelector
+                                                defaultSelectedFileId={
+                                                    homeState?.commentBackgroundImageId
+                                                }
+                                                files={images as ImageType[]}
+                                                onFileSelect={(
+                                                    image: ImageType
+                                                ) => {
+                                                    setHomeState({
+                                                        ...(homeState as Awaited<
+                                                            ReturnType<
+                                                                typeof getHomeDetails
+                                                            >
+                                                        >),
+                                                        commentBackgroundImageId:
+                                                            image.id,
+                                                    } as Required<typeof homeData>)
+                                                }}
+                                                onFileUpload={async (file) => {
+                                                    const formData =
+                                                        new FormData()
+                                                    formData.append(
+                                                        'alt',
+                                                        'alt'
+                                                    )
+                                                    formData.append(
+                                                        'image',
+                                                        file
+                                                    )
+                                                    const data =
+                                                        createImage(formData)
+                                                    await queryClient.invalidateQueries(
+                                                        {
+                                                            queryKey: [
+                                                                'images',
+                                                            ],
+                                                        }
+                                                    )
+                                                    return data
+                                                }}
+                                                onFileDelete={async (image) => {
+                                                    deleteImage(image.id)
+                                                    await queryClient.invalidateQueries(
+                                                        {
+                                                            queryKey: [
+                                                                'images',
+                                                            ],
+                                                        }
+                                                    )
+                                                }}
+                                            />
+                                        </DialogContent>
+                                    </Dialog>
+                                </div>
                             </CardContent>
                         </Card>
                     </div>
@@ -561,10 +642,9 @@ export default function HomeWebsitePage() {
                                                 }
                                             })}
                                             value={hilightedComments}
-                                            onSelect={(value) => {
-                                                console.log(value)
+                                            onSelect={(value) =>
                                                 setHilightedComments(value)
-                                            }}
+                                            }
                                         />
                                     </div>
                                     <div className="grid gap-3">

@@ -1,5 +1,13 @@
 import { DateTime } from 'luxon'
-import { BelongsTo, belongsTo, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import {
+  beforeFetch,
+  beforeFind,
+  BelongsTo,
+  belongsTo,
+  column,
+  HasMany,
+  hasMany,
+} from '@ioc:Adonis/Lucid/Orm'
 import Image from './Image'
 import Video from './Video'
 import HomeComment from './HomeComment'
@@ -32,4 +40,22 @@ export default class Home extends AppBaseModel {
 
   @hasMany(() => HomeComment)
   public homeComments: HasMany<typeof HomeComment>
+
+  @belongsTo(() => Image)
+  public commentBackgroundImage: BelongsTo<typeof Image>
+
+  @column()
+  public commentBackgroundImageId: number
+
+  @beforeFetch()
+  @beforeFind()
+  public static preload (query) {
+    query
+      .preload('commentBackgroundImage')
+      .preload('image')
+      .preload('video')
+      .preload('homeComments', (query) => {
+        query.preload('comment')
+      })
+  }
 }

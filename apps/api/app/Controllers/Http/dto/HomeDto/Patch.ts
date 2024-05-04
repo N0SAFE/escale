@@ -28,6 +28,11 @@ export class HomeRessourcePatchBodyDto {
 
   @IsOptional()
   @IsNumber()
+  @EntityExist(Image)
+  public commentBackgroundImageId?: number
+
+  @IsOptional()
+  @IsNumber()
   @EntityExist(Video)
   public videoId?: number
 
@@ -87,6 +92,7 @@ export class HomeRessourcePatchDto extends BaseDto {
 export class HomeRessourcePatchBodyDtoAfter implements AsSameProperties<HomeRessourcePatchBodyDto> {
   public description?: string
   public imageId?: number
+  public commentBackgroundImageId?: number
   public videoId?: number
   public commentIds?: number[]
 }

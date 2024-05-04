@@ -9,7 +9,6 @@ export default class Connected {
         return response.unauthorized({ error: 'Unauthorized' })
       }
     } catch (e) {
-      // console.log(e)
       return response.unauthorized({ error: 'Unauthorized' })
     }
     await next()

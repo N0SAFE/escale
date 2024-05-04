@@ -10,19 +10,15 @@ export default class FaqsController {
   }
 
   public async store ({ request, response }: HttpContextContract) {
-    console.log(request.body())
     const dto = FaqRessourcePostDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
-      console.log('error')
       return response.badRequest(error)
     }
 
     const { body } = await dto.after.customTransform
 
     const faq = await Faq.create(body)
-
-    console.log(faq)
 
     return response.ok(faq)
   }
@@ -39,8 +35,6 @@ export default class FaqsController {
     }
 
     const { body, params } = await dto.after.customTransform
-
-    console.log(body)
 
     const faq = params.id
 

@@ -15,6 +15,12 @@ export default class extends BaseSchema {
       table.text('description').notNullable()
       table.integer('video_id').unsigned().references('id').inTable('videos').onDelete('CASCADE')
       table.integer('image_id').unsigned().references('id').inTable('images').onDelete('CASCADE')
+      table
+        .integer('comment_background_image_id')
+        .unsigned()
+        .references('id')
+        .inTable('images')
+        .onDelete('CASCADE')
     })
   }
 

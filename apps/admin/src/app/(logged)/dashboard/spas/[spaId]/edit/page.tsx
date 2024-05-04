@@ -45,7 +45,6 @@ export default function SpasEdit() {
     })
     const spaMutation = useMutation({
         mutationFn: async (spaState: UpdateSpa) => {
-            console.log(spaState)
             return await updateSpa(+params.id, spaState)
         },
         onError: (error) => {
@@ -134,8 +133,6 @@ export default function SpasEdit() {
         [services]
     )
 
-    console.log(spaState)
-
     return (
         <>
             <div
@@ -186,10 +183,9 @@ export default function SpasEdit() {
                                                 Description
                                             </Label>
                                             <Editor
-                                                onReady={() => {
-                                                    console.log('ready')
+                                                onReady={() =>
                                                     setIsLoading(false)
-                                                }}
+                                                }
                                                 data={spaState?.description}
                                                 onChange={(event, editor) => {
                                                     if (isSpaDateFetched) {

@@ -19,7 +19,6 @@ export default function FileInput({
 }: FileInputProps) {
     const inputFileRef = useRef<HTMLInputElement>(null)
     const [files, setFiles] = useState<FileList | null>(null)
-    console.log(files)
     return (
         <Button
             {...props}

@@ -12,6 +12,9 @@ import Reservation from '../Reservation'
 import ExternalCalendar from '../ExternalCalendar'
 import Video from '../Video'
 import Home from '../Home'
+import drive from 'Config/drive'
+import * as fs from 'fs'
+import Logger from '@ioc:Adonis/Core/Logger'
 
 export default class IndexSeeder extends BaseSeeder {
   private async runSeeder (Seeders: typeof BaseSeeder | (typeof BaseSeeder)[]) {
@@ -37,11 +40,24 @@ export default class IndexSeeder extends BaseSeeder {
     }
   }
 
+  public async clearDrive () {
+    Logger.info('Clearing drive')
+    Object.values(drive.disks).forEach((disk) => {
+      try {
+        fs.rmSync(disk.root, { recursive: true })
+      } catch (e) {}
+      try {
+        fs.mkdirSync(disk.root, { recursive: true })
+      } catch (e) {}
+    })
+  }
+
   public async run () {
+    await this.clearDrive()
     await this.runSeeder([
       User,
-      Comment,
       Spa,
+      Comment,
       Service,
       Tag,
       Availability,

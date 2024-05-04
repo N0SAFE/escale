@@ -51,12 +51,10 @@ export default function FileSelector<T extends { id: number }>({
     defaultSelectedFileId,
     isLoading,
 }: FileSelectorProps<T>) {
-    console.log('render file selector')
     const inputRef = React.useRef<HTMLInputElement>(null)
     const [selectedFile, setSelectedFile] = React.useState<T | null>(
         defaultSelectedFile || null
     )
-    console.log('selected file', selectedFile)
     const [isUploading, setIsUploading] = React.useState(false)
 
     const handleFileSelect = (file: T) => {
@@ -79,7 +77,7 @@ export default function FileSelector<T extends { id: number }>({
                 setSelectedFile(file)
             }
         }
-    }, [defaultSelectedFileId])
+    }, [defaultSelectedFileId, files])
 
     return (
         <div className="flex flex-col gap-4">
@@ -184,10 +182,6 @@ export default function FileSelector<T extends { id: number }>({
                                                         variant={'ghost'}
                                                         onClick={() => {
                                                             handleFileSelect(
-                                                                file
-                                                            )
-                                                            console.log(
-                                                                'selected file',
                                                                 file
                                                             )
                                                             setSelectedFile(

@@ -191,3 +191,7 @@ export type Editable<T> = {
 export type Uuidable<T extends {}> = T & {
     uuid: ReturnType<typeof uuid>
 }
+
+export type Orderable<T extends {}> = T & {
+    $order: number
+}

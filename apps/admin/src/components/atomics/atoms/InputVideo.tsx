@@ -10,7 +10,6 @@ type InputVideoProps = React.DetailedHTMLProps<
 
 export default function InputVideo(props: InputVideoProps) {
     const inputRef = useRef<HTMLInputElement>(null)
-    console.log('props.children', props.children)
     return (
         <>
             <input

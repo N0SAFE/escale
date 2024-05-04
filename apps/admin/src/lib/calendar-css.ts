@@ -236,12 +236,8 @@ const generateColor = (color: string) => {
 }
 
 const start = Date.now()
-console.log('START:', start)
 
 const css: string = `${colors.map(generateColor).join('')}`
-
-console.log('END:', Date.now())
-console.log('CSS GENERATED IN :', Date.now() - start + 'ms')
 
 // remove all breaklines and double spaces
 export default css.replace(/\s+/g, ' ').trim()

@@ -85,7 +85,7 @@ export default function Combobox<T extends { id: number }>({
             }
             setVal(value)
         })
-    }, [value, val])
+    }, [value, val, isMounted])
 
     return (
         <Popover open={open} onOpenChange={setOpen}>

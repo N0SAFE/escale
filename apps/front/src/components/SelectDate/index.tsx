@@ -65,8 +65,6 @@ export default function SelectDate({
 
     useEffect(() => {
         if (onSelect) {
-            console.log('date', date)
-            console.log('multiple', multiple)
             if (multiple) {
                 onSelect(rangeDate)
             } else {

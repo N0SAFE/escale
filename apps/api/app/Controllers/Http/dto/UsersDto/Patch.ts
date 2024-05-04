@@ -35,8 +35,6 @@ export class UsersRessourcePatchDto extends BaseDto {
   }
 
   public set query (value: UsersRessourcePatchQueryDto | undefined) {
-    console.log('value', value)
     this._query = new UsersRessourcePatchQueryDto(value || {})
-    console.log('this._query', this._query)
   }
 }

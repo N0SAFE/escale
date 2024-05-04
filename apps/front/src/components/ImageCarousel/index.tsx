@@ -50,7 +50,6 @@ export default function ImageCarousel({ images }: Props) {
             spaceBetween={50}
             slidesPerView={3}
             navigation
-            onSwiper={(swiper) => console.log(swiper)}
         >
             {images.map((image, index) => (
                 <SwiperSlide

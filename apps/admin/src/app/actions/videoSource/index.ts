@@ -53,13 +53,9 @@ export async function createVideoSource(data: CreateVideoSource) {
         file: data.file,
         videoId: data.videoId,
     }
-    try {
-        await xiorInstance
-            .post<CreateVideoSource>('/video-sources', transformedData)
-            .then(function ({ data }) {
-                return data
-            })
-    } catch (e) {
-        console.log(e)
-    }
+    await xiorInstance
+        .post<CreateVideoSource>('/video-sources', transformedData)
+        .then(function ({ data }) {
+            return data
+        })
 }

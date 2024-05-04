@@ -48,8 +48,6 @@ export default function OrderFilter<T extends NormalizeConstructor<typeof Custom
   return function orderFilterMixin (Base: T) {
     return class SearchFilterMixin extends Base {
       public order (value: RecursiveValue): void {
-        // console.log('order')
-        // console.log(value)
         const relationArray = Object.entries(value).map(([key, value]) => {
           return {
             path: key.split('.'),
@@ -58,8 +56,6 @@ export default function OrderFilter<T extends NormalizeConstructor<typeof Custom
             key: key.split('.').slice(-1)[0],
           }
         })
-
-        // console.log(relationArray)
 
         relationArray.forEach((relation) => {
           if (!relationPathExists(this.$query.model, relation.relationPath)) {

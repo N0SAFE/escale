@@ -50,7 +50,6 @@ export default class ReservationsController {
 
   public async store ({ request, response }: HttpContextContract) {
     const dto = ReservationRessourcePostDto.fromRequest(request)
-    console.log(dto)
     const error = await dto.validate()
     if (error.length > 0) {
       return response.badRequest(error)
@@ -64,10 +63,7 @@ export default class ReservationsController {
       .first()
     // .then((reservation) => !!reservation)
 
-    console.log(exist)
-
     if (exist) {
-      console.log('reservation already exist')
       return response.badRequest({ message: 'reservation already exist' })
     }
 
@@ -96,7 +92,6 @@ export default class ReservationsController {
   public async update ({ request, response }: HttpContextContract) {
     const dto = ReservationRessourcePatchDto.fromRequest(request)
     const error = await dto.validate()
-    console.log(JSON.stringify(error, null, 4))
     if (error.length > 0) {
       return response.badRequest(error)
     }
@@ -110,11 +105,8 @@ export default class ReservationsController {
       .whereNot('id', reservation.id)
 
     if (await reservations.first()) {
-      console.log('reservation overlap')
       return response.badRequest({ message: 'reservation overlap' })
     }
-
-    console.log(body)
 
     reservation.merge({
       startAt: body.startAt,
@@ -357,8 +349,6 @@ export default class ReservationsController {
 
     await spa.load('externalCalendar')
 
-    console.log(avoidIds)
-
     const pastReservation = await spa
       .related('reservations')
       .query()
@@ -373,9 +363,6 @@ export default class ReservationsController {
       .whereNotIn('id', avoidIds)
       .orderBy('start_at', 'asc')
       .first()
-
-    console.log(pastReservation?.id)
-    console.log(futureReservation?.id)
 
     let pastUnavailability
     let futureUnavailability
@@ -458,23 +445,6 @@ export default class ReservationsController {
           : current
       }, undefined)
     }
-
-    console.log({
-      past: getClosestDate(
-        pastReservation?.endAt,
-        pastUnavailability?.endAt,
-        pastExternalBlockedEvent?.endAt,
-        pastExternalReservedEvent?.endAt,
-        pastLimit
-      )?.toISODate(),
-      future: getClosestDate(
-        futureReservation?.startAt,
-        futureUnavailability?.startAt,
-        futureExternalBlockedEvent?.startAt,
-        futureExternalReservedEvent?.startAt,
-        futureLimit
-      )?.toISODate(),
-    })
 
     return {
       past: getClosestDate(

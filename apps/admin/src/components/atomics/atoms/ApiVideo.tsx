@@ -15,12 +15,13 @@ export default function ApiVideo({
     > & { alt: string; sourcesIdentifier: number[] }) {
     const videoRef = useRef<HTMLVideoElement>(null)
 
+    const sourcesIdentifierString = sourcesIdentifier.join(',')
+
     useEffect(() => {
-        console.log('sourcesIdentifier', sourcesIdentifier)
         if (videoRef.current) {
             videoRef.current.load()
         }
-    }, [sourcesIdentifier.join(',')])
+    }, [sourcesIdentifierString])
 
     return (
         <video {...props} ref={videoRef}>

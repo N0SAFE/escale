@@ -20,8 +20,6 @@ export default class ContactsController {
 
     const { body } = await dto.after
 
-    console.log(body)
-
     const contact = Contact.create({ ...body, read: false })
 
     return contact

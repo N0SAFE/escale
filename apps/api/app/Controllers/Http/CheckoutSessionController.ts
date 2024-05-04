@@ -24,8 +24,6 @@ export default class CheckoutSessionsController {
       body.endAt
     )
 
-    console.log(body.startAt, body.endAt)
-
     try {
       const session = await stripe.checkout.sessions.create({
         payment_intent_data: {

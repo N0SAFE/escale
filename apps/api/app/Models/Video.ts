@@ -1,12 +1,5 @@
 import { DateTime } from 'luxon'
-import {
-  beforeFetch,
-  beforeFind,
-  column,
-  computed,
-  HasMany,
-  hasMany,
-} from '@ioc:Adonis/Lucid/Orm'
+import { beforeFetch, beforeFind, column, computed, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import VideoSource from './VideoSource'
 import { compose } from '@ioc:Adonis/Core/Helpers'
 import AppBaseModel from './AppBaseModel'

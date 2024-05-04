@@ -7,7 +7,6 @@ type ReservationType = {
 
 const Reservation = async () => {
     // this page is a placeholder for the first spa reservation
-    // console.log(axiosInstance.defaults.baseURL)
     const { data } = await axiosInstance<ReservationType>('/spas')
     redirect(`/reservation/${data?.[0]?.id}`)
 }

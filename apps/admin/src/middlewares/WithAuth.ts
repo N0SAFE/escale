@@ -32,7 +32,6 @@ const withAuth: MiddlewareFactory = (next: NextMiddleware) => {
             )
         }
         if (!(await isLogin({ cookieStore: request.cookies }))) {
-            console.log('is not logged in')
             const redirectResponse = NextResponse.redirect(redirectUrl)
             try {
                 const session = await refreshToken(
@@ -44,11 +43,9 @@ const withAuth: MiddlewareFactory = (next: NextMiddleware) => {
                 if (
                     !(await isLogin({ cookieStore: request.cookies, session }))
                 ) {
-                    console.log('is not logged in after refresh')
                     return redirectResponse
                 }
             } catch (e) {
-                console.error(e)
                 return redirectResponse
             }
         }

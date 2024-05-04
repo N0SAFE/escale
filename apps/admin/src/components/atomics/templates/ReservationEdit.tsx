@@ -182,8 +182,6 @@ export default function ReservationEdit({
         enabled: !!reservationState?.spa,
     })
 
-    console.log('reservationState', reservationState)
-
     useEffect(() => {
         if (!rangeDate?.from && !rangeDate?.to) {
             setReservationState({
@@ -276,15 +274,7 @@ export default function ReservationEdit({
                 return
             }
         }
-    }, [rangeDate, reservations, defaultSelectedState?.id])
-
-    console.log({
-        availableDates: availableDates,
-        closestUnreservableDate: {
-            past: closestUnreservableDate?.past?.toISODate(),
-            future: closestUnreservableDate?.future?.toISODate(),
-        },
-    })
+    }, [rangeDate, reservations, defaultSelectedState?.id, availableDates])
 
     return (
         <div className="grid gap-4 py-4 w-full">

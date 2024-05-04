@@ -41,10 +41,7 @@ export default function PropertiesFilter<
       }
 
       public property (value: RecursiveValue): void {
-        // console.log(value)
         const relationArray = nestedRelationToArray(value, this.$query)
-
-        // console.log(relationArray)
 
         relationArray.forEach((relation) => {
           if (!relationPathExists(this.$query.model, relation.relationPath)) {

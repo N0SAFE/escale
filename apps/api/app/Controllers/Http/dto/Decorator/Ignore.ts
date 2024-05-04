@@ -10,8 +10,6 @@ import {
 export function Ignore () {
   // reuse transform decorator
   return Transform((params: TransformFnParams) => {
-    console.log('start of transform')
-    console.log(params)
     if (params.type === TransformationType.CLASS_TO_CLASS) {
       // class-transformer won't touch functions,
       // so we use function-objects as container to skip transformation.

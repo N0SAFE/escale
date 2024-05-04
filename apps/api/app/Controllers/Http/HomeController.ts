@@ -4,13 +4,7 @@ import { HomeRessourcePatchDto } from './dto/HomeDto/Patch'
 
 export default class HomeController {
   public async index ({}: HttpContextContract) {
-    return await Home.query()
-      .preload('image')
-      .preload('video')
-      .preload('homeComments', (query) => {
-        query.preload('comment')
-      })
-      .firstOrFail()
+    return await Home.query().firstOrFail()
   }
 
   public async edit ({}: HttpContextContract) {}
@@ -26,21 +20,13 @@ export default class HomeController {
 
     const { commentIds, ...rest } = body
 
-    console.log(rest)
-    console.log(commentIds)
-
-    const home = await Home.query()
-      .preload('image')
-      .preload('video')
-      .preload('homeComments', (query) => {
-        query.preload('comment')
-      })
-      .firstOrFail()
+    const home = await Home.query().firstOrFail()
 
     await home.merge({
       description: rest.description,
       imageId: rest.imageId,
       videoId: rest.videoId,
+      commentBackgroundImageId: rest.commentBackgroundImageId,
     })
 
     const homeComments = await home.related('homeComments').query().exec()

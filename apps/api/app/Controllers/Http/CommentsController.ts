@@ -3,7 +3,7 @@ import Comment from 'App/Models/Comment'
 
 export default class CommentsController {
   public async index ({}: HttpContextContract) {
-    return Comment.query()
+    return await Comment.query().exec()
   }
 
   public async create ({}: HttpContextContract) {}

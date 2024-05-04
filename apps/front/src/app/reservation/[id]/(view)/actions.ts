@@ -14,13 +14,8 @@ import { redirect } from 'next/navigation'
 import { DateRange } from 'react-day-picker'
 
 export async function getSpa(id: number) {
-    try {
-        const { data } = await axiosInstance<Spa<true>>(`/spas/${id}`)
-        return { data }
-    } catch (error) {
-        console.log(error)
-        return { error }
-    }
+    const { data } = await axiosInstance<Spa<true>>(`/spas/${id}`)
+    return { data }
 }
 
 export async function getPrice(
@@ -28,33 +23,28 @@ export async function getPrice(
     date: DateRange,
     type: 'night' | 'journey'
 ) {
-    try {
-        const d = {
-            from: DateTime.fromJSDate((date as DateRange).from!).toISODate()!,
-            to: !date.to
-                ? DateTime.fromJSDate((date as DateRange).from!).toISODate()!
-                : DateTime.fromJSDate((date as DateRange).to!).toISODate()!,
-        }
-        const response = await axiosInstance.get<{
-            price: number
-            details: { toPrice: { price: number; number: number }[] }
-        }>(
-            `/reservations/price?startAt=${d.from}&endAt=${d.to}&spa=${id}&type=${type}`
-        )
-        return {
-            data: response.data,
-        }
-        //  else {
-        //     const d = DateTime.fromJSDate(date as Date).toISODate()!
-        //     const response = await axiosInstance.get(`/reservations/price?date=${d}&type=${type}&spa=${id}`);
-        //     return {
-        //         data: response.data.price
-        //     };
-        // }
-    } catch (error) {
-        console.log(error)
-        return { error }
+    const d = {
+        from: DateTime.fromJSDate((date as DateRange).from!).toISODate()!,
+        to: !date.to
+            ? DateTime.fromJSDate((date as DateRange).from!).toISODate()!
+            : DateTime.fromJSDate((date as DateRange).to!).toISODate()!,
     }
+    const response = await axiosInstance.get<{
+        price: number
+        details: { toPrice: { price: number; number: number }[] }
+    }>(
+        `/reservations/price?startAt=${d.from}&endAt=${d.to}&spa=${id}&type=${type}`
+    )
+    return {
+        data: response.data,
+    }
+    //  else {
+    //     const d = DateTime.fromJSDate(date as Date).toISODate()!
+    //     const response = await axiosInstance.get(`/reservations/price?date=${d}&type=${type}&spa=${id}`);
+    //     return {
+    //         data: response.data.price
+    //     };
+    // }
 }
 
 export async function getSessionUrl(

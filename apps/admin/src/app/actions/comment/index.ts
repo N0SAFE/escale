@@ -6,10 +6,7 @@ import { xiorInstance } from '@/utils/xiorInstance'
 export async function getComments() {
     'use server'
 
-    // console.log(xiorInstance.defaults.baseURL)
     const { data } = await xiorInstance.get<Comment[]>('/comments')
-    // console.log('data')
-    // console.log(data)
     return data
 }
 

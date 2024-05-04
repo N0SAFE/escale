@@ -16,7 +16,6 @@ export const getHomeDetails = async <R extends string[] = []>(): Promise<
 > => {
     'use server'
 
-    console.log('get home details')
     const { data } = await xiorInstance.get<
         Home<
             [
@@ -33,10 +32,10 @@ export const getHomeDetails = async <R extends string[] = []>(): Promise<
 export const updateHomeDetails = async (data: UpdateHome) => {
     'use server'
 
-    console.log('update home details')
     const transformedData = {
         description: data.description,
         imageId: data.imageId,
+        commentBackgroundImageId: data.commentBackgroundImageId,
         videoId: data.videoId,
         commentIds: data.commentIds,
     }

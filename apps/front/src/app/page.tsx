@@ -1,122 +1,62 @@
-'use client' // @flag color picker
-
+import { getHomeDetails } from '@/actions/home/index'
+import ApiImage from '@/components/ApiImage'
+import ApiVideo from '@/components/ApiVideo'
 import Comment from '@/components/Comment'
-import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import Image from 'next/image'
-import { useState } from 'react'
-import Carousel from 'react-multi-carousel'
+import { createAttachmentUrl } from '@/hooks/useAttachmentUrl'
+import HomeRelations from '@/types/model/Home'
 import 'react-multi-carousel/lib/styles.css'
 
-const comments = [
-    {
-        id: '1',
-        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptate.',
-        user: {
-            id: '1',
-            name: 'John Doe',
-            avatar: 'https://picsum.photos/200',
-        },
-    },
-    {
-        id: '2',
-        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptate.',
-        user: {
-            id: '2',
-            name: 'John Doe',
-            avatar: 'https://picsum.photos/200',
-        },
-    },
-    {
-        id: '3',
-        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptate.',
-        user: {
-            id: '3',
-            name: 'John Doe',
-            avatar: 'https://picsum.photos/200',
-        },
-    },
-    {
-        id: '4',
-        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptate.',
-        user: {
-            id: '4',
-            name: 'John Doe',
-            avatar: 'https://picsum.photos/200',
-        },
-    },
-    {
-        id: '5',
-        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptate.',
-        user: {
-            id: '5',
-            name: 'John Doe',
-            avatar: 'https://picsum.photos/200',
-        },
-    },
-    {
-        id: '6',
-        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptate.',
-        user: {
-            id: '6',
-            name: 'John Doe',
-            avatar: 'https://picsum.photos/200',
-        },
-    },
-    {
-        id: '7',
-        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptate.',
-        user: {
-            id: '7',
-            name: 'John Doe',
-            avatar: 'https://picsum.photos/200',
-        },
-    },
-    {
-        id: '8',
-        text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptate.',
-        user: {
-            id: '8',
-            name: 'John Doe',
-            avatar: 'https://picsum.photos/200',
-        },
-    },
-]
+export default async function Home() {
+    const homeData = await getHomeDetails<
+        [HomeRelations.image, HomeRelations.commentBackgroundImage]
+    >()
 
-export default function Home() {
     return (
         <main className="flex min-h-screen flex-col items-center justify-between text-white">
             <section>
-                <Image
-                    src="/20240212_192351.jpg"
-                    alt="Picture of the author"
+                <ApiImage
+                    identifier={homeData?.imageId!}
                     className="object-cover h-[600px]"
-                    width={1980}
+                    alt={homeData?.image?.alt!}
                     height={1080}
+                    width={1980}
                 />
             </section>
             <section className="py-24 px-4 text-3xl leading-6 text-center md:p-24">
-                <p>
-                    Venez découvrir notre Maison avec spa privatif à seulement
-                    40 minutes de Paris. Séjour idéal pour passer un moment de
-                    détente en amoureux ou entre amis
-                </p>
+                <p>{homeData?.description}</p>
             </section>
             <section className="max-w-[60%] my-8">
-                <video
-                    src="/video_lescale.mp4"
+                <ApiVideo
+                    sourcesIdentifier={
+                        homeData?.video?.sources?.map((s) => s.id)!
+                    }
+                    alt={homeData?.video?.alt!}
                     autoPlay
                     loop
                     muted
                     playsInline
                     controlsList="nodownload"
-                ></video>
+                />
             </section>
 
             <section></section>
-            <section className="bg-[url('https://so-spa.fr/wp-content/uploads/2022/07/2022-07-05_16h16_44.png')] bg-cover bg-no-reapeat bg-center w-full background-color-[#27355DED] backdrop-filter-blur-[30px] relative">
+            <section
+                style={{
+                    backgroundImage: `url('${createAttachmentUrl(
+                        homeData?.commentBackgroundImageId!,
+                        'image'
+                    )}')`,
+                }}
+                className="bg-cover bg-no-reapeat bg-center w-full background-color-[#27355DED] backdrop-filter-blur-[30px] relative"
+            >
                 <div className="h-full w-full opacity-75 bg-[#525252ED] absolute"></div>
-                <Comment comments={comments} />
+                <Comment
+                    comments={
+                        homeData?.homeComments?.map((hc) => {
+                            return hc.comment
+                        }) || []
+                    }
+                />
             </section>
         </main>
     )

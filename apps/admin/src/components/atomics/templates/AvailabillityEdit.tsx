@@ -369,8 +369,6 @@ export default function AvailabilityEdit({
         }) // eslint-disable-next-line
     }, [availabilityState, defaultValues?.id])
 
-    console.log(availabilitiesDuration)
-
     return (
         <div className="grid gap-4 py-4  w-full">
             <div className="grid grid-cols-4 items-center gap-4">

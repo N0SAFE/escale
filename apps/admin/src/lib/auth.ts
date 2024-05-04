@@ -46,14 +46,11 @@ export async function setSession(
 ): Promise<Session | null> {
     const expiresAt = (() => {
         if (session?.isAuthenticated) {
-            // console.log(session.jwt.expires_at)
             return new Date(session.jwt.expires_at)
         } else {
             return new Date(0)
         }
     })()
-
-    console.log('set new session')
 
     const cookieStore = cookiesStore ? cookiesStore : cookies()
     cookieStore.set('session', JSON.stringify(session), {
@@ -85,8 +82,6 @@ export async function setSession(
         secure: process.env.NODE_ENV === 'production',
     })
 
-    // console.log('session', session)
-
     return session
 }
 
@@ -109,7 +104,6 @@ export async function getSession(
     const cookieStore = cookiesStore ? cookiesStore : cookies()
     const sessionString = cookieStore.get('session')?.value
     const jwtString = cookieStore.get('jwt')?.value
-    // console.log(jwtString)
     const refreshTokenString = cookieStore.get('refreshToken')?.value
     if (!sessionString && !refreshTokenString) {
         return null
@@ -126,7 +120,6 @@ export async function getSession(
                   user: null,
               }
         const jwt = jwtString ? JSON.parse(jwtString) : {}
-        // console.log(jwt)
         jwt.refreshToken = refreshTokenString
         session.jwt = jwt
         return session
@@ -246,7 +239,6 @@ export async function login(
             { withCredentials: true }
         )
         .then(async (res) => {
-            console.log(res.data)
             const jwt = res.data
             return xiorInstance
                 .get<Session>('/whoami', {
@@ -260,8 +252,6 @@ export async function login(
                         ...res.data,
                         jwt: jwt,
                     }
-                    // console.log(jwt)
-                    // console.log(session)
                     setSession(session)
                     return session
                 })
@@ -288,7 +278,6 @@ export async function logout() {
             }
         )
         .then(async () => {
-            // console.log('logout successful')
             await setSession({
                 authenticationAttempted: true,
                 isAuthenticated: false,

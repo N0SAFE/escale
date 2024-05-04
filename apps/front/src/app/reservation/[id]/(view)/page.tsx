@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/select'
 import SelectDate from '@/components/SelectDate/index'
 import { Button } from '@/components/ui/button'
-import { navigate } from '@/app/actions/navigate'
+import { navigate } from '@/actions/navigate'
 import { RedirectType } from 'next/navigation'
 import { toast } from 'sonner'
 import {
@@ -45,8 +45,6 @@ import { SpeakerModerateIcon } from '@radix-ui/react-icons'
 
 const Reservation = ({ params }: { params: { id: string } }) => {
     const { id } = params
-
-    console.log(id)
 
     const [selectedDate, setSelectedDate] = useState<DateRange | undefined>()
     const [selectedType, setSelectedType] = useState<
@@ -82,22 +80,6 @@ const Reservation = ({ params }: { params: { id: string } }) => {
         },
         enabled: !!id,
     })
-    const { data: closestUnavailabilitiesAndReservations } = useQuery({
-        placeholderData: keepPreviousData,
-        queryKey: [
-            'closestUnavailabilities',
-            selectedDate?.from?.toISOString(),
-        ],
-        queryFn: async () => {
-            return !selectedDate?.from
-                ? undefined
-                : await getClosestUnavailabilities(
-                      DateTime.fromJSDate(selectedDate?.from).toISODate()!
-                  )
-        },
-        enabled: !!selectedDate?.from,
-    })
-    console.log(closestUnavailabilitiesAndReservations)
     const {
         data: price,
         error: priceError,
@@ -169,8 +151,6 @@ const Reservation = ({ params }: { params: { id: string } }) => {
         enabled: !!id,
     })
 
-    console.log('availableDates', availableDates)
-
     const { data: closestUnreservableDate } = useQuery({
         queryKey: ['closestAllReservations', selectedDate?.from?.toISOString()],
         queryFn: async () => {
@@ -197,11 +177,6 @@ const Reservation = ({ params }: { params: { id: string } }) => {
             }
         },
         enabled: !!selectedDate?.from,
-    })
-
-    console.log('closestUnreservableDate', {
-        past: closestUnreservableDate?.past?.toISODate(),
-        future: closestUnreservableDate?.future?.toISODate(),
     })
 
     // const availableDates = useMemo(() => {
@@ -333,8 +308,6 @@ const Reservation = ({ params }: { params: { id: string } }) => {
     //     closestUnavailabilitiesAndReservations,
     // ])
 
-    console.log(availableDates)
-
     useEffect(() => {
         refetchPrice()
     }, [selectedType, selectedDate, refetchPrice])
@@ -367,15 +340,9 @@ const Reservation = ({ params }: { params: { id: string } }) => {
     //     }
     // }, [spaError, availabilitiesError, reservationsError, priceError])
 
-    // console.log(price)
-
     // async function onConfirm(selected: "night" | "journey" | undefined, date: Date | DateRange | undefined): Promise<string | undefined> {
     //     return confirm(Number(id), selected, date);
     // }
-
-    // console.log(availableDates)
-    // console.log(reservations, availabilities)
-    // console.log(selectedMonth)
 
     if (!isSpaFetched) {
         // ! try to know why the data is not loaded the same way in the admin part than in this part (prefetching data not here)
@@ -385,8 +352,6 @@ const Reservation = ({ params }: { params: { id: string } }) => {
             </div>
         )
     }
-
-    // console.log(availableDates)
 
     if (!spa) {
         return (
@@ -503,17 +468,6 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                                         setSelectedMonth(date)
                                     }}
                                     disableDateFunction={(date) => {
-                                        // console.log(date)
-                                        // console.log( new Date() > date)
-                                        // console.log(availableDates)
-                                        // console.log(DateTime.fromJSDate(
-                                        //     date
-                                        // ).toSQLDate())
-                                        // console.log(!availableDates.has(
-                                        //     DateTime.fromJSDate(
-                                        //         date
-                                        //     ).toSQLDate() as string
-                                        // ))
                                         return (
                                             !availableDates?.get(
                                                 DateTime.fromJSDate(

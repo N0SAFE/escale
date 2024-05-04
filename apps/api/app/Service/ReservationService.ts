@@ -92,8 +92,6 @@ export default class ReservationService implements AppBaseService {
       endAt = endAt.minus({ days: 1 })
     }
 
-    console.log(availabilities)
-
     return availabilities.reduce(
       (acc, availability) => {
         const availabilityStartAt = availability.startAt
@@ -106,8 +104,6 @@ export default class ReservationService implements AppBaseService {
         )
 
         const details = acc.details
-
-        console.log('intersectionDuration', intersectionDuration)
 
         for (let i = 0; i < intersectionDuration; i++) {
           const currentDay = startAt.plus({ days: i })
@@ -133,7 +129,6 @@ export default class ReservationService implements AppBaseService {
             }
           })()
 
-          // console.log('price', price)
           if (details.toPrice.has(price?.night!)) {
             details.toPrice.set(price?.night!, details.toPrice.get(price?.night!)! + 1)
           } else {

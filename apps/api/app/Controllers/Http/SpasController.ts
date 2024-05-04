@@ -25,12 +25,10 @@ export default class SpasController {
   public async store ({ request, response }: HttpContextContract) {
     const dto = SpaRessourcePostDto.fromRequest(request)
     const error = await dto.validate()
-    console.log(JSON.stringify(error, null, 4))
     if (error.length > 0) {
       return response.badRequest(error)
     }
     const { body } = await dto.after.customTransform
-    console.log(body)
     const spa = await Spa.create(body)
     if (body.spaImages) {
       await spa.related('spaImages').saveMany(
@@ -49,7 +47,6 @@ export default class SpasController {
     if (body.services) {
       await spa.related('services').attach(body.services)
     }
-    console.log(spa)
     return response.ok(spa)
   }
 
@@ -83,7 +80,6 @@ export default class SpasController {
 
     const spa = params.id
     spa.merge(body, true)
-    console.log(body)
     if (body.spaImages) {
       await spa.spaImages.map(async (spaImage) => {
         await spaImage.delete()
@@ -122,12 +118,10 @@ export default class SpasController {
   }
 
   public async getImages ({ request }: HttpContextContract) {
-    console.log(request.params())
     return await SpaImage.query().where('spa_id', request.params().spa).preload('image')
   }
 
   public async postImages ({ request, response }: HttpContextContract) {
-    console.log(request.params())
     const dto = SpaImageRessourcePostDto.fromRequest(request)
 
     const error = await dto.validate()
@@ -135,39 +129,29 @@ export default class SpasController {
       return response.badRequest(error)
     }
 
-    console.log(dto)
-
     const { files, params } = await dto.after.customTransform
 
     const spa = params.spa
     const images = files.images
 
-    console.log(images)
     for (let i = 0; i < images.length; i++) {
       const image = images[i]
       const uniqueId = uuid()
-      console.log('image')
       const imageO = await Image.create({
         alt: image.clientName,
       })
-      console.log('imageO')
       const image0Spa = await spa.related('spaImages').create({})
-      console.log('image0Spa')
       await image0Spa.related('image').associate(imageO)
-      console.log('image0Spa after')
       const file = await File.create({
         name: image.clientName,
         extname: image.extname,
         size: image.size,
         uuid: uniqueId,
       })
-      console.log('file')
       await imageO.related('file').associate(file)
-      console.log('file after')
       await image.moveToDisk('', {
         name: `${uniqueId}.${image.extname}`,
       })
-      console.log('moveToDisk')
     }
     return response.ok(spa.spaImages)
   }
@@ -184,8 +168,6 @@ export default class SpasController {
 
     const sorted = body.sorted
     const spa = params.spa
-
-    console.log(spa)
 
     const spaImages = await spa.related('spaImages').query().orderBy('order', 'asc')
     if (!spaImages.every((spaI) => sorted.some((s) => s.id === spaI.id))) {

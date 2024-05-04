@@ -21,7 +21,6 @@ export default function ContactForm({ onSubmit }: ContactFormProps) {
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault()
         onSubmit(new FormData(event.currentTarget)).then((response) => {
-            console.log(response)
             if (!response.state) {
                 setError(response.message)
             } else {
