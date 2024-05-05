@@ -51,7 +51,7 @@ export async function getSessionUrl(
     id: number,
     selected: 'night' | 'journey' | undefined,
     dates: {
-        from: string,
+        from: string
         to?: string
     }
 ): Promise<string> {
