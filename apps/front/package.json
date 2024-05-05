@@ -3,11 +3,16 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "next dev -p 4000",
-        "build": "next build",
-        "start": "next start -p 4000",
-        "lint": "next lint",
-        "format": "prettier --write ."
+        "dev": "npx tsx ./bin/dev.ts",
+        "build": "npm run dr:build && npm run openapi && next build",
+        "start": "npx tsx ./bin/start.ts",
+        "lint": "next lint --fix",
+        "format": "prettier --write .",
+        "dr:build": "npx declarative-routing build",
+        "dr:build:watch": "npx declarative-routing build --watch",
+        "openapi": "npm run openapi:yaml && npm run openapi:html",
+        "openapi:yaml": "tsx ./src/routes/openapi.ts",
+        "openapi:html": "npx @redocly/cli build-docs openapi-docs.yml"
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^6.5.1",
@@ -44,6 +49,7 @@
         "million": "^3.0.6",
         "next": "^14.1.4",
         "next-themes": "^0.2.1",
+        "query-string": "^9.0.0",
         "react": "^18.2.0",
         "react-day-picker": "^8.10.0",
         "react-dom": "^18.2.0",
@@ -54,9 +60,11 @@
         "swiper": "^11.0.5",
         "tailwind-merge": "^2.2.1",
         "tailwindcss-animate": "^1.0.7",
-        "vaul": "^0.9.0"
+        "vaul": "^0.9.0",
+        "zod": "^3.23.6"
     },
     "devDependencies": {
+        "@asteasolutions/zod-to-openapi": "^7.0.0",
         "@types/node": "^20",
         "@types/react": "^18",
         "@types/react-dom": "^18",
@@ -64,6 +72,7 @@
         "eslint-config-next": "^14.2.2",
         "postcss": "^8.4.31",
         "tailwindcss": "^3.3.5",
-        "typescript": "^5"
+        "typescript": "^5",
+        "yaml": "^2.4.2"
     }
 }

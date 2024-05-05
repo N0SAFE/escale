@@ -4,8 +4,8 @@
     "private": true,
     "scripts": {
         "dev": "npx tsx ./bin/dev.ts",
-        "build": "npm run dr:build && npx tsx ./bin/declarativeRoutingBackslash && npm run openapi && next build",
-        "start": "next start",
+        "build": "npm run dr:build && npm run openapi && next build",
+        "start": "npx tsx ./bin/start.ts",
         "lint": "next lint --fix",
         "format": "prettier --write .",
         "dr:build": "npx declarative-routing build",
@@ -69,7 +69,7 @@
         "tailwindcss-animate": "^1.0.7",
         "vaul": "^0.9.0",
         "xior": "^0.3.9",
-        "zod": "^3.22.4"
+        "zod": "^3.23.6"
     },
     "devDependencies": {
         "@asteasolutions/zod-to-openapi": "^7.0.0",
@@ -84,6 +84,6 @@
         "tailwindcss": "^3.3.0",
         "tsx": "^4.7.2",
         "typescript": "^5",
-        "yaml": "^2.4.1"
+        "yaml": "^2.4.2"
     }
 }

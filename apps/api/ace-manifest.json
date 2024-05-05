@@ -118,6 +118,18 @@
       "aliases": [],
       "flags": []
     },
+    "start:stripe": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/StartStripe",
+      "commandName": "start:stripe",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "dump:rcfile": {
       "settings": {},
       "commandPath": "@adonisjs/core/build/commands/DumpRc",

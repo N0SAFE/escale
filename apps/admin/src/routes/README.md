@@ -28,8 +28,8 @@ Here are the routes of the application:
 | `/(logged)/dashboard/services/[id]/edit`      | -    | `LoggedDashboardServicesIdEdit`         | `<LoggedDashboardServicesIdEdit.Link>`         |
 | `/(logged)/dashboard/services/[id]`           | -    | `LoggedDashboardServicesId`             | `<LoggedDashboardServicesId.Link>`             |
 | `/(logged)/dashboard/services`                | -    | `LoggedDashboardServices`               | `<LoggedDashboardServices.Link>`               |
-| `/(logged)/dashboard/spas/[id]/edit`          | -    | `LoggedDashboardSpasIdEdit`             | `<LoggedDashboardSpasIdEdit.Link>`             |
-| `/(logged)/dashboard/spas/[id]`               | -    | `LoggedDashboardSpasId`                 | `<LoggedDashboardSpasId.Link>`                 |
+| `/(logged)/dashboard/spas/[spaId]/edit`       | -    | `LoggedDashboardSpasIdEdit`             | `<LoggedDashboardSpasIdEdit.Link>`             |
+| `/(logged)/dashboard/spas/[spaId]`            | -    | `LoggedDashboardSpasId`                 | `<LoggedDashboardSpasId.Link>`                 |
 | `/(logged)/dashboard/spas`                    | -    | `LoggedDashboardSpas`                   | `<LoggedDashboardSpas.Link>`                   |
 | `/(logged)/dashboard/tags/[id]/edit`          | -    | `LoggedDashboardTagsIdEdit`             | `<LoggedDashboardTagsIdEdit.Link>`             |
 | `/(logged)/dashboard/tags/[id]`               | -    | `LoggedDashboardTagsId`                 | `<LoggedDashboardTagsId.Link>`                 |
@@ -72,6 +72,29 @@ useEffect(() => {
 
 This is the equivalent of doing `fetch('/api/product/abc123')` but with typesafety, and you never have to remember the URL. If the API moves, the typesafe route will be updated automatically.
 
+## Using typed hooks
+
+The system provides three typed hooks to use in your application `usePush`, `useParams`, and `useSearchParams`.
+
+-   `usePush` wraps the NextJS `useRouter` hook and returns a typed version of the `push` function.
+-   `useParams` wraps `useNextParams` and returns the typed parameters for the route.
+-   `useSearchParams` wraps `useNextSearchParams` and returns the typed search parameters for the route.
+
+For each hook you give the route to get the appropriate data back.
+
+```ts
+import { Search } from "@/routes";
+import { useSearchParams } from "@/routes/hooks";
+
+export default MyClientComponent() {
+  const searchParams = useSearchParams(Search);
+  return <div>{searchParams.query}</div>;
+}
+```
+
+We had to extract the hooks into a seperate module because NextJS would not allow the routes to include hooks directly if
+they were used by React Server Components (RSCs).
+
 # Configure declarative-routing
 
 After running `npx declarative-routing init`, you don't need to configure anything to use it.
@@ -79,8 +102,8 @@ However, you may want to customize some options to change the behavior of route 
 
 You can edit `declarative-routing.config.json` in the root of your project. The following options are available:
 
--   `mode`: choose between `react-router`and `nextjs`. It is automatically picked on init based on the project type.
--   `routes`: the directory where the routes are defined. It is picked from the initial wizard (and defaults to `src/routes`).
+-   `mode`: choose between `react-router`, `nextjs` or `qwikcity`. It is automatically picked on init based on the project type.
+-   `routes`: the directory where the routes are defined. It is picked from the initial wizard (and defaults to `./src/components/declarativeRoutes`).
 -   `importPathPrefix`: the path prefix to add to the import path of the self-generated route objects, in order to be able to resolve them. It defaults to `@/app`.
 
 # When your routes change
@@ -101,69 +124,69 @@ You can also run the build command in watch mode using `npm run dr:build:watch` 
 
 Post setup there are some additional tasks that you need to complete to completely typesafe your routes. We've compiled a handy check list so you can keep track of your progress.
 
--   [ ] `/(logged)\dashboard\availabilities\calendar\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] `/(logged)/dashboard/availabilities/calendar/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/availabilities/calendar` to `<LoggedDashboardAvailabilitiesCalendar.Link>`
--   [ ] `/(logged)\dashboard\availabilities\list\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] `/(logged)/dashboard/availabilities/list/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/availabilities/list` to `<LoggedDashboardAvailabilitiesList.Link>`
--   [ ] `/(logged)\dashboard\comments\[id]\edit\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] `/(logged)/dashboard/comments/[id]/edit/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/comments/[id]/edit` to `<LoggedDashboardCommentsIdEdit.Link>`
--   [ ] Convert `params` typing in `/(logged)\dashboard\comments\[id]\edit\page.ts` to `z.infer<>`
--   [ ] `/(logged)\dashboard\comments\[id]\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] Convert `params` typing in `/(logged)/dashboard/comments/[id]/edit/page.ts` to `z.infer<>`
+-   [ ] `/(logged)/dashboard/comments/[id]/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/comments/[id]` to `<LoggedDashboardCommentsId.Link>`
--   [ ] Convert `params` typing in `/(logged)\dashboard\comments\[id]\page.ts` to `z.infer<>`
--   [ ] `/(logged)\dashboard\comments\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] Convert `params` typing in `/(logged)/dashboard/comments/[id]/page.ts` to `z.infer<>`
+-   [ ] `/(logged)/dashboard/comments/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/comments` to `<LoggedDashboardComments.Link>`
--   [ ] `/(logged)\dashboard\images\[id]\edit\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] `/(logged)/dashboard/images/[id]/edit/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/images/[id]/edit` to `<LoggedDashboardImagesIdEdit.Link>`
--   [ ] Convert `params` typing in `/(logged)\dashboard\images\[id]\edit\page.ts` to `z.infer<>`
--   [ ] `/(logged)\dashboard\images\[id]\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] Convert `params` typing in `/(logged)/dashboard/images/[id]/edit/page.ts` to `z.infer<>`
+-   [ ] `/(logged)/dashboard/images/[id]/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/images/[id]` to `<LoggedDashboardImagesId.Link>`
--   [ ] Convert `params` typing in `/(logged)\dashboard\images\[id]\page.ts` to `z.infer<>`
--   [ ] `/(logged)\dashboard\images\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] Convert `params` typing in `/(logged)/dashboard/images/[id]/page.ts` to `z.infer<>`
+-   [ ] `/(logged)/dashboard/images/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/images` to `<LoggedDashboardImages.Link>`
--   [ ] `/(logged)\dashboard\reservations\calendar\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] `/(logged)/dashboard/reservations/calendar/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/reservations/calendar` to `<LoggedDashboardReservationsCalendar.Link>`
--   [ ] `/(logged)\dashboard\reservations\list\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] `/(logged)/dashboard/reservations/list/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/reservations/list` to `<LoggedDashboardReservationsList.Link>`
--   [ ] `/(logged)\dashboard\rules\[id]\edit\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] `/(logged)/dashboard/rules/[id]/edit/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/rules/[id]/edit` to `<LoggedDashboardRulesIdEdit.Link>`
--   [ ] Convert `params` typing in `/(logged)\dashboard\rules\[id]\edit\page.ts` to `z.infer<>`
--   [ ] `/(logged)\dashboard\rules\[id]\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] Convert `params` typing in `/(logged)/dashboard/rules/[id]/edit/page.ts` to `z.infer<>`
+-   [ ] `/(logged)/dashboard/rules/[id]/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/rules/[id]` to `<LoggedDashboardRulesId.Link>`
--   [ ] Convert `params` typing in `/(logged)\dashboard\rules\[id]\page.ts` to `z.infer<>`
--   [ ] `/(logged)\dashboard\rules\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] Convert `params` typing in `/(logged)/dashboard/rules/[id]/page.ts` to `z.infer<>`
+-   [ ] `/(logged)/dashboard/rules/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/rules` to `<LoggedDashboardRules.Link>`
--   [ ] `/(logged)\dashboard\services\[id]\edit\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] `/(logged)/dashboard/services/[id]/edit/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/services/[id]/edit` to `<LoggedDashboardServicesIdEdit.Link>`
--   [ ] Convert `params` typing in `/(logged)\dashboard\services\[id]\edit\page.ts` to `z.infer<>`
--   [ ] `/(logged)\dashboard\services\[id]\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] Convert `params` typing in `/(logged)/dashboard/services/[id]/edit/page.ts` to `z.infer<>`
+-   [ ] `/(logged)/dashboard/services/[id]/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/services/[id]` to `<LoggedDashboardServicesId.Link>`
--   [ ] Convert `params` typing in `/(logged)\dashboard\services\[id]\page.ts` to `z.infer<>`
--   [ ] `/(logged)\dashboard\services\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] Convert `params` typing in `/(logged)/dashboard/services/[id]/page.ts` to `z.infer<>`
+-   [ ] `/(logged)/dashboard/services/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/services` to `<LoggedDashboardServices.Link>`
--   [ ] `/(logged)\dashboard\spas\[id]\edit\page.info.ts`: Add search typing to if the page supports search paramaters
--   [ ] Convert `Link` components for `/(logged)/dashboard/spas/[id]/edit` to `<LoggedDashboardSpasIdEdit.Link>`
--   [ ] Convert `params` typing in `/(logged)\dashboard\spas\[id]\edit\page.ts` to `z.infer<>`
--   [ ] `/(logged)\dashboard\spas\[id]\page.info.ts`: Add search typing to if the page supports search paramaters
--   [ ] Convert `Link` components for `/(logged)/dashboard/spas/[id]` to `<LoggedDashboardSpasId.Link>`
--   [ ] Convert `params` typing in `/(logged)\dashboard\spas\[id]\page.ts` to `z.infer<>`
--   [ ] `/(logged)\dashboard\spas\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] `/(logged)/dashboard/spas/[spaId]/edit/page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] Convert `Link` components for `/(logged)/dashboard/spas/[spaId]/edit` to `<LoggedDashboardSpasIdEdit.Link>`
+-   [ ] Convert `params` typing in `/(logged)/dashboard/spas/[spaId]/edit/page.ts` to `z.infer<>`
+-   [ ] `/(logged)/dashboard/spas/[spaId]/page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] Convert `Link` components for `/(logged)/dashboard/spas/[spaId]` to `<LoggedDashboardSpasId.Link>`
+-   [ ] Convert `params` typing in `/(logged)/dashboard/spas/[spaId]/page.ts` to `z.infer<>`
+-   [ ] `/(logged)/dashboard/spas/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/spas` to `<LoggedDashboardSpas.Link>`
--   [ ] `/(logged)\dashboard\tags\[id]\edit\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] `/(logged)/dashboard/tags/[id]/edit/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/tags/[id]/edit` to `<LoggedDashboardTagsIdEdit.Link>`
--   [ ] Convert `params` typing in `/(logged)\dashboard\tags\[id]\edit\page.ts` to `z.infer<>`
--   [ ] `/(logged)\dashboard\tags\[id]\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] Convert `params` typing in `/(logged)/dashboard/tags/[id]/edit/page.ts` to `z.infer<>`
+-   [ ] `/(logged)/dashboard/tags/[id]/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/tags/[id]` to `<LoggedDashboardTagsId.Link>`
--   [ ] Convert `params` typing in `/(logged)\dashboard\tags\[id]\page.ts` to `z.infer<>`
--   [ ] `/(logged)\dashboard\tags\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] Convert `params` typing in `/(logged)/dashboard/tags/[id]/page.ts` to `z.infer<>`
+-   [ ] `/(logged)/dashboard/tags/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/tags` to `<LoggedDashboardTags.Link>`
--   [ ] `/(logged)\dashboard\website\faq\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] `/(logged)/dashboard/website/faq/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/website/faq` to `<LoggedDashboardWebsiteFaq.Link>`
--   [ ] `/(logged)\dashboard\website\home\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] `/(logged)/dashboard/website/home/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/website/home` to `<LoggedDashboardWebsiteHome.Link>`
--   [ ] `/(logged)\dashboard\website\rules\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] `/(logged)/dashboard/website/rules/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/(logged)/dashboard/website/rules` to `<LoggedDashboardWebsiteRules.Link>`
--   [ ] `/login\page.info.ts`: Add search typing to if the page supports search paramaters
+-   [ ] `/login/page.info.ts`: Add search typing to if the page supports search paramaters
 -   [ ] Convert `Link` components for `/login` to `<Login.Link>`
         Once you've got that done you can remove this section.
 

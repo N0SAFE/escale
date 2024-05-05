@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently -n stripe,adonis,scheduler -c yellow,blue,magenta \"stripe listen --forward-to http://localhost:4444/webhook/stripe\" \"node checkPort.js node ace serve --watch\" \"npm run scheduler\"",
+    "dev": "concurrently -n stripe,adonis,scheduler -c yellow,blue,magenta \"node ace start:stripe\" \"node checkPort.js node ace serve --watch\" \"npm run scheduler\"",
     "start": "concurrently -n adonis,scheduler -c blue,magenta \"node checkPort.js node server.js\" \"node ace scheduler:run\"",
     "start:ngrok": "npm run ngrok: npm run start",
     "stop": "node stop.js",
