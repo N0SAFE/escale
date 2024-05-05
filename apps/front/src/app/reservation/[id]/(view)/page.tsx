@@ -110,15 +110,14 @@ const Reservation = ({ params }: { params: { id: string } }) => {
             type?: 'night' | 'journey'
             dates?: DateRange
         }) => {
-            if (!type || !dates) {
+            if (!type || !dates || !dates.from) {
                 throw new Error('type or date is undefined')
             }
-            console.log(dates)
             return await getSessionUrl(Number(id), type, {
-                from: DateTime.fromJSDate(dates.from).toISODate()!,
+                from: DateTime.fromJSDate(dates.from!).toISODate()!,
                 to: !dates.to
-                    ? DateTime.fromJSDate(dates.from).toISODate()!
-                    : DateTime.fromJSDate(dates.to).toISODate()!,
+                    ? DateTime.fromJSDate(dates.from!).toISODate()!
+                    : DateTime.fromJSDate(dates.to!).toISODate()!,
             })
         },
         onSuccess: (data) => {
