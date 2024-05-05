@@ -121,7 +121,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
             })
         },
         onSuccess: (data) => {
-            // navigate(data, RedirectType.push)
+            navigate(data, RedirectType.push)
         },
         onError: (error) => {
             setError(error.message)
