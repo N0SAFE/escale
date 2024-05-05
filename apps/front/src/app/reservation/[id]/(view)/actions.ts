@@ -50,15 +50,18 @@ export async function getPrice(
 export async function getSessionUrl(
     id: number,
     selected: 'night' | 'journey' | undefined,
-    date: DateRange
+    dates: {
+        from: string,
+        to?: string
+    }
 ): Promise<string> {
-    if (!date.to) {
-        date.to = date.from
+    if (!dates.to) {
+        dates.to = dates.from
     }
     const session = await axiosInstance.post('/checkout-session/spa', {
         spa: 1,
-        startAt: DateTime.fromJSDate(date.from!).toISODate(),
-        endAt: DateTime.fromJSDate(date.to!).toISODate(),
+        startAt: dates.from,
+        endAt: dates.to,
         successUrl:
             process.env.NEXT_PUBLIC_FRONT_URL +
             '/reservation/' +

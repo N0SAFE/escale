@@ -105,18 +105,24 @@ const Reservation = ({ params }: { params: { id: string } }) => {
     const confirmMutation = useMutation({
         mutationFn: async ({
             type,
-            date,
+            dates,
         }: {
             type?: 'night' | 'journey'
-            date?: DateRange
+            dates?: DateRange
         }) => {
-            if (!type || !date) {
+            if (!type || !dates) {
                 throw new Error('type or date is undefined')
             }
-            return await getSessionUrl(Number(id), type, date)
+            console.log(dates)
+            return await getSessionUrl(Number(id), type, {
+                from: DateTime.fromJSDate(dates.from).toISODate()!,
+                to: !dates.to
+                    ? DateTime.fromJSDate(dates.from).toISODate()!
+                    : DateTime.fromJSDate(dates.to).toISODate()!,
+            })
         },
         onSuccess: (data) => {
-            navigate(data, RedirectType.push)
+            // navigate(data, RedirectType.push)
         },
         onError: (error) => {
             setError(error.message)
@@ -500,7 +506,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                                             onClick={() =>
                                                 confirmMutation.mutate({
                                                     type: selectedType,
-                                                    date: selectedDate,
+                                                    dates: selectedDate,
                                                 })
                                             }
                                         >
