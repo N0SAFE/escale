@@ -33,6 +33,7 @@ export default class StartStripe extends BaseCommand {
     this.logger.success(`stripe started on port ${Env.get('PORT')}!`)
     spawnSync(`stripe listen --forward-to http://localhost:${Env.get('PORT')}/webhook/stripe`, {
       shell: true,
+      stdio: 'inherit',
     })
   }
 }

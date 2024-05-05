@@ -42,6 +42,7 @@
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.1.0",
         "date-fns": "^3.3.1",
+        "dotenv": "^16.4.5",
         "draft-js": "^0.11.7",
         "embla-carousel-react": "^8.0.0-rc22",
         "lucide-react": "^0.320.0",
