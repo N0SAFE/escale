@@ -17,14 +17,8 @@ const withRedirect: MiddlewareFactory = (next: NextMiddleware) => {
         if (request.nextUrl.pathname.startsWith('/_next')) {
             return res
         }
-        const redirectMap = ObjectToMap({
-            reservations: '/dashboard/reservations/calendar',
-            availabilities: '/dashboard/availabilities/calendar',
-            dashboard: '/dashboard/spas',
-            website: '/dashboard/website/home',
-            main: '/dashboard',
-        })
-        const path = redirectMap.get(key as string)
+        const redirectMap = ObjectToMap({})
+        const path = redirectMap.get(key as string) as string
         if (key && path) {
             return NextResponse.redirect(new URL(path, request.url))
         }
@@ -34,10 +28,4 @@ const withRedirect: MiddlewareFactory = (next: NextMiddleware) => {
 
 export default withRedirect
 
-export const matcher: Matcher = {
-    main: '^/$',
-    dashboard: '^/dashboard$',
-    reservations: '^/dashboard/reservations$',
-    availabilities: '^/dashboard/availabilities$',
-    website: '^/dashboard/website$',
-}
+export const matcher: Matcher = {}

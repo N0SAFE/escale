@@ -1,5 +1,5 @@
 import ContactForm from '@/components/contact-form'
-import { axiosInstance } from '@/lib/axiosInstance'
+import { xiorInstance } from '@/utils/xiorInstance'
 
 export default function Contact() {
     async function handleSubmit(
@@ -8,7 +8,7 @@ export default function Contact() {
         'use server'
 
         try {
-            await axiosInstance.post('/contact', data)
+            await xiorInstance.post('/contact', data)
             return {
                 state: true,
             }

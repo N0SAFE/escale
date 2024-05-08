@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/lib/axiosInstance'
+import { xiorInstance } from '@/utils/xiorInstance'
 import { redirect } from 'next/navigation'
 
 type ReservationType = {
@@ -7,7 +7,7 @@ type ReservationType = {
 
 const Reservation = async () => {
     // this page is a placeholder for the first spa reservation
-    const { data } = await axiosInstance<ReservationType>('/spas')
+    const { data } = await xiorInstance.get<ReservationType>('/spas')
     redirect(`/reservation/${data?.[0]?.id}`)
 }
 

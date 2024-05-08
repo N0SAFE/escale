@@ -1,6 +1,6 @@
 'use server'
 
-import { axiosInstance } from '@/lib/axiosInstance'
+import { xiorInstance } from '@/utils/xiorInstance'
 import {
     DatesFilter,
     GroupsFilter,
@@ -14,7 +14,7 @@ import { redirect } from 'next/navigation'
 import { DateRange } from 'react-day-picker'
 
 export async function getSpa(id: number) {
-    const { data } = await axiosInstance<Spa<true>>(`/spas/${id}`)
+    const { data } = await xiorInstance.get<Spa<true>>(`/spas/${id}`)
     return { data }
 }
 
@@ -29,7 +29,7 @@ export async function getPrice(
             ? DateTime.fromJSDate((date as DateRange).from!).toISODate()!
             : DateTime.fromJSDate((date as DateRange).to!).toISODate()!,
     }
-    const response = await axiosInstance.get<{
+    const response = await xiorInstance.get<{
         price: number
         details: { toPrice: { price: number; number: number }[] }
     }>(
@@ -40,7 +40,7 @@ export async function getPrice(
     }
     //  else {
     //     const d = DateTime.fromJSDate(date as Date).toISODate()!
-    //     const response = await axiosInstance.get(`/reservations/price?date=${d}&type=${type}&spa=${id}`);
+    //     const response = await xiorInstance.get(`/reservations/price?date=${d}&type=${type}&spa=${id}`);
     //     return {
     //         data: response.data.price
     //     };
@@ -58,7 +58,7 @@ export async function getSessionUrl(
     if (!dates.to) {
         dates.to = dates.from
     }
-    const session = await axiosInstance.post('/checkout-session/spa', {
+    const session = await xiorInstance.post('/checkout-session/spa', {
         spa: 1,
         startAt: dates.from,
         endAt: dates.to,
@@ -76,7 +76,7 @@ export async function getSessionUrl(
 export async function getAvailabilities(
     filter: GroupsFilter & SearchFilter & DatesFilter & PaginationFilter
 ) {
-    const { data } = await axiosInstance.get<Availability[]>(
+    const { data } = await xiorInstance.get<Availability[]>(
         `/availabilities`,
         {
             params: {
@@ -96,7 +96,7 @@ export async function getReservations(
     startAt: string,
     endAt: string
 ) {
-    const { data } = await axiosInstance.get<Reservation[]>(
+    const { data } = await xiorInstance.get<Reservation[]>(
         `/reservations?startAt=${startAt}&endAt=${endAt}&spa=${id}`
     )
     return data
@@ -104,7 +104,7 @@ export async function getReservations(
 
 export async function getClosestUnavailabilities(date: string) {
     const closestUnavailabilitiesPromise = await Promise.all([
-        await axiosInstance.get<Unavailability[]>(`/unavailabilities`, {
+        await xiorInstance.get<Unavailability[]>(`/unavailabilities`, {
             params: {
                 endAt: {
                     strictly_before: date,
@@ -115,7 +115,7 @@ export async function getClosestUnavailabilities(date: string) {
                 },
             },
         }),
-        await axiosInstance.get<Unavailability[]>(`/unavailabilities`, {
+        await xiorInstance.get<Unavailability[]>(`/unavailabilities`, {
             params: {
                 startAt: {
                     strictly_after: date,
@@ -126,7 +126,7 @@ export async function getClosestUnavailabilities(date: string) {
     ])
 
     const closestReservationsPromise = Promise.all([
-        await axiosInstance.get<Reservation[]>(`/reservations`, {
+        await xiorInstance.get<Reservation[]>(`/reservations`, {
             params: {
                 endAt: {
                     before: date,
@@ -137,7 +137,7 @@ export async function getClosestUnavailabilities(date: string) {
                 },
             },
         }),
-        await axiosInstance.get<Reservation[]>(`/reservations`, {
+        await xiorInstance.get<Reservation[]>(`/reservations`, {
             params: {
                 startAt: {
                     after: date,
@@ -189,7 +189,7 @@ export async function getAvailableDates(
 ) {
     'use server'
 
-    const { data } = await axiosInstance.get<
+    const { data } = await xiorInstance.get<
         {
             date: string
             isAvailable: boolean
@@ -234,7 +234,7 @@ export async function getClosestUnreservable(
 ) {
     'use server'
 
-    const { data } = await axiosInstance.get<{
+    const { data } = await xiorInstance.get<{
         past?: string
         future?: string
     }>(`/reservations/closest-unreservable`, {
