@@ -25,11 +25,9 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import React, { CSSProperties, use } from 'react'
-import Loader from '../../atoms/Loader'
-import { Button } from '../../../ui/button'
+import React, { CSSProperties } from 'react'
+import Loader from '@/components/atomics/atoms/Loader'
 import { DataTablePagination } from './DataTablePagination'
-import { DataTableViewOptions } from './DataTableViewOptions'
 import { cn } from '@/lib/utils'
 import {
     arrayMove,
@@ -50,9 +48,11 @@ import {
     useSensors,
 } from '@dnd-kit/core'
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
+import { For } from 'million/react'
 
 interface DataTableProps<TData extends { uuid: UniqueIdentifier }, TValue>
     extends React.ComponentProps<typeof Table> {
+    tableClassName?: string
     columns: ColumnDef<TData, TValue>[]
     data: TData[] | undefined
     isLoading?: boolean
@@ -124,6 +124,7 @@ export function DataTable<TData extends { uuid: UniqueIdentifier }, TValue>({
     notFound,
     tableRef,
     usePagination = true,
+    tableClassName,
     className,
     divClassname,
     meta,
@@ -182,19 +183,24 @@ export function DataTable<TData extends { uuid: UniqueIdentifier }, TValue>({
             onDragEnd={onReorder}
             sensors={sensors}
         >
-            <div className="flex flex-col gap-4">
-                <div className="rounded-md border">
+            <div
+                className={cn(
+                    'flex flex-col gap-4 overflow-hidden justify-between h-full',
+                    className
+                )}
+            >
+                <div className="rounded-md border overflow-hidden border-border">
                     <Table
                         className={cn(
-                            'rounded-md border-border w-full h-10 overflow-clip relative ',
-                            className
+                            'w-full h-10 overflow-clip relative',
+                            tableClassName
                         )}
                         divClassname={cn(
-                            'max-h-screen overflow-y-auto',
+                            'max-h-full overflow-y-auto scrollbar-thin scrollbar-thumb-secondary scrollbar-track-transparent',
                             divClassname
                         )}
                     >
-                        <TableHeader className="sticky w-full top-0 h-10 border-b-2 border-border rounded-t-md bg-secondary">
+                        <TableHeader className="sticky w-full top-0 h-10 border-b-2 border-border rounded-t-md bg-secondary z-10">
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id}>
                                     {headerGroup.headers.map((header) => {
@@ -230,17 +236,19 @@ export function DataTable<TData extends { uuid: UniqueIdentifier }, TValue>({
                                     items={useDragabble ? dataIds : []}
                                     strategy={verticalListSortingStrategy}
                                 >
-                                    {table.getRowModel().rows.map((row) => (
-                                        <DraggableRow
-                                            key={row.id}
-                                            row={row}
-                                            rowIsDraggable={
-                                                useDragabble
-                                                    ? rowIsDraggable
-                                                    : false
-                                            }
-                                        />
-                                    ))}
+                                    <For each={table.getRowModel().rows} memo>
+                                        {(row) => (
+                                            <DraggableRow
+                                                key={row.id}
+                                                row={row}
+                                                rowIsDraggable={
+                                                    useDragabble
+                                                        ? rowIsDraggable
+                                                        : false
+                                                }
+                                            />
+                                        )}
+                                    </For>
                                 </SortableContext>
                             ) : (
                                 <TableRow>

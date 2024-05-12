@@ -15,6 +15,7 @@ import Home from '../Home'
 import drive from 'Config/drive'
 import * as fs from 'fs'
 import Logger from '@ioc:Adonis/Core/Logger'
+import Role from '../Role'
 
 export default class IndexSeeder extends BaseSeeder {
   private async runSeeder (Seeders: typeof BaseSeeder | (typeof BaseSeeder)[]) {
@@ -55,6 +56,7 @@ export default class IndexSeeder extends BaseSeeder {
   public async run () {
     await this.clearDrive()
     await this.runSeeder([
+      Role,
       User,
       Spa,
       Comment,

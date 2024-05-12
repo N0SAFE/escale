@@ -39,6 +39,17 @@ import {
     CollapsibleTrigger,
 } from '@/components/ui/collapsible'
 import { SpeakerModerateIcon } from '@radix-ui/react-icons'
+import {
+    Drawer,
+    DrawerClose,
+    DrawerContent,
+    DrawerDescription,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
+} from '@/components/ui/drawer'
+import { cn } from '@/lib/utils'
 
 // ! exessive rendering
 // ! the availabilies and reservations are not updated when the month is changed and the result is that every availabilities and reservations are fetched
@@ -370,7 +381,170 @@ const Reservation = ({ params }: { params: { id: string } }) => {
         <>
             <div className="mx-4 mt-4">
                 <div className="md:hidden">
-                    {/* <DatePickerSmall onConfirm={onConfirm} getPrice={onGetPrice} getAvailableDates={onGetAvailableDates} /> */}
+                    <Drawer>
+                        <div className="w-full flex px-8 py-10">
+                            <span className="text-2xl font-bold flex-1">
+                                à partir de 150 €
+                            </span>
+                            <DrawerTrigger asChild>
+                                <Button
+                                    variant={'secondary'}
+                                    className="flex-1"
+                                >
+                                    Réserver
+                                </Button>
+                            </DrawerTrigger>
+                        </div>
+                        <DrawerContent>
+                            <DrawerHeader>
+                                <DrawerTitle>
+                                    Are you absolutely sure?
+                                </DrawerTitle>
+                                <DrawerDescription>
+                                    This action cannot be undone.
+                                </DrawerDescription>
+                            </DrawerHeader>
+                            <div
+                                className={
+                                    'flex flex-col gap-2 w-full mt-4 px-10'
+                                }
+                            >
+                                <div className="flex gap-2 items-center justify-between">
+                                    <span className="text-nowrap">
+                                        réserver pour :{' '}
+                                    </span>
+                                    <Select
+                                        defaultValue="night"
+                                        onValueChange={(value) => {
+                                            setSelectedType(
+                                                value as 'journey' | 'night'
+                                            )
+                                        }}
+                                    >
+                                        <SelectTrigger className="max-w-[190px] w-full">
+                                            <SelectValue placeholder="select a reservation time" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                {/* <SelectItem value="journey">plusieurs jours</SelectItem> */}
+                                                <SelectItem value="night">
+                                                    la nuit
+                                                </SelectItem>
+                                                {/* <SelectItem value="afternoon">l&apos;après-midi</SelectItem> */}
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="flex gap-2 items-center justify-between">
+                                    <span className="text-nowrap">
+                                        sélectionner des dates :
+                                    </span>
+                                    <SelectDate
+                                        multiple
+                                        onSelect={setSelectedDate}
+                                        onMonthChange={function (date) {
+                                            setSelectedMonth(date)
+                                        }}
+                                        disableDateFunction={(date) => {
+                                            return (
+                                                !availableDates?.get(
+                                                    DateTime.fromJSDate(
+                                                        date
+                                                    ).toSQLDate() as string
+                                                )?.isAvailable ||
+                                                new Date() > date ||
+                                                (closestUnreservableDate?.past
+                                                    ? date <
+                                                      closestUnreservableDate.past.toJSDate()
+                                                    : false) ||
+                                                (closestUnreservableDate?.future
+                                                    ? date >
+                                                      closestUnreservableDate.future.toJSDate()
+                                                    : false)
+                                            )
+                                        }}
+                                        defaultValue={{ date: selectedDate }}
+                                    />
+                                </div>
+                                {error && (
+                                    <p className="text-red-600">{error}</p>
+                                )}
+                                <Collapsible
+                                    title="Détails"
+                                    className="flex flex-col gap-4"
+                                >
+                                    <div className="flex justify-between">
+                                        <CollapsibleTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                className={cn(
+                                                    'flex-1',
+                                                    price ? '' : 'invisible'
+                                                )}
+                                            >
+                                                details
+                                            </Button>
+                                        </CollapsibleTrigger>
+                                    </div>
+                                    <CollapsibleContent className="flex-col gap-8">
+                                        {price?.details.toPrice.map(function (
+                                            { price, number },
+                                            index
+                                        ) {
+                                            return (
+                                                <div
+                                                    key={index}
+                                                    className="flex justify-between"
+                                                >
+                                                    <div className="flex gap-2">
+                                                        <span>{number}</span>*
+                                                        <span>
+                                                            {price / 100}€
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            {(price * number) /
+                                                                100}
+                                                            €
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            )
+                                        })}
+                                    </CollapsibleContent>
+                                    <div className="flex justify-between">
+                                        <span>total</span>
+                                        <span className="font-bold">
+                                            {price?.price! / 100 || 0}€
+                                        </span>
+                                    </div>
+                                </Collapsible>
+                            </div>
+                            <DrawerFooter>
+                                <Button
+                                    disabled={confirmMutation.isPending}
+                                    onClick={() =>
+                                        confirmMutation.mutate({
+                                            type: selectedType,
+                                            dates: selectedDate,
+                                        })
+                                    }
+                                >
+                                    {confirmMutation.isPending ? (
+                                        <div className="flex items-center justify-center gap-1 p-4">
+                                            <Loader className="p-1" />
+                                        </div>
+                                    ) : (
+                                        'confirmer'
+                                    )}
+                                </Button>
+                                <DrawerClose asChild>
+                                    <Button variant="outline">Cancel</Button>
+                                </DrawerClose>
+                            </DrawerFooter>
+                        </DrawerContent>
+                    </Drawer>
                 </div>
                 <ImageCarousel
                     images={
@@ -440,7 +614,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                                 à partir de 150 €
                             </span>
                             <div className={'flex flex-col gap-2 w-full mt-4'}>
-                                <div className="flex gap-2 items-center">
+                                <div className="flex gap-2 items-center justify-between">
                                     <span className="text-nowrap">
                                         réserver pour :{' '}
                                     </span>
@@ -452,7 +626,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                                             )
                                         }}
                                     >
-                                        <SelectTrigger className="max-w-[190px] w-full bg-white text-black">
+                                        <SelectTrigger className="max-w-[190px] w-full">
                                             <SelectValue placeholder="select a reservation time" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -466,32 +640,37 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <SelectDate
-                                    multiple
-                                    onSelect={setSelectedDate}
-                                    onMonthChange={function (date) {
-                                        setSelectedMonth(date)
-                                    }}
-                                    disableDateFunction={(date) => {
-                                        return (
-                                            !availableDates?.get(
-                                                DateTime.fromJSDate(
-                                                    date
-                                                ).toSQLDate() as string
-                                            )?.isAvailable ||
-                                            new Date() > date ||
-                                            (closestUnreservableDate?.past
-                                                ? date <
-                                                  closestUnreservableDate.past.toJSDate()
-                                                : false) ||
-                                            (closestUnreservableDate?.future
-                                                ? date >
-                                                  closestUnreservableDate.future.toJSDate()
-                                                : false)
-                                        )
-                                    }}
-                                    defaultValue={{ date: selectedDate }}
-                                />
+                                <div className="flex gap-2 items-center justify-between">
+                                    <span className="text-nowrap">
+                                        sélectionner des dates :
+                                    </span>
+                                    <SelectDate
+                                        multiple
+                                        onSelect={setSelectedDate}
+                                        onMonthChange={function (date) {
+                                            setSelectedMonth(date)
+                                        }}
+                                        disableDateFunction={(date) => {
+                                            return (
+                                                !availableDates?.get(
+                                                    DateTime.fromJSDate(
+                                                        date
+                                                    ).toSQLDate() as string
+                                                )?.isAvailable ||
+                                                new Date() > date ||
+                                                (closestUnreservableDate?.past
+                                                    ? date <
+                                                      closestUnreservableDate.past.toJSDate()
+                                                    : false) ||
+                                                (closestUnreservableDate?.future
+                                                    ? date >
+                                                      closestUnreservableDate.future.toJSDate()
+                                                    : false)
+                                            )
+                                        }}
+                                        defaultValue={{ date: selectedDate }}
+                                    />
+                                </div>
                                 {error && (
                                     <p className="text-red-600">{error}</p>
                                 )}
@@ -519,7 +698,15 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                                         </Button>
                                         {price ? (
                                             <CollapsibleTrigger>
-                                                details
+                                                <Button
+                                                    variant="outline"
+                                                    className={cn(
+                                                        'flex-1',
+                                                        price ? '' : 'invisible'
+                                                    )}
+                                                >
+                                                    details
+                                                </Button>
                                             </CollapsibleTrigger>
                                         ) : null}
                                     </div>

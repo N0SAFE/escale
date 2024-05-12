@@ -4,26 +4,33 @@ import { faker } from '@faker-js/faker'
 import Image from 'App/Models/Image'
 import File from 'App/Models/File'
 import Drive from '@ioc:Adonis/Core/Drive'
+import Role from 'App/Models/Role'
+import { roles } from './Role'
 
 export default class UserSeeder extends BaseSeeder {
-  private rolesList = ['admin']
-
   public async run () {
-    await User.createMany([
-      {
+    const rolesObject = await Role.query()
+    const rolesDict = rolesObject.reduce((acc, role) => {
+      acc[role.label] = role
+      return acc
+    }, {}) as {
+      [key in keyof typeof roles]: Role
+    }
+    await Promise.all([
+      User.create({
         email: 'admin@admin.com',
         password: 'adminadmin',
-        roles: ['admin'],
         username: 'admin',
         address: 'admin',
-      },
-      {
+      }).then((u) => {
+        u.related('roles').attach([rolesDict.admin.id])
+      }),
+      User.create({
         email: 'sssebillemathis@gmail.com',
         password: 'SebilleMat3103*',
-        roles: [],
         username: 'SebilleMathis',
         address: faker.location.streetAddress(),
-      },
+      }),
     ])
     const numOfUsers = 100
     const users: Promise<User>[] = []
@@ -54,23 +61,31 @@ export default class UserSeeder extends BaseSeeder {
             })
             await avatar.load('file')
             await Drive.put(`${avatar.directory}/${avatar.serverFileName}`, avatarBuffer)
+            const ro = Array.from(
+              new Set(
+                Array.from(
+                  { length: Math.floor(Math.random() * Object.keys(roles).length) },
+                  () => {
+                    return Math.round(Math.random() * (Object.keys(roles).length - 1))
+                  }
+                )
+              )
+            ).map((i) => rolesDict[Object.keys(roles)[i]])
             resolve(
               User.create({
                 email: email,
                 password: faker.internet.password(),
-                roles: Array.from(
-                  { length: Math.floor(Math.random() * this.rolesList.length) },
-                  () => {
-                    return this.rolesList[Math.round(Math.random() * this.rolesList.length)]
-                  }
-                ),
                 username: username,
                 address: faker.location.streetAddress(),
                 avatarId: avatar.id,
+              }).then((u) => {
+                u.related('roles').attach(ro.map((r) => r.id))
+                return u
               })
             )
           })
         )
+
         break
       }
     }

@@ -1,3 +1,4 @@
+import { useAttachmentUrl } from '@/hooks/useAttachmentUrl'
 import Image, { ImageProps } from 'next/image'
 import React from 'react'
 
@@ -10,15 +11,6 @@ export default function ApiImage({
     alt,
     ...props
 }: ApiImageProps & Omit<ImageProps, 'src'>) {
-    return (
-        <Image
-            alt={alt}
-            {...props}
-            src={
-                process.env.NEXT_PUBLIC_API_URL +
-                '/attachment/image/' +
-                identifier
-            }
-        />
-    )
+    const attachmentUrl = useAttachmentUrl(identifier, 'image')!
+    return <Image alt={alt} {...props} src={attachmentUrl} />
 }

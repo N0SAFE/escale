@@ -31,9 +31,14 @@ export default class StartStripe extends BaseCommand {
 
   public async run () {
     this.logger.success(`stripe started on port ${Env.get('PORT')}!`)
-    spawnSync(`stripe listen --forward-to http://localhost:${Env.get('PORT')}/webhook/stripe`, {
-      shell: true,
-      stdio: 'inherit',
-    })
+    spawnSync(
+      `stripe listen --api-key ${Env.get(
+        'STRIPE_SECRET_KEY'
+      )} --forward-to http://localhost:${Env.get('PORT')}/webhook/stripe`,
+      {
+        shell: true,
+        stdio: 'inherit',
+      }
+    )
   }
 }

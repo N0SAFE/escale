@@ -11,7 +11,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
-import { CellContext, ColumnDef } from '@tanstack/react-table'
+import { CellContext, ColumnDef, Row } from '@tanstack/react-table'
 import Link from 'next/link'
 import React, { useMemo } from 'react'
 import {
@@ -23,9 +23,7 @@ import { DType } from './type'
 type Promised<T> = T | Promise<T>
 
 type ColumnOptions = {
-    onRowDelete?: (
-        props: CellContext<DType, unknown>
-    ) => Promised<((callback: () => void) => void) | void>
+    onRowDelete?: (props: Row<DType>) => Promised<void>
     useLoaderOnRowDelete?: boolean
 }
 
@@ -83,10 +81,23 @@ export const useColumns = (options?: ColumnOptions) => {
         {
             id: 'actions',
             enableHiding: false,
-            header: 'Actions',
+            header: ({ table }) => {
+                if (
+                    table.getIsSomeRowsSelected() ||
+                    table.getIsAllRowsSelected()
+                ) {
+                    return (
+                        <ActionsCellHeader
+                            rows={table.getSelectedRowModel().rows}
+                            options={options}
+                        />
+                    )
+                }
+                return null
+            },
             cell: (cellContext): React.ReactNode => {
                 return (
-                    <ActionsCell cellContext={cellContext} options={options} />
+                    <ActionsCellRow row={cellContext.row} options={options} />
                 )
             },
         },
@@ -94,82 +105,128 @@ export const useColumns = (options?: ColumnOptions) => {
     return columns
 }
 
-type ActionsCellProps = {
-    cellContext: CellContext<DType, unknown>
+type ActionsCellHeaderProps = {
+    rows: Row<DType>[]
     options?: ColumnOptions
 }
 
-const ActionsCell = ({ cellContext, options }: ActionsCellProps) => {
-    const spa = cellContext.row.original
+const ActionsCellHeader = ({ rows, options }: ActionsCellHeaderProps) => {
+    const spas = rows.map((row) => row.original)
 
     const [isLoading, setIsLoading] = React.useState(false)
     const [actionsDropdownIsOpen, setActionsDropdownIsOpen] =
         React.useState(false)
 
     return (
-        <DropdownMenu
-            open={actionsDropdownIsOpen}
-            onOpenChange={setActionsDropdownIsOpen}
-        >
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <DotsHorizontalIcon className="h-4 w-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                    <LoggedDashboardSpasId.Link
-                        spaId={spa.id}
-                        className="w-full"
-                    >
-                        Details
-                    </LoggedDashboardSpasId.Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                    <LoggedDashboardSpasIdEdit.Link
-                        spaId={spa.id}
-                        className="w-full"
-                    >
-                        Edit
-                    </LoggedDashboardSpasIdEdit.Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                    className="bg-red-600 hover:bg-red-500 text-white cursor-pointer"
-                    onClick={async (e) => {
-                        e.preventDefault()
-                        if (options?.useLoaderOnRowDelete) {
-                            setIsLoading(true)
-                        }
-                        const onDeleteClose = await options?.onRowDelete?.(
-                            cellContext
-                        )
-                        if (onDeleteClose) {
-                            onDeleteClose(() => {
-                                setActionsDropdownIsOpen(false)
-                                if (options?.useLoaderOnRowDelete) {
-                                    setIsLoading(false)
-                                }
-                            })
-                        } else {
+        <div className="flex justify-end">
+            <DropdownMenu
+                open={actionsDropdownIsOpen}
+                onOpenChange={setActionsDropdownIsOpen}
+            >
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <DotsHorizontalIcon className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                        className="bg-red-600 hover:bg-red-500 text-white cursor-pointer"
+                        onClick={async (e) => {
+                            e.preventDefault()
+                            if (options?.useLoaderOnRowDelete) {
+                                setIsLoading(true)
+                            }
+                            Promise.all(
+                                rows.map((row) => options?.onRowDelete?.(row))
+                            )
                             setActionsDropdownIsOpen(false)
                             if (options?.useLoaderOnRowDelete) {
                                 setIsLoading(false)
                             }
-                        }
-                    }}
-                >
-                    {isLoading ? (
-                        <div className="flex items-center justify-center w-full">
-                            <Loader size="4" />
-                        </div>
-                    ) : (
-                        'Delete'
-                    )}
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+                        }}
+                    >
+                        {isLoading ? (
+                            <div className="flex items-center justify-center w-full">
+                                <Loader size="4" />
+                            </div>
+                        ) : (
+                            'Delete'
+                        )}
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
+    )
+}
+type ActionsCellRowProps = {
+    row: Row<DType>
+    options?: ColumnOptions
+}
+const ActionsCellRow = ({ row, options }: ActionsCellRowProps) => {
+    const spa = row.original
+
+    const [isLoading, setIsLoading] = React.useState(false)
+    const [actionsDropdownIsOpen, setActionsDropdownIsOpen] =
+        React.useState(false)
+
+    return (
+        <div className="flex justify-end">
+            <DropdownMenu
+                open={actionsDropdownIsOpen}
+                onOpenChange={setActionsDropdownIsOpen}
+            >
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <DotsHorizontalIcon className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                        <LoggedDashboardSpasId.Link
+                            spaId={spa.id.toString()}
+                            className="w-full"
+                        >
+                            Details
+                        </LoggedDashboardSpasId.Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                        <LoggedDashboardSpasIdEdit.Link
+                            spaId={spa.id.toString()}
+                            className="w-full"
+                        >
+                            Edit
+                        </LoggedDashboardSpasIdEdit.Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        className="bg-red-600 hover:bg-red-500 text-white cursor-pointer"
+                        onClick={async (e) => {
+                            e.preventDefault()
+                            if (options?.useLoaderOnRowDelete) {
+                                setIsLoading(true)
+                            }
+                            await options?.onRowDelete?.(row)
+                            setActionsDropdownIsOpen(false)
+                            if (options?.useLoaderOnRowDelete) {
+                                setIsLoading(false)
+                            }
+                        }}
+                    >
+                        {isLoading ? (
+                            <div className="flex items-center justify-center w-full">
+                                <Loader size="4" />
+                            </div>
+                        ) : (
+                            'Delete'
+                        )}
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
     )
 }

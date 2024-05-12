@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useParams } from 'next/navigation'
 import { getSpa } from '../../actions'
 import Loader from '@/components/atomics/atoms/Loader'
 import { Button } from '@/components/ui/button'
@@ -20,6 +19,8 @@ import Combobox from '@/components/atomics/molecules/Combobox'
 import { Reorder } from 'framer-motion'
 import { Card } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { useParams } from '@/routes/hooks'
+import { LoggedDashboardSpasIdEdit } from '@/routes/index'
 
 const Editor = dynamic(() => import('@/components/atomics/atoms/Editor'), {
     ssr: false,
@@ -29,7 +30,7 @@ export default function SpasEdit() {
     const [isLoading, setIsLoading] = useState(true)
     const [spaState, setSpaState] = useState<UpdateSpa>()
 
-    const params = useParams<{ id: string }>()
+    const params = useParams(LoggedDashboardSpasIdEdit)
     const { data: services, isFetched: isServicesFetched } = useQuery({
         queryKey: ['services'],
         queryFn: async () => getServices(),
@@ -40,12 +41,12 @@ export default function SpasEdit() {
         queryFn: async () => getImages(),
     })
     const { data: spaData, isFetched: isSpaDateFetched } = useQuery({
-        queryKey: ['spa', +params.id],
-        queryFn: async () => getSpa(+params.id),
+        queryKey: ['spa', +params.spaId],
+        queryFn: async () => getSpa(+params.spaId),
     })
     const spaMutation = useMutation({
         mutationFn: async (spaState: UpdateSpa) => {
-            return await updateSpa(+params.id, spaState)
+            return await updateSpa(+params.spaId, spaState)
         },
         onError: (error) => {
             toast.error('server error')

@@ -17,10 +17,10 @@ import {
     DropdownMenuContent,
     DropdownMenu,
 } from '@/components/ui/dropdown-menu'
-import React, { Suspense } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import { MenubarSeparator } from '@/components/ui/menubar'
 import { logout } from '@/lib/auth'
-import { navigate } from '@/app/actions/navigate'
+import { navigate } from '@/actions/navigate'
 import ClickHandler from '@/components/atomics/atoms/ClickHandler'
 import { usePathname } from 'next/navigation'
 import {
@@ -49,6 +49,9 @@ import {
     Package2 as Package2Icon,
     ExternalLink as ExternalLinkIcon,
     Presentation as PresentationIcon,
+    Users,
+    Wifi,
+    Home,
 } from 'lucide-react'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import dynamic from 'next/dynamic'
@@ -101,16 +104,23 @@ export default function Layout({
         },
         {
             type: 'link',
+            name: 'Users',
+            path: '/users',
+            icon: <Users size="16" />,
+            active: false,
+        },
+        {
+            type: 'link',
             name: 'Spas',
             path: '/spas',
-            icon: <Package2Icon size="16" />,
+            icon: <Home size="16" />,
             active: false,
         },
         {
             type: 'link',
             name: 'Services',
             path: '/services',
-            icon: <Package2Icon size="16" />,
+            icon: <Wifi size="16" />,
             active: false,
         },
         {
@@ -123,14 +133,14 @@ export default function Layout({
         {
             type: 'link',
             name: 'reservations',
-            path: '/reservations/calendar',
+            path: '/reservations',
             icon: <CalendarIcon size="16" />,
             active: false,
         },
         {
             type: 'link',
             name: 'availabilities',
-            path: '/availabilities/calendar',
+            path: '/availabilities',
             icon: <CalendarClockIcon size="16" />,
             active: false,
         },
@@ -147,11 +157,12 @@ export default function Layout({
         },
     ]
 
+    const [routeIsChanging, setRouteIsChanging] = React.useState(false)
+
     // get the path after the last slash
     const head = '/dashboard'
     const pathname = usePathname()
     const tail = pathname?.split(head).pop() || '/'
-    const tailWihtoutSlash = tail.slice(1).split('/')
 
     const routesLink = routes.filter(
         (route) => route.type === 'link'
@@ -163,6 +174,43 @@ export default function Layout({
     if (route) {
         route.active = true
     }
+
+    const [routeState, setRouteState] = React.useState(routes)
+
+    useEffect(() => {
+        setRouteState(routes)
+        setRouteIsChanging(false)
+    }, [pathname])
+
+    const onClickHandler = (route: RouteLink) => {
+        setRouteState(
+            routeState.map((r) => {
+                if (r.type === 'link' && route.type === 'link') {
+                    if (r.name === route.name) {
+                        return {
+                            ...r,
+                            active: true,
+                        }
+                    }
+                }
+                return {
+                    ...r,
+                    active: false,
+                }
+            })
+        )
+        setRouteIsChanging(true)
+    }
+
+    const tailWihtoutSlash = routeIsChanging
+        ? (
+              routes
+                  .filter((r) => r.type === 'link')
+                  .find((r) => (r as RouteLink).active) as RouteLink
+          )?.path
+              ?.slice(1)
+              ?.split('/')! || []
+        : tail.slice(1).split('/')
 
     // get the path after the last slash
     return (
@@ -181,13 +229,16 @@ export default function Layout({
                     </div>
                     <div className="flex-1 overflow-auto py-2">
                         <nav className="grid items-start px-4 text-sm font-medium">
-                            {routes.map((route, index) => {
+                            {routeState.map((route, index) => {
                                 return (
                                     <div key={uuid()}>
                                         {route.type === 'component' ? (
                                             <div>{route.component}</div>
                                         ) : (
                                             <Link
+                                                onClick={() =>
+                                                    onClickHandler(route)
+                                                }
                                                 className={
                                                     route.active
                                                         ? `flex items-center justify-between gap-3 rounded-lg bg-gray-100 px-3 py-2 text-gray-900  transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50`
@@ -245,7 +296,7 @@ export default function Layout({
                             <div className="flex h-full max-h-screen flex-col gap-2">
                                 <div className="flex-1 overflow-hidden py-2">
                                     <nav className="grid items-start text-sm font-medium">
-                                        {routes.map((route, index) => {
+                                        {routeState.map((route, index) => {
                                             return (
                                                 <div key={uuid()}>
                                                     {route.type ===
@@ -255,6 +306,11 @@ export default function Layout({
                                                         </div>
                                                     ) : (
                                                         <Link
+                                                            onClick={() =>
+                                                                onClickHandler(
+                                                                    route
+                                                                )
+                                                            }
                                                             key={route.path}
                                                             className={
                                                                 route.active
@@ -360,16 +416,22 @@ export default function Layout({
                     </DropdownMenu>
                 </header>
                 <main className="flex flex-1 flex-col gap-4 h-0">
-                    <div className="p-4 md:gap-8 md:p-6 h-full overflow-y-scroll relative">
-                        <Suspense
-                            fallback={
-                                <div className="flex justify-center items-center  w-full h-full">
-                                    <Loader />
-                                </div>
-                            }
-                        >
-                            {children}
-                        </Suspense>
+                    <div className="p-4 md:gap-8 md:p-6 h-full overflow-y-auto relative">
+                        {routeIsChanging ? (
+                            <div className="flex justify-center items-center  w-full h-full">
+                                <Loader />
+                            </div>
+                        ) : (
+                            <Suspense
+                                fallback={
+                                    <div className="flex justify-center items-center  w-full h-full">
+                                        <Loader />
+                                    </div>
+                                }
+                            >
+                                {children}
+                            </Suspense>
+                        )}
                     </div>
                 </main>
             </div>
@@ -406,7 +468,7 @@ const BreadcrumbSection = function <T>({
     return (
         <Breadcrumb>
             <BreadcrumbList>
-                {totalArray.length <= ITEMS_TO_DISPLAY_IN_BREADCRUMB ? (
+                {totalArray?.length <= ITEMS_TO_DISPLAY_IN_BREADCRUMB ? (
                     totalArray.map((i, index, array) => {
                         const href = calculateHref(i, index, totalArray)
                         return (

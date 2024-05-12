@@ -1,11 +1,23 @@
 import { DateTime } from 'luxon'
 import Hash from '@ioc:Adonis/Core/Hash'
-import { column, beforeSave, HasMany, hasMany, belongsTo, BelongsTo } from '@ioc:Adonis/Lucid/Orm'
+import {
+  column,
+  beforeSave,
+  HasMany,
+  hasMany,
+  belongsTo,
+  BelongsTo,
+  manyToMany,
+  ManyToMany,
+  beforeFetch,
+  beforeFind,
+} from '@ioc:Adonis/Lucid/Orm'
 import { compose } from '@ioc:Adonis/Core/Helpers'
 import { SoftDeletes } from '@ioc:Adonis/Addons/LucidSoftDeletes'
 import Comment from './Comment'
 import AppBaseModel from './AppBaseModel'
 import Image from './Image'
+import Role from './Role'
 
 export default class User extends compose(AppBaseModel, SoftDeletes) {
   @column({ isPrimary: true })
@@ -36,27 +48,10 @@ export default class User extends compose(AppBaseModel, SoftDeletes) {
   public deletedAt?: DateTime | null
 
   @hasMany(() => Comment)
-  public comments: HasMany<typeof Comment>
+  public comments: HasMany<typeof Comment> = [] as unknown as HasMany<typeof Comment>
 
-  @column({
-    consume: (value: string | undefined) => {
-      if (!value) {
-        return []
-      }
-      try {
-        return JSON.parse(value)
-      } catch {
-        return []
-      }
-    },
-    prepare: (value: string[] | undefined) => {
-      if (!value) {
-        return JSON.stringify([])
-      }
-      return JSON.stringify(value)
-    },
-  })
-  public roles: string[]
+  @manyToMany(() => Role)
+  public roles: ManyToMany<typeof Role>
 
   @belongsTo(() => Image)
   public avatar: BelongsTo<typeof Image>
@@ -69,4 +64,16 @@ export default class User extends compose(AppBaseModel, SoftDeletes) {
 
   @column()
   public address: string
+
+  // 30 days in milliseconds: after 30 days, the record will be deleted permanently
+  public static maxTimeSoftDelete = 1000 * 60 * 60 * 24 * 30
+
+  @beforeFetch()
+  @beforeFind()
+  public static async preload (query) {
+    if (query.hasAggregates) {
+      return
+    }
+    query.preload('roles')
+  }
 }

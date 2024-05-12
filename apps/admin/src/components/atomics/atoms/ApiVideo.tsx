@@ -1,3 +1,6 @@
+'use client'
+
+import { createAttachmentUrl } from '@/hooks/useAttachmentUrl'
 import React, { useEffect, useRef, useState } from 'react'
 
 type ApiVideoProps = {
@@ -29,11 +32,7 @@ export default function ApiVideo({
                 return (
                     <source
                         key={sourceIdentifier}
-                        src={
-                            process.env.NEXT_PUBLIC_API_URL +
-                            '/attachment/video/' +
-                            sourceIdentifier
-                        }
+                        src={createAttachmentUrl(sourceIdentifier, 'video')!}
                     />
                 )
             })}

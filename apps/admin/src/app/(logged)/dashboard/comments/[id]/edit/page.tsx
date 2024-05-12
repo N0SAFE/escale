@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useParams } from 'next/navigation'
-import { getComment } from '@/app/actions/comment'
+import { getComment } from '@/actions/Comment'
 import Loader from '@/components/atomics/atoms/Loader'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

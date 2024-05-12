@@ -1,5 +1,6 @@
 'use server'
 
+import { User } from '@/types/model/User'
 import { xiorInstance } from '@/utils/xiorInstance'
 import {
     RequestCookies,
@@ -12,14 +13,6 @@ export type Jwt = {
     type?: string
     expires_at: string
     refreshToken?: string
-}
-
-export type User = {
-    email: string
-    id: number
-    roles: string[]
-    created_at: string
-    updated_at: string
 }
 
 export type Session =

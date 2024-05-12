@@ -16,6 +16,7 @@ export const withHealthCheck: MiddlewareFactory = (next: NextMiddleware) => {
         if (res) {
             if (process.env.NODE_ENV === 'development') {
                 try {
+                    console.log(xiorInstance.defaults.baseURL)
                     const { data } = await xiorInstance.get('/health')
                     if (!data.healthy) {
                         return NextResponse.json(

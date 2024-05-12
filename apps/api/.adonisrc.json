@@ -28,7 +28,8 @@
     "adonis-lucid-soft-deletes",
     "./providers/StripeProvider",
     "./providers/ModelQueryBuilderPreloadProvider",
-    "adonis5-scheduler"
+    "adonis5-scheduler",
+    "./providers/RouterExtenderProvider"
   ],
   "aceProviders": ["@adonisjs/repl"],
   "tests": {

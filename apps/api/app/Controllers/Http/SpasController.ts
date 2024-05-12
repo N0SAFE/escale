@@ -11,6 +11,7 @@ import { SpaImageRessourceDeleteDto } from './dto/SpaDto/ImageDto/Delete'
 import { SpaRessourcePatchDto } from './dto/SpaDto/Patch'
 import { SpaRessourceGetDto } from './dto/SpaDto/Get'
 import { SpaRessourceDeleteDto } from './dto/SpaDto/Delete'
+import { SpaRessourceRestoreDto } from './dto/SpaDto/Restore'
 
 export default class SpasController {
   public async index ({ response, request }: HttpContextContract) {
@@ -115,6 +116,21 @@ export default class SpasController {
     await spa.delete()
 
     return response.ok({ message: 'Spa deleted' })
+  }
+
+  public async restore ({ response, request }: HttpContextContract) {
+    const dto = SpaRessourceRestoreDto.fromRequest(request)
+    const error = await dto.validate()
+    if (error.length > 0) {
+      return response.badRequest(error)
+    }
+
+    const { params } = await dto.after.customTransform
+    const spa = params.id
+
+    await spa.restore()
+
+    return response.ok({ message: 'Spa restored' })
   }
 
   public async getImages ({ request }: HttpContextContract) {

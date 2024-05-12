@@ -1,4 +1,4 @@
-import { getSpas } from './actions'
+import { getSpas } from '@/actions/Spa'
 
 export function spasAccessor() {
     return getSpas()

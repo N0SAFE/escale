@@ -1,7 +1,8 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Database from '@ioc:Adonis/Lucid/Database'
 import { UsersRessourcePatchDto } from './dto/UsersDto/Patch'
-import User from '../../Models/User'
+import User from 'App/Models/User'
+import { UsersRessourceDeleteDto } from './dto/UsersDto/Delete'
+import { UsersRessourceGetDto } from './dto/UsersDto/Get'
 
 export default class UsersController {
   public async index ({}: HttpContextContract) {
@@ -12,7 +13,18 @@ export default class UsersController {
 
   public async store ({}: HttpContextContract) {}
 
-  public async show ({}: HttpContextContract) {}
+  public async show ({ request, response }: HttpContextContract) {
+    const dto = UsersRessourceGetDto.fromRequest(request)
+    const error = await dto.validate()
+    if (error.length > 0) {
+      return response.badRequest(error)
+    }
+
+    const { params } = await dto.after.customTransform
+    const { id } = params
+
+    return id
+  }
 
   public async edit ({}: HttpContextContract) {}
 
@@ -25,7 +37,7 @@ export default class UsersController {
       })
     }
 
-    const dto = new UsersRessourcePatchDto({ body: request.body(), query: ['test'] })
+    const dto = UsersRessourcePatchDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
       return response.badRequest(error)
@@ -40,7 +52,16 @@ export default class UsersController {
     return response.ok(user)
   }
 
-  public async destroy ({}: HttpContextContract) {
-    Database.from('users').delete()
+  public async destroy ({ request, response }: HttpContextContract) {
+    const dto = UsersRessourceDeleteDto.fromRequest(request)
+    const error = await dto.validate()
+    if (error.length > 0) {
+      return response.badRequest(error)
+    }
+
+    const { params } = await dto.after.customTransform
+    const { id } = params
+
+    return response.ok(await id.delete())
   }
 }

@@ -24,7 +24,7 @@ export default function RootLayout({
     return (
         <html lang="en" translate="no">
             <body
-                className={`${inter.className} bg-[#000000] text-white min-h-screen flex flex-col justify-between`}
+                className={`${inter.className} bg-[#000000] text-white min-h-screen flex flex-col justify-between dark`}
             >
                 <ReactQueryProviders>
                     <Suspense

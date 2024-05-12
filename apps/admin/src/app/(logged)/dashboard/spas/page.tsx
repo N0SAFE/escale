@@ -90,7 +90,7 @@ export default function SpasTable() {
         React.useState<DType>()
 
     const columns = useColumns({
-        onRowDelete: async ({ row }) => {
+        onRowDelete: async (row) => {
             setSelectedSpaToDelete(row.original)
             setIsDeleteDialogOpen(true)
         },
@@ -98,7 +98,7 @@ export default function SpasTable() {
     })
 
     return (
-        <div className="w-full">
+        <div className="w-full h-full">
             <AlertDialog
                 open={isDeletDialogOpen}
                 onOpenChange={setIsDeleteDialogOpen}
@@ -113,7 +113,7 @@ export default function SpasTable() {
                     />
                 </AlertDialogContent>
             </AlertDialog>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 h-full">
                 <div className="flex justify-end">
                     <div className="flex gap-2">
                         <DataTableViewOptions

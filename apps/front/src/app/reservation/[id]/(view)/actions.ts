@@ -76,18 +76,15 @@ export async function getSessionUrl(
 export async function getAvailabilities(
     filter: GroupsFilter & SearchFilter & DatesFilter & PaginationFilter
 ) {
-    const { data } = await xiorInstance.get<Availability[]>(
-        `/availabilities`,
-        {
-            params: {
-                groups: filter.groups,
-                ...filter.search,
-                ...filter.dates,
-                limit: filter.limit,
-                page: filter.page,
-            },
-        }
-    )
+    const { data } = await xiorInstance.get<Availability[]>(`/availabilities`, {
+        params: {
+            groups: filter.groups,
+            ...filter.search,
+            ...filter.dates,
+            limit: filter.limit,
+            page: filter.page,
+        },
+    })
     return data
 }
 

@@ -1,37 +1,97 @@
 import { IsDefined, IsObject, ValidateNested } from 'class-validator'
+import { Exclude, Type } from 'class-transformer'
+import { AsSameProperties } from '../type/AsSameProperties'
+import { RequestContract } from '@ioc:Adonis/Core/Request'
 import { BaseDto } from '../BaseDto'
-import { Type } from 'class-transformer'
+import { SkipTransform } from '../Decorator/SkipTransform'
 
-export class UsersRessourceGetCollectionBodyDto extends BaseDto {}
+export class UsersRessourceGetCollectionBodyDto {}
 
-export class UsersRessourceGetCollectionQueryDto extends BaseDto {}
+export class UsersRessourceGetCollectionQueryDto {}
 
+export class UsersRessourceGetCollectionParamsDto {}
+
+@Exclude()
+export class UsersRessourceGetCollectionFilesDto {}
+
+@SkipTransform([['files', UsersRessourceGetCollectionFilesDto]])
 export class UsersRessourceGetCollectionDto extends BaseDto {
   @IsDefined()
   @IsObject()
   @ValidateNested()
   @Type(() => UsersRessourceGetCollectionBodyDto)
-  private _body: UsersRessourceGetCollectionBodyDto = new UsersRessourceGetCollectionBodyDto({})
-
-  public get body (): UsersRessourceGetCollectionBodyDto {
-    return this._body || new UsersRessourceGetCollectionBodyDto({})
-  }
-
-  public set body (value: UsersRessourceGetCollectionBodyDto | undefined) {
-    this._body = new UsersRessourceGetCollectionBodyDto(value || {})
-  }
+  public body: UsersRessourceGetCollectionBodyDto
 
   @IsDefined()
   @IsObject()
   @ValidateNested()
   @Type(() => UsersRessourceGetCollectionQueryDto)
-  private _query: UsersRessourceGetCollectionQueryDto = new UsersRessourceGetCollectionQueryDto({})
+  public query: UsersRessourceGetCollectionQueryDto
 
-  public get query (): UsersRessourceGetCollectionQueryDto {
-    return this._query || new UsersRessourceGetCollectionQueryDto({})
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => UsersRessourceGetCollectionParamsDto)
+  public params: UsersRessourceGetCollectionParamsDto
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => UsersRessourceGetCollectionFilesDto)
+  public files: UsersRessourceGetCollectionFilesDto
+
+  public get after () {
+    return new UsersRessourceGetCollectionDtoAfter(this)
   }
 
-  public set query (value: UsersRessourceGetCollectionQueryDto | undefined) {
-    this._query = new UsersRessourceGetCollectionQueryDto(value || {})
+  public static fromRequest (request: RequestContract) {
+    return new this({
+      body: request.body(),
+      query: request.qs(),
+      params: request.params(),
+      files: request.allFiles(),
+    })
   }
+}
+
+export class UsersRessourceGetCollectionBodyDtoAfter
+implements AsSameProperties<UsersRessourceGetCollectionBodyDto> {}
+
+export class UsersRessourceGetCollectionQueryDtoAfter
+implements AsSameProperties<UsersRessourceGetCollectionQueryDto> {}
+
+export class UsersRessourceGetCollectionParamsDtoAfter
+implements AsSameProperties<UsersRessourceGetCollectionParamsDto> {}
+
+@Exclude()
+export class UsersRessourceGetCollectionFilesDtoAfter
+implements AsSameProperties<UsersRessourceGetCollectionFilesDto> {}
+
+@SkipTransform([['files', UsersRessourceGetCollectionFilesDtoAfter]])
+export class UsersRessourceGetCollectionDtoAfter
+  extends BaseDto
+  implements AsSameProperties<Omit<UsersRessourceGetCollectionDto, 'after'>> {
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => UsersRessourceGetCollectionBodyDtoAfter)
+  public body: UsersRessourceGetCollectionBodyDtoAfter
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => UsersRessourceGetCollectionQueryDtoAfter)
+  public query: UsersRessourceGetCollectionQueryDtoAfter
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => UsersRessourceGetCollectionParamsDtoAfter)
+  public params: UsersRessourceGetCollectionParamsDtoAfter
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => UsersRessourceGetCollectionFilesDtoAfter)
+  public files: UsersRessourceGetCollectionFilesDtoAfter
 }

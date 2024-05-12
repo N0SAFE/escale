@@ -106,6 +106,18 @@
       "aliases": [],
       "flags": []
     },
+    "remove:expired:deleted": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/RemoveExpiredDeleted",
+      "commandName": "remove:expired:deleted",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "remove:unused:tmp:uploads": {
       "settings": {
         "loadApp": true,

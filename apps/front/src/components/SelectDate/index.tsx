@@ -76,82 +76,73 @@ export default function SelectDate({
     return (
         <div className={cn('grid gap-2', className)}>
             <Popover open={isOpen} onOpenChange={setIsOpen}>
-                <div className="flex items-center">
-                    <span className="text-nowrap">
-                        sélectionner des dates :{' '}
-                    </span>
-                    <PopoverTrigger asChild>
-                        <Button
-                            id="date"
-                            variant={'outline'}
-                            className={cn(
-                                'max-w-[300px] w-full justify-start text-left font-normal text-black',
-                                !rangeDate &&
-                                    !rangeDate &&
-                                    'text-muted-foreground'
-                            )}
-                        >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {multiple ? (
-                                rangeDate?.from ? (
-                                    rangeDate.to ? (
-                                        <>
-                                            {format(
-                                                rangeDate.from,
-                                                'LLL dd, y',
-                                                { locale: fr }
-                                            )}{' '}
-                                            -{' '}
-                                            {format(rangeDate.to, 'LLL dd, y', {
-                                                locale: fr,
-                                            })}
-                                        </>
-                                    ) : (
-                                        format(rangeDate.from, 'LLL dd, y', {
+                <PopoverTrigger asChild>
+                    <Button
+                        id="date"
+                        variant={'outline'}
+                        className={cn(
+                            'max-w-[300px] w-full justify-start text-left font-normal',
+                            !rangeDate && !rangeDate && 'text-muted-foreground'
+                        )}
+                    >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {multiple ? (
+                            rangeDate?.from ? (
+                                rangeDate.to ? (
+                                    <>
+                                        {format(rangeDate.from, 'LLL dd, y', {
                                             locale: fr,
-                                        })
-                                    )
+                                        })}{' '}
+                                        -{' '}
+                                        {format(rangeDate.to, 'LLL dd, y', {
+                                            locale: fr,
+                                        })}
+                                    </>
                                 ) : (
-                                    <span>Pick a date</span>
+                                    format(rangeDate.from, 'LLL dd, y', {
+                                        locale: fr,
+                                    })
                                 )
-                            ) : date ? (
-                                format(date, 'PPP')
                             ) : (
                                 <span>Pick a date</span>
-                            )}
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                        {multiple ? (
-                            <Calendar
-                                fixedWeeks
-                                initialFocus
-                                mode="range"
-                                defaultMonth={rangeDate?.from}
-                                selected={rangeDate}
-                                onSelect={setRangeDate}
-                                numberOfMonths={2}
-                                disabled={disableDateFunction}
-                                onMonthChange={onMonthChange}
-                            />
+                            )
+                        ) : date ? (
+                            format(date, 'PPP')
                         ) : (
-                            <Calendar
-                                mode="single"
-                                selected={
-                                    disableDateFunction && date
-                                        ? !disableDateFunction(date)
-                                            ? date
-                                            : undefined
-                                        : undefined
-                                }
-                                onSelect={setDate}
-                                initialFocus
-                                onMonthChange={onMonthChange}
-                                disabled={disableDateFunction}
-                            />
+                            <span>Pick a date</span>
                         )}
-                    </PopoverContent>
-                </div>
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                    {multiple ? (
+                        <Calendar
+                            fixedWeeks
+                            initialFocus
+                            mode="range"
+                            defaultMonth={rangeDate?.from}
+                            selected={rangeDate}
+                            onSelect={setRangeDate}
+                            numberOfMonths={2}
+                            disabled={disableDateFunction}
+                            onMonthChange={onMonthChange}
+                        />
+                    ) : (
+                        <Calendar
+                            mode="single"
+                            selected={
+                                disableDateFunction && date
+                                    ? !disableDateFunction(date)
+                                        ? date
+                                        : undefined
+                                    : undefined
+                            }
+                            onSelect={setDate}
+                            initialFocus
+                            onMonthChange={onMonthChange}
+                            disabled={disableDateFunction}
+                        />
+                    )}
+                </PopoverContent>
                 {/* ) : type === "afternoon" ? (
                     <div className="flex items-center">
                         <span className="text-nowrap">sélectionner une date : </span>

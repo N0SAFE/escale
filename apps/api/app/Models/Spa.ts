@@ -23,8 +23,9 @@ import InternalCalendar from './InternalCalendar'
 import ExternalCalendar from './ExternalCalendar'
 import Unavailability from './Unavailability'
 import Comment from './Comment'
+import { SoftDeletes } from '@ioc:Adonis/Addons/LucidSoftDeletes'
 
-export default class Spa extends compose(AppBaseModel, Filterable) {
+export default class Spa extends compose(AppBaseModel, Filterable, SoftDeletes) {
   public static $filter = () => SpaFilter
 
   @column({ isPrimary: true })

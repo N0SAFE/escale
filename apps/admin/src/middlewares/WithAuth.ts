@@ -14,24 +14,27 @@ import {
 } from '@/lib/auth'
 import { cookies } from 'next/headers'
 
+const removePrefix = (value: string, prefix: string) =>
+    value.startsWith(prefix) ? value.slice(prefix.length) : value
+
 const withAuth: MiddlewareFactory = (next: NextMiddleware) => {
     return async (request: NextRequest, _next: NextFetchEvent) => {
         const res = (await next(request, _next)) as NextResponse
         if (request.nextUrl.pathname.startsWith('/_next')) {
             return res
         }
-        const redirectUrl = new URL('/login', request.url)
-        if (request.nextUrl.pathname !== '/') {
-            redirectUrl.searchParams.set(
-                'redirectPath',
-                request.nextUrl.pathname
-            )
-            redirectUrl.searchParams.set(
-                'error',
-                'You need to login to access this page'
-            )
-        }
         if (!(await isLogin({ cookieStore: request.cookies }))) {
+            const redirectUrl = new URL('/login', request.url)
+            if (request.nextUrl.pathname !== '/') {
+                redirectUrl.searchParams.set(
+                    'redirectPath',
+                    removePrefix(request.nextUrl.href, request.nextUrl.origin)
+                )
+                redirectUrl.searchParams.set(
+                    'error',
+                    'You need to login to access this page'
+                )
+            }
             const redirectResponse = NextResponse.redirect(redirectUrl)
             try {
                 const session = await refreshToken(

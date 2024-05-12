@@ -1,5 +1,6 @@
 import { Pretify } from '../utils'
 import { Image } from './Image'
+import { Role } from './Roles'
 import { Entity } from './utils'
 
 export type User<
@@ -9,7 +10,7 @@ export type User<
     Entity<{
         id: number
         email: string
-        roles: string[]
+        roles: Role[]
         username: string
         avatar: Image
         address: string

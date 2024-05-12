@@ -28,6 +28,9 @@ import * as LoggedDashboardSpasIdEditRoute from "@/app/(logged)/dashboard/spas/[
 import * as LoggedDashboardTagsRoute from "@/app/(logged)/dashboard/tags/page.info";
 import * as LoggedDashboardTagsIdRoute from "@/app/(logged)/dashboard/tags/[id]/page.info";
 import * as LoggedDashboardTagsIdEditRoute from "@/app/(logged)/dashboard/tags/[id]/edit/page.info";
+import * as LoggedDashboardUsersRoute from "@/app/(logged)/dashboard/users/page.info";
+import * as LoggedDashboardUsersIdRoute from "@/app/(logged)/dashboard/users/[userId]/page.info";
+import * as LoggedDashboardUsersIdEditRoute from "@/app/(logged)/dashboard/users/[userId]/edit/page.info";
 import * as LoggedDashboardWebsiteFaqRoute from "@/app/(logged)/dashboard/website/faq/page.info";
 import * as LoggedDashboardWebsiteHomeRoute from "@/app/(logged)/dashboard/website/home/page.info";
 import * as LoggedDashboardWebsiteRulesRoute from "@/app/(logged)/dashboard/website/rules/page.info";
@@ -185,6 +188,27 @@ export const LoggedDashboardTagsIdEdit = makeRoute(
   {
     ...defaultInfo,
     ...LoggedDashboardTagsIdEditRoute.Route
+  }
+);
+export const LoggedDashboardUsers = makeRoute(
+  "/(logged)/dashboard/users",
+  {
+    ...defaultInfo,
+    ...LoggedDashboardUsersRoute.Route
+  }
+);
+export const LoggedDashboardUsersId = makeRoute(
+  "/(logged)/dashboard/users/[userId]",
+  {
+    ...defaultInfo,
+    ...LoggedDashboardUsersIdRoute.Route
+  }
+);
+export const LoggedDashboardUsersIdEdit = makeRoute(
+  "/(logged)/dashboard/users/[userId]/edit",
+  {
+    ...defaultInfo,
+    ...LoggedDashboardUsersIdEditRoute.Route
   }
 );
 export const LoggedDashboardWebsiteFaq = makeRoute(

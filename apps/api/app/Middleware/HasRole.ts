@@ -9,10 +9,15 @@ export default class HasRole {
     // code for middleware goes here. ABOVE THE NEXT CALL
     try {
       const user = await auth.use('jwt').authenticate()
+      console.log(user)
       if (!user) {
         return response.unauthorized({ error: 'Unauthorized' })
       }
-      if (!user.roles.some((role) => roles.includes(role))) {
+      if (
+        !user.roles.some((role) =>
+          roles.map((r) => r.toLowerCase()).includes(role.label.toLowerCase())
+        )
+      ) {
         return response.unauthorized({ error: 'Unauthorized' })
       }
     } catch (e) {
