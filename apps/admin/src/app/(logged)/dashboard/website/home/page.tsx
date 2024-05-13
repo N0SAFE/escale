@@ -354,6 +354,19 @@ export default function HomeWebsitePage() {
                                                             />
                                                         )
                                                     }}
+                                                    renderFileList={(image) => {
+                                                        return (
+                                                            <ApiImage
+                                                                alt="Product image"
+                                                                className="w-16 rounded-md object-none h-16"
+                                                                path={
+                                                                    image.path
+                                                                }
+                                                                width="200"
+                                                                height="200"
+                                                            />
+                                                        )
+                                                    }}
                                                     onFileSelect={(
                                                         image: ImageType
                                                     ) => {
@@ -620,6 +633,19 @@ export default function HomeWebsitePage() {
                                                             path={image.path}
                                                             width={400}
                                                             height={400}
+                                                        />
+                                                    )
+                                                }}
+                                                renderFileList={(image) => {
+                                                    return (
+                                                        <ApiImage
+                                                            alt="Product image"
+                                                            className="w-16 rounded-md object-none h-16"
+                                                            path={
+                                                                image.path
+                                                            }
+                                                            width="200"
+                                                            height="200"
                                                         />
                                                     )
                                                 }}
