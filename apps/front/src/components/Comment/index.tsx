@@ -67,23 +67,23 @@ export default function Comment({ comments }: Props) {
                     <div className="flex flex-col items-center text-center w-80">
                         <Avatar>
                             <AvatarImage
-                                alt={'avatar of ' + comment.user.username}
+                                alt={'avatar of ' + comment?.user?.username}
                                 src={
                                     createAttachmentUrl(
-                                        comment.user.avatarId!,
+                                        comment?.user?.avatarId!,
                                         'image'
                                     )!
                                 }
                             />
                         </Avatar>
                         <p className="mt-4 text-sm text-slate-200">
-                            &quot;{comment.text}&quot;
+                            &quot;{comment?.text}&quot;
                         </p>
                         <p className="mt-2 font-semibold text-slate-300">
-                            {comment.user.username}
+                            {comment?.user?.username}
                         </p>
                         <p className="text-xs text-slate-100">
-                            {comment.user.address}
+                            {comment?.user?.address}
                         </p>
                     </div>
                 </SwiperSlide>

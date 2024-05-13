@@ -6,6 +6,11 @@ import {
 } from 'next/server'
 import { Matcher, MiddlewareFactory } from './utils/types'
 import ObjectToMap from './utils/ObjectToMap'
+import { xiorInstance } from '@/utils/xiorInstance'
+
+type ReservationType = {
+    id: number
+}[]
 
 const withRedirect: MiddlewareFactory = (next: NextMiddleware) => {
     return async (
@@ -17,10 +22,19 @@ const withRedirect: MiddlewareFactory = (next: NextMiddleware) => {
         if (request.nextUrl.pathname.startsWith('/_next')) {
             return res
         }
-        const redirectMap = ObjectToMap({})
-        const path = redirectMap.get(key as string) as string
-        if (key && path) {
-            return NextResponse.redirect(new URL(path, request.url))
+        const redirectMap = ObjectToMap({
+            reservation: async () => {
+                const { data } = await xiorInstance.get<ReservationType>('/spas')
+                return `/reservation/${data?.[0]?.id}`
+            },
+        }) as Map<string, string | ((request: NextRequest) => string | Promise<string>)>
+        const p = redirectMap.get(key as string)
+        if (key && p) {
+            if (typeof p === 'function') {
+                const path = await p(request)
+                return NextResponse.redirect(new URL(path, request.url))
+            }
+            return NextResponse.redirect(new URL(p, request.url))
         }
         return res
     }
@@ -28,4 +42,7 @@ const withRedirect: MiddlewareFactory = (next: NextMiddleware) => {
 
 export default withRedirect
 
-export const matcher: Matcher = {}
+export const matcher: Matcher = {
+    reservation: '^/reservation$',
+}
+

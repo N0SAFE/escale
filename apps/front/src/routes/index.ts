@@ -10,7 +10,6 @@ import * as HomeRoute from "@/app/page.info";
 import * as ContactRoute from "@/app/contact/page.info";
 import * as FaqRoute from "@/app/faq/page.info";
 import * as ReglementRoute from "@/app/reglement/page.info";
-import * as ReservationRoute from "@/app/reservation/page.info";
 import * as ReservationidviewRoute from "@/app/reservation/[id]/(view)/page.info";
 import * as ReservationidconfirmRoute from "@/app/reservation/[id]/confirm/page.info";
 
@@ -40,13 +39,6 @@ export const Reglement = makeRoute(
   {
     ...defaultInfo,
     ...ReglementRoute.Route
-  }
-);
-export const Reservation = makeRoute(
-  "/reservation",
-  {
-    ...defaultInfo,
-    ...ReservationRoute.Route
   }
 );
 export const Reservationidview = makeRoute(

@@ -17,7 +17,7 @@ type Faq = {
 }
 
 export default function Faq() {
-    const { data, error, isFetching } = useQuery({
+    const { data, error, isFetched } = useQuery({
         queryFn: async () => {
             const { data } = await xiorInstance.get<Faq[]>('/faqs')
             return data
@@ -25,7 +25,7 @@ export default function Faq() {
         queryKey: ['faqs'],
     })
 
-    if (isFetching) {
+    if (!isFetched) {
         return (
             <div className="h-full w-full flex justify-center items-center">
                 <Loader />

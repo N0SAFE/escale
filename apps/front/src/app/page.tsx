@@ -14,7 +14,7 @@ export default function Home() {
     const {
         data: homeData,
         error,
-        isFetching,
+        isFetched,
     } = useQuery({
         queryFn: async () => {
             return await getHomeDetails<
@@ -22,9 +22,12 @@ export default function Home() {
             >()
         },
         queryKey: ['home'],
+        
     })
+    
+    console.log(homeData)
 
-    if (isFetching) {
+    if (!isFetched) {
         return (
             <div className="h-full w-full flex justify-center items-center">
                 <Loader />

@@ -10,7 +10,7 @@ type Rule = {
 }
 
 export default function Reglement() {
-    const { data, error, isFetching } = useQuery({
+    const { data, error, isFetched } = useQuery({
         queryFn: async () => {
             const { data } = await xiorInstance.get<Rule[]>('/rules')
             return data
@@ -18,7 +18,7 @@ export default function Reglement() {
         queryKey: ['rules'],
     })
 
-    if (isFetching) {
+    if (!isFetched) {
         return (
             <div className="h-full w-full flex justify-center items-center">
                 <Loader />
