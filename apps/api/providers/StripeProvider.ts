@@ -70,6 +70,12 @@ export default class StripeProvider {
   }
 
   private async createWebhooks (stripe: Stripe) {
+    ;(await stripe.webhookEndpoints.list()).data.forEach(async (webhook) => {
+      if (webhook.url === Env.get('APP_URL') + '/webhook/stripe') {
+        this.app.logger.info('removing webhook', webhook.id)
+        await stripe.webhookEndpoints.del(webhook.id)
+      }
+    })
     const wehbook = await stripe.webhookEndpoints.create({
       url: Env.get('APP_URL') + '/webhook/stripe',
       enabled_events: [

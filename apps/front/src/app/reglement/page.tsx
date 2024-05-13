@@ -1,12 +1,31 @@
+'use client'
+
 import { List } from '@/components/List'
+import Loader from '@/components/Loader/index'
 import { xiorInstance } from '@/utils/xiorInstance'
+import { useQuery } from '@tanstack/react-query'
 
 type Rule = {
     rule: string
 }
 
-export default async function Reglement() {
-    const { data } = await xiorInstance.get<Rule[]>('/rules')
+export default function Reglement() {
+    const { data, error, isFetching } = useQuery({
+        queryFn: async () => {
+            const { data } = await xiorInstance.get<Rule[]>('/rules')
+            return data
+        },
+        queryKey: ['rules'],
+    })
+
+    if (isFetching) {
+        return (
+            <div className="h-full w-full flex justify-center items-center">
+                <Loader />
+            </div>
+        )
+    }
+
     return (
         <div className="mb-16 mt-4">
             <div className="flex items-center justify-center">
@@ -14,7 +33,7 @@ export default async function Reglement() {
             </div>
             <div className="flex items-center justify-center mt-8">
                 <div className="md:px-4 md:max-w-[80%] lg:max-w-[60%] w-full">
-                    <List items={data.map((ruleObj) => ruleObj.rule)} />
+                    <List items={data?.map((ruleObj) => ruleObj.rule)!} />
                 </div>
             </div>
         </div>
