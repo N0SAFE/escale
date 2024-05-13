@@ -70,8 +70,7 @@ export default function Comment({ comments }: Props) {
                                 alt={'avatar of ' + comment?.user?.username}
                                 src={
                                     createAttachmentUrl(
-                                        comment?.user?.avatarId!,
-                                        'image'
+                                        comment?.user?.avatar?.path
                                     )!
                                 }
                             />

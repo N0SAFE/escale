@@ -3,14 +3,14 @@ import Image, { ImageProps } from 'next/image'
 import React from 'react'
 
 type ApiImageProps = {
-    identifier: number
+    path: string
 }
 
 export default function ApiImage({
-    identifier,
+    path,
     alt,
     ...props
 }: ApiImageProps & Omit<ImageProps, 'src'>) {
-    const attachmentUrl = useAttachmentUrl(identifier, 'image')!
+    const attachmentUrl = useAttachmentUrl(path)!
     return <Image alt={alt} {...props} src={attachmentUrl} />
 }

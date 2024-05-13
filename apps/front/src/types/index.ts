@@ -14,6 +14,7 @@ export type Image<T extends boolean = false> = {
     id: number
     alt: string
     file: File
+    path: string
 }
 
 export type SpaImage = {

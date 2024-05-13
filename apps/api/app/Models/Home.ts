@@ -41,7 +41,9 @@ export default class Home extends AppBaseModel {
   @hasMany(() => HomeComment)
   public homeComments: HasMany<typeof HomeComment>
 
-  @belongsTo(() => Image)
+  @belongsTo(() => Image, {
+    foreignKey: 'commentBackgroundImageId',
+  })
   public commentBackgroundImage: BelongsTo<typeof Image>
 
   @column()

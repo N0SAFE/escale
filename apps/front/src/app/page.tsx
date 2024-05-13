@@ -22,9 +22,8 @@ export default function Home() {
             >()
         },
         queryKey: ['home'],
-        
     })
-    
+
     console.log(homeData)
 
     if (!isFetched) {
@@ -39,7 +38,7 @@ export default function Home() {
         <main className="flex min-h-screen flex-col items-center justify-between text-white">
             <section>
                 <ApiImage
-                    identifier={homeData?.imageId!}
+                    path={homeData?.image?.path!}
                     className="object-cover h-[600px]"
                     alt={homeData?.image?.alt!}
                     height={1080}
@@ -51,9 +50,7 @@ export default function Home() {
             </section>
             <section className="max-w-[60%] my-8">
                 <ApiVideo
-                    sourcesIdentifier={
-                        homeData?.video?.sources?.map((s) => s.id)!
-                    }
+                    sourcesPath={homeData?.video?.sources?.map((s) => s.path)!}
                     alt={homeData?.video?.alt!}
                     autoPlay
                     loop
@@ -67,8 +64,7 @@ export default function Home() {
             <section
                 style={{
                     backgroundImage: `url('${createAttachmentUrl(
-                        homeData?.commentBackgroundImageId!,
-                        'image'
+                        homeData?.commentBackgroundImage.path!
                     )}')`,
                 }}
                 className="bg-cover bg-no-reapeat bg-center w-full background-color-[#27355DED] backdrop-filter-blur-[30px] relative"

@@ -22,20 +22,21 @@ export type Image<Nullable extends null | false = false> = Pretify<
             id: number
             alt: string
             file: File
+            path: string
         }>,
         Nullable
     >
 >
 
 export type CreateImage = Pretify<
-    Omit<UnwrapEntity<Image>, 'id' | 'file' | 'fileId'> & {
+    Omit<UnwrapEntity<Image>, 'id' | 'file' | 'fileId' | 'path'> & {
         file?: Blob
         name?: string
     }
 >
 
 export type UpdateImage = Partial<
-    Omit<Image, 'id' | 'file'> & {
+    Omit<Image, 'id' | 'file' | 'path'> & {
         name: string
     }
 >

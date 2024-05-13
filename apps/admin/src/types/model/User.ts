@@ -12,7 +12,7 @@ export type User<
         email: string
         roles: Role[]
         username: string
-        avatar: Image
+        avatar?: Image
         address: string
     }>
 >

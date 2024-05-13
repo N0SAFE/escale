@@ -4,21 +4,21 @@ import { createAttachmentUrl } from '@/hooks/useAttachmentUrl'
 import React, { useEffect, useRef, useState } from 'react'
 
 type ApiVideoProps = {
-    sourcesIdentifier: number[]
+    sourcesPath: string[]
 }
 
 export default function ApiVideo({
     alt,
-    sourcesIdentifier,
+    sourcesPath,
     ...props
 }: ApiVideoProps &
     React.DetailedHTMLProps<
         React.VideoHTMLAttributes<HTMLVideoElement>,
         HTMLVideoElement
-    > & { alt: string; sourcesIdentifier: number[] }) {
+    > & { alt: string; sourcesPath: string[] }) {
     const videoRef = useRef<HTMLVideoElement>(null)
 
-    const sourcesIdentifierString = sourcesIdentifier.join(',')
+    const sourcesIdentifierString = sourcesPath.join(',')
 
     useEffect(() => {
         if (videoRef.current) {
@@ -28,11 +28,11 @@ export default function ApiVideo({
 
     return (
         <video {...props} ref={videoRef}>
-            {sourcesIdentifier.map((sourceIdentifier) => {
+            {sourcesPath.map((sourcePath) => {
                 return (
                     <source
-                        key={sourceIdentifier}
-                        src={createAttachmentUrl(sourceIdentifier, 'video')!}
+                        key={sourcePath}
+                        src={createAttachmentUrl(sourcePath)!}
                     />
                 )
             })}

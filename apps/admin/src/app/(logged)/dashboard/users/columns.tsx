@@ -69,10 +69,7 @@ export const useColumns = (options?: ColumnOptions) => {
                     <Avatar>
                         <AvatarImage
                             src={
-                                createAttachmentUrl(
-                                    row.original.avatarId,
-                                    'image'
-                                )!
+                                createAttachmentUrl(row.original?.avatar?.path)!
                             }
                         />
                         <AvatarFallback>

@@ -10,6 +10,8 @@ export const getHomeDetails = async <R extends string[] = []>(): Promise<
             ...R,
             HomeRelations.homeComments,
             HomeRelations.video,
+            HomeRelations.image,
+            HomeRelations.commentBackgroundImage,
             VideoRelations.sources
         ]
     >
@@ -22,6 +24,8 @@ export const getHomeDetails = async <R extends string[] = []>(): Promise<
                 ...R,
                 HomeRelations.homeComments,
                 HomeRelations.video,
+                HomeRelations.image,
+                HomeRelations.commentBackgroundImage,
                 VideoRelations.sources
             ]
         >

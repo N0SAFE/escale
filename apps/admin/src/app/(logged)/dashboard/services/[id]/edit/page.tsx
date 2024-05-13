@@ -99,7 +99,7 @@ export default function ServiceEdit() {
                         onRender={(image) => (
                             <div>
                                 <ApiImage
-                                    identifier={image.id}
+                                    path={image.path}
                                     width={50}
                                     height={50}
                                     alt={'test'}

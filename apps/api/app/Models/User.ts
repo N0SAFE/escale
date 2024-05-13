@@ -53,7 +53,9 @@ export default class User extends compose(AppBaseModel, SoftDeletes) {
   @manyToMany(() => Role)
   public roles: ManyToMany<typeof Role>
 
-  @belongsTo(() => Image)
+  @belongsTo(() => Image, {
+    foreignKey: 'avatarId',
+  })
   public avatar: BelongsTo<typeof Image>
 
   @column()
@@ -75,5 +77,6 @@ export default class User extends compose(AppBaseModel, SoftDeletes) {
       return
     }
     query.preload('roles')
+    query.preload('avatar')
   }
 }

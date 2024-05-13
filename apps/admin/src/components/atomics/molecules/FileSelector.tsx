@@ -125,13 +125,7 @@ export default function FileSelector<T extends { id: number }>({
                     renderFile ? (
                         renderFile(selectedFile)
                     ) : (
-                        <ApiImage
-                            alt="Product image"
-                            className="h-full object-none w-full"
-                            identifier={selectedFile.id}
-                            width="200"
-                            height="200"
-                        />
+                        selectedFile.id
                     )
                 ) : (
                     <div className="flex items-center justify-center h-full">
@@ -196,15 +190,7 @@ export default function FileSelector<T extends { id: number }>({
                                                                 <span className="sr-only">
                                                                     Select image
                                                                 </span>
-                                                                <ApiImage
-                                                                    alt="Product image"
-                                                                    className="w-16 rounded-md object-none h-16"
-                                                                    identifier={
-                                                                        file.id
-                                                                    }
-                                                                    width="200"
-                                                                    height="200"
-                                                                />
+                                                                {file.id}
                                                             </>
                                                         )}
                                                     </Button>

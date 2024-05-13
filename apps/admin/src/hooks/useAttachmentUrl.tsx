@@ -3,24 +3,18 @@ import { useMemo } from 'react'
 type AttachmentType = 'image' | 'video'
 type AttachmentId = number
 
-export function createAttachmentUrl(
-    attachmentId?: AttachmentId | undefined,
-    attachmentType?: AttachmentType | undefined
-) {
-    if (!attachmentId || !attachmentType) {
+export function createAttachmentUrl(path: string | undefined) {
+    if (!path) {
         return null
     }
-    return `${process.env.NEXT_PUBLIC_API_URL}/attachment/${attachmentType}/${attachmentId}`
+    return `${process.env.NEXT_PUBLIC_API_URL}/uploads/${path}`
 }
 
-export function useAttachmentUrl(
-    attachmentId: AttachmentId | null,
-    attachmentType: AttachmentType | null
-) {
+export function useAttachmentUrl(path: string | undefined) {
     return useMemo(() => {
-        if (!attachmentId || !attachmentType) {
+        if (!path) {
             return null
         }
-        return createAttachmentUrl(attachmentId, attachmentType)
-    }, [attachmentId, attachmentType])
+        return createAttachmentUrl(path)
+    }, [path])
 }

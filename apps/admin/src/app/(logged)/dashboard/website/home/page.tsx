@@ -159,6 +159,10 @@ export default function HomeWebsitePage() {
         setIsSaving(false)
     }
 
+    const discard = async () => {
+        setHomeState(homeData)
+    }
+
     if (!isFetched) {
         return (
             <div className="h-full w-full flex justify-center items-center">
@@ -217,14 +221,18 @@ export default function HomeWebsitePage() {
                                 </Button>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                                <Button variant="outline" size="sm">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={discard}
+                                >
                                     Discard
                                 </Button>
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                     <div className="hidden items-center gap-2 md:ml-auto md:flex">
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={discard}>
                             Discard
                         </Button>
                         <Button size="sm" onClick={() => save()}>
@@ -300,8 +308,8 @@ export default function HomeWebsitePage() {
                                                 <ApiImage
                                                     alt="Product image"
                                                     className="w-full rounded-md object-cover h-full"
-                                                    identifier={
-                                                        homeState?.imageId
+                                                    path={
+                                                        homeState?.image?.path
                                                     }
                                                     fill
                                                 />
@@ -333,6 +341,19 @@ export default function HomeWebsitePage() {
                                                     files={
                                                         images as ImageType[]
                                                     }
+                                                    renderFile={(image) => {
+                                                        return (
+                                                            <ApiImage
+                                                                alt="Product image"
+                                                                className="h-full object-contain w-full"
+                                                                path={
+                                                                    image.path
+                                                                }
+                                                                width={400}
+                                                                height={400}
+                                                            />
+                                                        )
+                                                    }}
                                                     onFileSelect={(
                                                         image: ImageType
                                                     ) => {
@@ -343,6 +364,7 @@ export default function HomeWebsitePage() {
                                                                 >
                                                             >),
                                                             imageId: image.id,
+                                                            image: image,
                                                         } as Required<typeof homeData>)
                                                     }}
                                                     onFileUpload={async (
@@ -396,8 +418,8 @@ export default function HomeWebsitePage() {
                                                 <ApiVideo
                                                     alt="Product image"
                                                     className="w-full rounded-md object-cover h-full"
-                                                    sourcesIdentifier={homeState?.video?.sources.map(
-                                                        (s) => s.id
+                                                    sourcesPath={homeState?.video?.sources.map(
+                                                        (s) => s.path
                                                     )}
                                                     autoPlay
                                                     loop
@@ -432,8 +454,9 @@ export default function HomeWebsitePage() {
                                                             <ApiVideo
                                                                 alt="Product image"
                                                                 className="w-full rounded-md object-cover h-full"
-                                                                sourcesIdentifier={video.sources.map(
-                                                                    (s) => s.id
+                                                                sourcesPath={video.sources.map(
+                                                                    (s) =>
+                                                                        s.path
                                                                 )}
                                                                 autoPlay
                                                                 loop
@@ -448,8 +471,9 @@ export default function HomeWebsitePage() {
                                                             <ApiVideo
                                                                 alt="Product image"
                                                                 className="w-full rounded-md object-cover h-full"
-                                                                sourcesIdentifier={video.sources.map(
-                                                                    (s) => s.id
+                                                                sourcesPath={video.sources.map(
+                                                                    (s) =>
+                                                                        s.path
                                                                 )}
                                                                 autoPlay
                                                                 loop
@@ -540,8 +564,10 @@ export default function HomeWebsitePage() {
                                             <ApiImage
                                                 alt="Product image"
                                                 className="w-full rounded-md object-cover h-full"
-                                                identifier={
-                                                    homeState?.commentBackgroundImageId
+                                                path={
+                                                    homeState
+                                                        ?.commentBackgroundImage
+                                                        ?.path
                                                 }
                                                 fill
                                             />
@@ -582,7 +608,20 @@ export default function HomeWebsitePage() {
                                                         >),
                                                         commentBackgroundImageId:
                                                             image.id,
+                                                        commentBackgroundImage:
+                                                            image,
                                                     } as Required<typeof homeData>)
+                                                }}
+                                                renderFile={(image) => {
+                                                    return (
+                                                        <ApiImage
+                                                            alt="Product image"
+                                                            className="h-full object-contain w-full"
+                                                            path={image.path}
+                                                            width={400}
+                                                            height={400}
+                                                        />
+                                                    )
                                                 }}
                                                 onFileUpload={async (file) => {
                                                     const formData =

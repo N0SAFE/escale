@@ -24,10 +24,15 @@ const withRedirect: MiddlewareFactory = (next: NextMiddleware) => {
         }
         const redirectMap = ObjectToMap({
             reservation: async () => {
-                const { data } = await xiorInstance.get<ReservationType>('/spas')
+                const { data } = await xiorInstance.get<ReservationType>(
+                    '/spas'
+                )
                 return `/reservation/${data?.[0]?.id}`
             },
-        }) as Map<string, string | ((request: NextRequest) => string | Promise<string>)>
+        }) as Map<
+            string,
+            string | ((request: NextRequest) => string | Promise<string>)
+        >
         const p = redirectMap.get(key as string)
         if (key && p) {
             if (typeof p === 'function') {
@@ -45,4 +50,3 @@ export default withRedirect
 export const matcher: Matcher = {
     reservation: '^/reservation$',
 }
-

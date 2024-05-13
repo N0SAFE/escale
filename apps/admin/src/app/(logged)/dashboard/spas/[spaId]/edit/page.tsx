@@ -64,7 +64,7 @@ export default function SpasEdit() {
         <Card className="flex items-center justify-between w-full p-4">
             <div className="flex items-center gap-4">
                 <ApiImage
-                    identifier={item.image.id}
+                    path={item.image.path}
                     width={50}
                     height={50}
                     alt={item.image.file.name}
@@ -109,7 +109,7 @@ export default function SpasEdit() {
                     component: (
                         <span>
                             <ApiImage
-                                identifier={image.id}
+                                path={image.path}
                                 width={50}
                                 height={50}
                                 alt={'test'}
@@ -269,9 +269,7 @@ export default function SpasEdit() {
                                                     return (
                                                         <span>
                                                             <ApiImage
-                                                                identifier={
-                                                                    val.id
-                                                                }
+                                                                path={val.path}
                                                                 width={50}
                                                                 height={50}
                                                                 alt={'test'}

@@ -22,6 +22,7 @@ type RelationValueCases = [[VideoSourceRelation.video, Video]]
 export type VideoSource<R extends string[] = []> = Pretify<
     Entity<{
         id: number
+        path: string
         file: File
     }> & {
         [K in R[number] as TypeSwitch<K, RelationKeyCases>]: TypeSwitch<

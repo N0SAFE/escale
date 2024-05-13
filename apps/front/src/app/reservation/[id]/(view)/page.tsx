@@ -50,6 +50,7 @@ import {
     DrawerTrigger,
 } from '@/components/ui/drawer'
 import { cn } from '@/lib/utils'
+import { createAttachmentUrl } from '@/hooks/useAttachmentUrl'
 
 // ! exessive rendering
 // ! the availabilies and reservations are not updated when the month is changed and the result is that every availabilities and reservations are fetched
@@ -549,11 +550,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                 <ImageCarousel
                     images={
                         spa?.spaImages.map(function (spaImage) {
-                            return (
-                                process.env.NEXT_PUBLIC_API_URL +
-                                '/attachment/image/' +
-                                spaImage.image.id
-                            )
+                            return createAttachmentUrl(spaImage.image.path)!
                         })!
                     }
                 />
@@ -593,7 +590,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                                     <div key={index}>
                                         <AspectRatio ratio={4 / 3}>
                                             <ApiImage
-                                                identifier={service.image.id}
+                                                path={service.image.path}
                                                 alt={service.label}
                                                 width={300}
                                                 height={100}

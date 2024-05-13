@@ -123,9 +123,7 @@ Route.group(() => {
     Route.get('reservations/price', 'ReservationsController.price')
     Route.get('spas/:spa/images', 'SpasController.getImages')
     // todo Route.nestedResource('spas/:spa/images', 'SpasController').apiOnly().only(['index']).methodSuffix('images')
-    Route.get('attachment/image/:id', 'AttachmentsController.imageById')
     Route.get('attachment/calendar/:id', 'AttachmentsController.calendarById')
-    Route.get('attachment/video/:id', 'AttachmentsController.videoSourceById')
     Route.get('reservations/reservable', 'ReservationsController.getReservableDates')
     Route.get(
       'reservations/closest-unreservable',

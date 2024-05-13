@@ -23,6 +23,7 @@ export type VideoSource<R extends string[] = []> = Pretify<
     Entity<{
         id: number
         file: File
+        path: string
     }> & {
         [K in R[number] as TypeSwitch<K, RelationKeyCases>]: TypeSwitch<
             K,

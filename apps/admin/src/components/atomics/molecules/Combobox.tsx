@@ -153,13 +153,17 @@ export default function Combobox<T extends { id: number }>({
                                                   key={item.value.id}
                                                   onSelect={() => {
                                                       const newValue =
-                                                          lastValue?.includes(
-                                                              item.value
+                                                          lastValue?.some(
+                                                              (v) =>
+                                                                  v.id ===
+                                                                  item.value.id
                                                           )
                                                               ? lastValue.filter(
                                                                     (i) =>
-                                                                        i !==
-                                                                        item.value
+                                                                        i.id !==
+                                                                        item
+                                                                            .value
+                                                                            .id
                                                                 )
                                                               : [
                                                                     ...(lastValue ||
@@ -178,8 +182,10 @@ export default function Combobox<T extends { id: number }>({
                                                   <Check
                                                       className={cn(
                                                           'ml-auto h-4 w-4',
-                                                          lastValue?.includes(
-                                                              item.value
+                                                          lastValue?.some(
+                                                              (v) =>
+                                                                  v.id ===
+                                                                  item.value.id
                                                           )
                                                               ? 'opacity-100'
                                                               : 'opacity-0'
@@ -196,8 +202,8 @@ export default function Combobox<T extends { id: number }>({
                                                   value={item.label}
                                                   onSelect={(newValue) => {
                                                       setVal(
-                                                          item.value ===
-                                                              lastValue
+                                                          lastValue?.id ===
+                                                              item.value.id
                                                               ? undefined
                                                               : item.value
                                                       )
@@ -217,8 +223,8 @@ export default function Combobox<T extends { id: number }>({
                                                   <Check
                                                       className={cn(
                                                           'ml-auto h-4 w-4',
-                                                          lastValue ===
-                                                              item.value
+                                                          lastValue?.id ===
+                                                              item.value.id
                                                               ? 'opacity-100'
                                                               : 'opacity-0'
                                                       )}

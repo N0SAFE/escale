@@ -75,7 +75,7 @@ export default function ServiceEdit() {
                     />
                 </div>
                 <ApiImage
-                    identifier={image?.id!}
+                    path={image?.path!}
                     alt={imageState?.alt!}
                     width={100}
                     height={100}

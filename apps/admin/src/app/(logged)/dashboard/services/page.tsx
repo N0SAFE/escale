@@ -133,7 +133,7 @@ const columns: ColumnDef<Service>[] = [
         header: 'Image',
         cell: ({ row }) => (
             <ApiImage
-                identifier={row.original.image?.id!}
+                path={row.original.image?.path!}
                 width={50}
                 height={50}
                 alt={row.getValue<ImageType>('image')?.alt}
@@ -549,7 +549,7 @@ function CreateService({ isLoading, onSubmit }: CreateSpaProps) {
                         onRender={(image) => (
                             <div>
                                 <ApiImage
-                                    identifier={image.id}
+                                    path={image.path}
                                     width={50}
                                     height={50}
                                     alt={'test'}

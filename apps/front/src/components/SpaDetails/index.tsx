@@ -43,7 +43,7 @@ export default function SpaDetails({ spa }: Props) {
                     <div key={index}>
                         <AspectRatio ratio={4 / 3}>
                             <ApiImage
-                                identifier={service.image.id}
+                                path={service.image.path}
                                 alt={service.label}
                                 width={300}
                                 height={100}

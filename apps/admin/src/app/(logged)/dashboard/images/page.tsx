@@ -116,7 +116,7 @@ const columns: ColumnDef<ImageType>[] = [
         header: 'Image',
         cell: ({ row }) => (
             <ApiImage
-                identifier={row.original.id}
+                path={row.original.path}
                 width={50}
                 height={50}
                 alt={row.original.alt}
