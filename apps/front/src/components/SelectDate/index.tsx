@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react'
 import { CalendarIcon } from '@radix-ui/react-icons'
-import fr from 'date-fns/locale/fr'
 import { addDays, format } from 'date-fns'
 import { DateRange } from 'react-day-picker'
 
@@ -15,6 +14,7 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover'
 import { DateTime } from 'luxon'
+import { fr } from 'date-fns/locale'
 
 type Props = {
     disableDateFunction?: (date: Date) => boolean
