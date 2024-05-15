@@ -1,17 +1,31 @@
 {
   "extends": "adonis-preset-ts/tsconfig.json",
-  "include": ["**/*", ".eslintrc.js"],
-  "exclude": ["node_modules", "build"],
+  "include": [
+    "**/*",
+    ".eslintrc.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "build"
+  ],
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "build",
     "rootDir": "./",
     "sourceMap": true,
     "paths": {
-      "App/*": ["./app/*"],
-      "Config/*": ["./config/*"],
-      "Contracts/*": ["./contracts/*"],
-      "Database/*": ["./database/*"]
+      "App/*": [
+        "./app/*"
+      ],
+      "Config/*": [
+        "./config/*"
+      ],
+      "Contracts/*": [
+        "./contracts/*"
+      ],
+      "Database/*": [
+        "./database/*"
+      ]
     },
     "types": [
       "@adonisjs/core",
@@ -24,7 +38,9 @@
       "adonis5-jwt",
       "adonis-lucid-soft-deletes",
       "@adonisjs/ally",
-      "adonis5-scheduler"
+      "adonis5-scheduler",
+      "@adonisjs/mail",
+      "@adonisjs/view"
     ]
   }
 }

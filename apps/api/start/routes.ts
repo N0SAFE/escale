@@ -20,6 +20,7 @@
 
 import Route from '@ioc:Adonis/Core/Route'
 import HealthCheck from '@ioc:Adonis/Core/HealthCheck'
+import Mail from '@ioc:Adonis/Addons/Mail'
 
 // check db connection
 Route.get('health', async ({ response }) => {
@@ -34,6 +35,19 @@ Route.group(() => {
 
 Route.group(() => {
   Route.post('webhook/stripe', 'WebhooksController.stripe')
+})
+
+Route.get('mail/test', async () => {
+  await Mail.send((message) => {
+    message
+      .from('info@example.com')
+      .to('sssebillemathis@gmail.com')
+      .subject('Welcome Onboard!')
+      .htmlView('emails/test', {
+        user: { fullName: 'Some Name' },
+        url: 'https://your-app.com/verification-url',
+      })
+  })
 })
 
 Route.group(() => {

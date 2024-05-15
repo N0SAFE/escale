@@ -31,4 +31,8 @@ export default Env.rules({
   SOCKET_CLUSTER_INFO: Env.schema.string(),
   SOCKET_CLUSTER_SERVERS_INFO: Env.schema.string(),
   STRIPE_SECRET_KEY: Env.schema.string(),
+  SMTP_HOST: Env.schema.string({ format: 'host' }),
+  SMTP_PORT: Env.schema.number(),
+  SMTP_USERNAME: Env.schema.string(),
+  SMTP_PASSWORD: Env.schema.string(),
 })
