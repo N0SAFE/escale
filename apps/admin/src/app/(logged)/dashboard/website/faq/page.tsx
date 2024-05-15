@@ -25,7 +25,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Textarea } from '@/components/ui/textarea'
 import { createFaq, deleteFaq, getFaqs, updateFaq } from '../actions'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { DataTable } from '@/components/atomics/organisms/DataTable/index'
+import { DataTable } from '@/components/atomics/organisms/DataTable'
 import {
     OnFaqDelete,
     OnFaqQuestionUpdate,
@@ -52,6 +52,7 @@ import {
 import { arrayMove } from '@dnd-kit/sortable'
 import { DType } from './type'
 import { UniqueIdentifier } from '@dnd-kit/core'
+import { DataTableProvider } from '@/components/atomics/organisms/DataTable/DataTableContext'
 
 export default function FaqWebsitePage() {
     const {
@@ -362,60 +363,69 @@ export default function FaqWebsitePage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <DataTable
-                                useDragabble
-                                rowIsDraggable
-                                divClassname="max-h-[500px]"
-                                columns={columns}
+                            <DataTableProvider
                                 data={faqsStateByRankNotDeleted}
-                                isLoading={!isFetched}
-                                onReorder={({ active, over }) => {
-                                    if (!faqsStateByRankNotDeleted) return
-                                    if (
-                                        active &&
-                                        over &&
-                                        active.id !== over.id
-                                    ) {
-                                        onFaqMove(
-                                            faqsStateByRankNotDeleted.findIndex(
-                                                (faq) => faq.uuid === active.id
-                                            ),
-                                            faqsStateByRankNotDeleted.findIndex(
-                                                (faq) => faq.uuid === over.id
-                                            )
-                                        )
-                                        setFaqsState((faqs) => {
-                                            if (!faqs) return []
-                                            const activeObject = faqs.find(
-                                                (faq) => faq.uuid === active.id
-                                            )!
-                                            const overObject = faqs.find(
-                                                (faq) => faq.uuid === over.id
-                                            )!
-                                            return faqs.map((faq) => ({
-                                                ...faq,
-                                                data: {
-                                                    ...faq.data,
-                                                    rank:
+                                columns={columns}
+                            >
+                                <DataTable
+                                    useDragabble
+                                    rowIsDraggable
+                                    divClassname="max-h-[500px]"
+                                    isLoading={!isFetched}
+                                    onReorder={({ active, over }) => {
+                                        if (!faqsStateByRankNotDeleted) return
+                                        if (
+                                            active &&
+                                            over &&
+                                            active.id !== over.id
+                                        ) {
+                                            onFaqMove(
+                                                faqsStateByRankNotDeleted.findIndex(
+                                                    (faq) =>
                                                         faq.uuid === active.id
-                                                            ? overObject.data
-                                                                  .rank
-                                                            : faq.uuid ===
-                                                              over.id
-                                                            ? activeObject.data
-                                                                  .rank
-                                                            : faq.data.rank,
-                                                },
-                                                isEdited:
-                                                    faq.uuid === active.id ||
-                                                    faq.uuid === over.id
-                                                        ? !faq.isNew
-                                                        : faq.isEdited,
-                                            }))
-                                        })
-                                    }
-                                }}
-                            />
+                                                ),
+                                                faqsStateByRankNotDeleted.findIndex(
+                                                    (faq) =>
+                                                        faq.uuid === over.id
+                                                )
+                                            )
+                                            setFaqsState((faqs) => {
+                                                if (!faqs) return []
+                                                const activeObject = faqs.find(
+                                                    (faq) =>
+                                                        faq.uuid === active.id
+                                                )!
+                                                const overObject = faqs.find(
+                                                    (faq) =>
+                                                        faq.uuid === over.id
+                                                )!
+                                                return faqs.map((faq) => ({
+                                                    ...faq,
+                                                    data: {
+                                                        ...faq.data,
+                                                        rank:
+                                                            faq.uuid ===
+                                                            active.id
+                                                                ? overObject
+                                                                      .data.rank
+                                                                : faq.uuid ===
+                                                                  over.id
+                                                                ? activeObject
+                                                                      .data.rank
+                                                                : faq.data.rank,
+                                                    },
+                                                    isEdited:
+                                                        faq.uuid ===
+                                                            active.id ||
+                                                        faq.uuid === over.id
+                                                            ? !faq.isNew
+                                                            : faq.isEdited,
+                                                }))
+                                            })
+                                        }
+                                    }}
+                                />
+                            </DataTableProvider>
                         </CardContent>
                         <CardFooter className="justify-center border-t p-4">
                             <Button

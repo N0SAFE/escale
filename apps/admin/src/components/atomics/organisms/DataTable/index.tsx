@@ -25,7 +25,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import React, { CSSProperties } from 'react'
+import React, { CSSProperties, useEffect } from 'react'
 import Loader from '@/components/atomics/atoms/Loader'
 import { DataTablePagination } from './DataTablePagination'
 import { cn } from '@/lib/utils'
@@ -48,19 +48,14 @@ import {
     useSensors,
 } from '@dnd-kit/core'
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
-import { For } from 'million/react'
+import For from '@/components/atomics/atoms/For'
+import { useDataTableContext } from './DataTableContext'
 
 interface DataTableProps<TData extends { uuid: UniqueIdentifier }, TValue>
     extends React.ComponentProps<typeof Table> {
     tableClassName?: string
-    columns: ColumnDef<TData, TValue>[]
-    data: TData[] | undefined
     isLoading?: boolean
     notFound?: React.ReactNode
-    tableRef?: React.RefObject<TableType<TData>>
-    usePagination?: boolean
-    meta?: TableMeta<TData>
-    tableOptions?: TableOptions<TData>
     useDragabble?: boolean
     rowIsDraggable?: boolean
     onReorder?: (event: DragEndEvent) => void
@@ -118,52 +113,20 @@ function DraggableRow<TData extends { uuid: UniqueIdentifier }>({
 }
 
 export function DataTable<TData extends { uuid: UniqueIdentifier }, TValue>({
-    columns,
-    data,
     isLoading,
     notFound,
-    tableRef,
-    usePagination = true,
     tableClassName,
     className,
     divClassname,
-    meta,
-    tableOptions,
     useDragabble,
     rowIsDraggable,
     onReorder,
     useId,
     ...props
 }: DataTableProps<TData, TValue>) {
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [columnFilters, setColumnFilters] =
-        React.useState<ColumnFiltersState>([])
-    const [columnVisibility, setColumnVisibility] =
-        React.useState<VisibilityState>({})
-    const [rowSelection, setRowSelection] = React.useState({})
-
-    const table = useReactTable({
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
-        getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        onColumnVisibilityChange: setColumnVisibility,
-        onRowSelectionChange: setRowSelection,
-        ...tableOptions, // can override the above
-        data: data ?? [],
-        columns,
-        state: {
-            sorting,
-            columnFilters,
-            columnVisibility,
-            rowSelection,
-            ...tableOptions?.state,
-        },
-    })
-
-    React.useImperativeHandle(tableRef, () => table, [table])
+    const { table } = useDataTableContext(
+        'DataTable has to be render inside a DataTableProvider'
+    )
 
     const sensors = useSensors(
         useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
@@ -172,8 +135,10 @@ export function DataTable<TData extends { uuid: UniqueIdentifier }, TValue>({
     )
 
     const dataIds = React.useMemo<UniqueIdentifier[]>(
-        () => data?.map((data) => data.uuid) ?? ([] as UniqueIdentifier[]),
-        [data]
+        () =>
+            table?.options?.data?.map((data) => data.uuid) ??
+            ([] as UniqueIdentifier[]),
+        [table?.options?.data]
     )
 
     return (
@@ -223,7 +188,7 @@ export function DataTable<TData extends { uuid: UniqueIdentifier }, TValue>({
                             {isLoading ? (
                                 <TableRow>
                                     <TableCell
-                                        colSpan={columns.length}
+                                        colSpan={table.options.columns.length}
                                         className="h-24 text-center"
                                     >
                                         <span className="flex items-center justify-center">
@@ -236,7 +201,7 @@ export function DataTable<TData extends { uuid: UniqueIdentifier }, TValue>({
                                     items={useDragabble ? dataIds : []}
                                     strategy={verticalListSortingStrategy}
                                 >
-                                    <For each={table.getRowModel().rows} memo>
+                                    <For each={table.getRowModel().rows}>
                                         {(row) => (
                                             <DraggableRow
                                                 key={row.id}
@@ -253,7 +218,7 @@ export function DataTable<TData extends { uuid: UniqueIdentifier }, TValue>({
                             ) : (
                                 <TableRow>
                                     <TableCell
-                                        colSpan={columns.length}
+                                        colSpan={table.options.columns.length}
                                         className="h-24 text-center"
                                     >
                                         {notFound ? (
@@ -271,7 +236,6 @@ export function DataTable<TData extends { uuid: UniqueIdentifier }, TValue>({
                         </TableBody>
                     </Table>
                 </div>
-                {usePagination && <DataTablePagination table={table} />}
             </div>
         </DndContext>
     )

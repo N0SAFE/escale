@@ -1,4 +1,3 @@
-import MillionLint from '@million/lint'
 import million from 'million/compiler'
 
 /** @type {import('next').NextConfig} */

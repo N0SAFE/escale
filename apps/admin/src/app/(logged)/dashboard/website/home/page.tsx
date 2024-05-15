@@ -39,7 +39,7 @@ import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getHomeDetails, updateHomeDetails } from '@/actions/Home'
 import { getComments } from '@/actions/Comment'
-import { createImage, deleteImage, getImages } from '../../images/actions'
+import { createImage, deleteImage, getImages } from '../../files/images/actions'
 import Combobox from '@/components/atomics/molecules/Combobox'
 import {
     Carousel,
@@ -641,9 +641,7 @@ export default function HomeWebsitePage() {
                                                         <ApiImage
                                                             alt="Product image"
                                                             className="w-16 rounded-md object-none h-16"
-                                                            path={
-                                                                image.path
-                                                            }
+                                                            path={image.path}
                                                             width="200"
                                                             height="200"
                                                         />

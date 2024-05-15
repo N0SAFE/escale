@@ -12,5 +12,5 @@ export default function ApiImage({
     ...props
 }: ApiImageProps & Omit<ImageProps, 'src'>) {
     const attachmentUrl = useAttachmentUrl(path)!
-    return <Image alt={alt} {...props} src={attachmentUrl} />
+    return <Image alt={alt} priority {...props} src={attachmentUrl} />
 }

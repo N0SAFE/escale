@@ -9,22 +9,15 @@ import { days } from '@/types/utils'
 import React, { useEffect, useMemo, useState } from 'react'
 import { DateRange } from 'react-day-picker'
 import { DateTime, Info } from 'luxon'
-import { Input } from '../../ui/input'
-import { Calendar } from '../../ui/calendar'
-import { Label } from '../../ui/label'
-import Combobox from '../molecules/Combobox'
+import { Input } from '../../../ui/input'
+import { Calendar } from '../../../ui/calendar'
+import { Label } from '../../../ui/label'
+import Combobox from '../../molecules/Combobox'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { getAvailabilities } from '@/app/(logged)/dashboard/availabilities/actions'
 
-export type AvailabilityEditProps = {
-    onChange?: ({
-        id,
-        availability,
-    }: {
-        id?: number
-        availability: CreateAvailability
-    }) => void
-    defaultValues?: AvailabilityType
+export type AvailabilityCreateProps = {
+    onChange?: (availability: CreateAvailability) => void
     displayedRange?: {
         blue: {
             from: Date
@@ -63,8 +56,7 @@ export type AvailabilityEditProps = {
     defaultSelectedSpa?: Spa
 }
 
-export default function AvailabilityEdit({
-    defaultValues,
+export default function AvailabilityCreate({
     getClostestAvailabilities,
     onMonthChange,
     onChange,
@@ -73,63 +65,14 @@ export default function AvailabilityEdit({
     selectedSpa,
     disabled,
     defaultSelectedSpa,
-}: AvailabilityEditProps) {
-    const [selectedMonth, setSelectedMonth] = useState(
-        defaultValues?.startAt
-            ? DateTime.fromISO(defaultValues?.startAt, {
-                  zone: 'utc',
-              }).toJSDate()
-            : new Date()
-    )
+}: AvailabilityCreateProps) {
+    const [selectedMonth, setSelectedMonth] = useState(new Date())
     const daysNameInLocale = Info.weekdays('short')
     const [availabilityState, setAvailabilityState] =
-        React.useState<CreateAvailability>({
-            startAt: defaultValues?.startAt || '',
-            endAt: defaultValues?.endAt || '',
-            spa: defaultValues?.spa?.id || defaultSelectedSpa?.id || -1,
-            monPrice: {
-                day: (defaultValues?.monPrice?.day || 0) / 100,
-                night: (defaultValues?.monPrice?.night || 0) / 100,
-                journey: (defaultValues?.monPrice?.journey || 0) / 100,
-            },
-            tuePrice: {
-                day: (defaultValues?.tuePrice?.day || 0) / 100,
-                night: (defaultValues?.tuePrice?.night || 0) / 100,
-                journey: (defaultValues?.tuePrice?.journey || 0) / 100,
-            },
-            wedPrice: {
-                day: (defaultValues?.wedPrice?.day || 0) / 100,
-                night: (defaultValues?.wedPrice?.night || 0) / 100,
-                journey: (defaultValues?.wedPrice?.journey || 0) / 100,
-            },
-            thuPrice: {
-                day: (defaultValues?.thuPrice?.day || 0) / 100,
-                night: (defaultValues?.thuPrice?.night || 0) / 100,
-                journey: (defaultValues?.thuPrice?.journey || 0) / 100,
-            },
-            friPrice: {
-                day: (defaultValues?.friPrice?.day || 0) / 100,
-                night: (defaultValues?.friPrice?.night || 0) / 100,
-                journey: (defaultValues?.friPrice?.journey || 0) / 100,
-            },
-            satPrice: {
-                day: (defaultValues?.satPrice?.day || 0) / 100,
-                night: (defaultValues?.satPrice?.night || 0) / 100,
-                journey: (defaultValues?.satPrice?.journey || 0) / 100,
-            },
-            sunPrice: {
-                day: (defaultValues?.sunPrice?.day || 0) / 100,
-                night: (defaultValues?.sunPrice?.night || 0) / 100,
-                journey: (defaultValues?.sunPrice?.journey || 0) / 100,
-            },
-        })
+        React.useState<CreateAvailability>()
     const [rangeDate, setRangeDate] = React.useState<DateRange | undefined>({
-        from: defaultValues?.startAt
-            ? DateTime.fromISO(defaultValues.startAt).toJSDate()
-            : undefined,
-        to: defaultValues?.endAt
-            ? DateTime.fromISO(defaultValues.endAt).toJSDate()
-            : undefined,
+        from: undefined,
+        to: undefined,
     })
     const [availableDates, setAvailableDates] = React.useState<{
         up: Date | undefined
@@ -244,13 +187,6 @@ export default function AvailabilityEdit({
                 )
             })
 
-            if (availability?.id === defaultValues?.id) {
-                return {
-                    date: date,
-                    available: false,
-                }
-            }
-
             return {
                 date: date,
                 available: !!availability,
@@ -263,24 +199,14 @@ export default function AvailabilityEdit({
                 setAvailableDates({
                     up:
                         closestAvailabilities?.down &&
-                        closestAvailabilities?.down.id !== defaultValues?.id
-                            ? DateTime.fromISO(
-                                  closestAvailabilities?.down.startAt,
-                                  {
-                                      zone: 'utc',
-                                  }
-                              ).toJSDate()!
-                            : undefined,
+                        DateTime.fromISO(closestAvailabilities?.down.startAt, {
+                            zone: 'utc',
+                        }).toJSDate()!,
                     down:
                         closestAvailabilities?.up &&
-                        closestAvailabilities?.up.id !== defaultValues?.id
-                            ? DateTime.fromISO(
-                                  closestAvailabilities?.up.endAt,
-                                  {
-                                      zone: 'utc',
-                                  }
-                              ).toJSDate()!
-                            : undefined,
+                        DateTime.fromISO(closestAvailabilities?.up.endAt, {
+                            zone: 'utc',
+                        }).toJSDate()!,
                     set: array.reduce((acc, date) => {
                         if (date.available) {
                             acc.add(date.date.toISODate()!)
@@ -303,7 +229,7 @@ export default function AvailabilityEdit({
         })
         return
         // eslint-disable-next-line
-    }, [availabilities, rangeDate?.from, defaultValues])
+    }, [availabilities, rangeDate?.from])
 
     useEffect(() => {
         if (!rangeDate?.from && !rangeDate?.to) {
@@ -311,63 +237,57 @@ export default function AvailabilityEdit({
                 ...availabilityState,
                 startAt: '',
                 endAt: '',
-            })
+            } as CreateAvailability)
         }
         if (rangeDate?.to) {
             setAvailabilityState({
                 ...availabilityState,
                 startAt: DateTime.fromJSDate(rangeDate.from!).toISODate()!,
                 endAt: DateTime.fromJSDate(rangeDate.to).toISODate()!,
-            })
+            } as CreateAvailability)
         } // eslint-disable-next-line
     }, [rangeDate])
 
     useEffect(() => {
         onChange?.({
-            id: defaultValues?.id,
-            availability: {
-                ...availabilityState,
-                ...days.reduce(
-                    (acc, day) => ({
-                        ...acc,
-                        [day + 'Price']: {
-                            day: availabilityState?.[
-                                (day +
-                                    'Price') as `${(typeof days)[number]}Price`
-                            ]?.day
-                                ? availabilityState?.[
-                                      (day +
-                                          'Price') as `${(typeof days)[number]}Price`
-                                  ]?.day! * 100
-                                : 0,
-                            night: availabilityState?.[
-                                (day +
-                                    'Price') as `${(typeof days)[number]}Price`
-                            ]?.night
-                                ? availabilityState?.[
-                                      (day +
-                                          'Price') as `${(typeof days)[number]}Price`
-                                  ]?.night! * 100
-                                : 0,
-                            journey: availabilityState?.[
-                                (day +
-                                    'Price') as `${(typeof days)[number]}Price`
-                            ]?.journey
-                                ? availabilityState?.[
-                                      (day +
-                                          'Price') as `${(typeof days)[number]}Price`
-                                  ]?.journey! * 100
-                                : 0,
-                        },
-                    }),
-                    {} as Record<
-                        (typeof days)[number],
-                        { day: number; night: number; journey: number }
-                    >
-                ),
-            },
-        }) // eslint-disable-next-line
-    }, [availabilityState, defaultValues?.id])
+            ...availabilityState!,
+            ...days.reduce(
+                (acc, day) => ({
+                    ...acc,
+                    [day + 'Price']: {
+                        day: availabilityState?.[
+                            (day + 'Price') as `${(typeof days)[number]}Price`
+                        ]?.day
+                            ? availabilityState?.[
+                                  (day +
+                                      'Price') as `${(typeof days)[number]}Price`
+                              ]?.day! * 100
+                            : 0,
+                        night: availabilityState?.[
+                            (day + 'Price') as `${(typeof days)[number]}Price`
+                        ]?.night
+                            ? availabilityState?.[
+                                  (day +
+                                      'Price') as `${(typeof days)[number]}Price`
+                              ]?.night! * 100
+                            : 0,
+                        journey: availabilityState?.[
+                            (day + 'Price') as `${(typeof days)[number]}Price`
+                        ]?.journey
+                            ? availabilityState?.[
+                                  (day +
+                                      'Price') as `${(typeof days)[number]}Price`
+                              ]?.journey! * 100
+                            : 0,
+                    },
+                }),
+                {} as Record<
+                    (typeof days)[number],
+                    { day: number; night: number; journey: number }
+                >
+            ),
+        } as CreateAvailability) // eslint-disable-next-line
+    }, [availabilityState])
 
     return (
         <div className="grid gap-4 py-4  w-full">
@@ -384,7 +304,7 @@ export default function AvailabilityEdit({
                     isLoading={isSpaLoading || false}
                     defaultPreviewText="Select a spa..."
                     value={
-                        availabilityState.spa
+                        availabilityState?.spa
                             ? spas?.find(
                                   (spa) => spa.id === availabilityState.spa
                               )
@@ -392,7 +312,7 @@ export default function AvailabilityEdit({
                     }
                     onSelect={(spa) => {
                         setAvailabilityState({
-                            ...availabilityState,
+                            ...(availabilityState! || {}),
                             spa: spa?.id || -1,
                         })
                     }}
@@ -415,7 +335,7 @@ export default function AvailabilityEdit({
                                 disabled={!selectedDay.has(day)}
                                 id={`${day}-day`}
                                 defaultValue={
-                                    availabilityState[
+                                    availabilityState?.[
                                         (day +
                                             'Price') as `${(typeof days)[number]}Price`
                                     ]?.night
@@ -423,11 +343,11 @@ export default function AvailabilityEdit({
                                 onChange={(e) => {
                                     !isNaN(Number(e.target.value)) &&
                                         setAvailabilityState({
-                                            ...availabilityState,
+                                            ...(availabilityState! || {}),
                                             [(day +
                                                 'Price') as `${(typeof days)[number]}Price`]:
                                                 {
-                                                    ...availabilityState[
+                                                    ...availabilityState?.[
                                                         (day +
                                                             'Price') as `${(typeof days)[number]}Price`
                                                     ],
@@ -453,15 +373,11 @@ export default function AvailabilityEdit({
                     selected={rangeDate}
                     onSelect={setRangeDate}
                     displayedRange={{
-                        red: availabilities
-                            ?.filter((availability) => {
-                                return availability.id !== defaultValues?.id
-                            })
-                            .map((availability) => ({
-                                from: DateTime.fromISO(availability.startAt),
-                                to: DateTime.fromISO(availability.endAt),
-                                item: availability,
-                            })),
+                        red: availabilities?.map((availability) => ({
+                            from: DateTime.fromISO(availability.startAt),
+                            to: DateTime.fromISO(availability.endAt),
+                            item: availability,
+                        })),
                     }}
                     numberOfMonths={1}
                     disabled={(date) => {

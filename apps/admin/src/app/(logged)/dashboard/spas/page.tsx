@@ -37,11 +37,14 @@ import ApiImage from '@/components/atomics/atoms/ApiImage'
 import { Card } from '@/components/ui/card'
 import dynamic from 'next/dynamic'
 import { toast } from 'sonner'
-import { useColumns } from './columns'
-import { DataTable } from '@/components/atomics/organisms/DataTable/index'
+import { ColumnOptions, useColumns } from './columns'
+import { DataTable } from '@/components/atomics/organisms/DataTable'
 import { DataTableViewOptions } from '@/components/atomics/organisms/DataTable/DataTableViewOptions'
 import { DType } from './type'
 import { spasAccessor } from './utils'
+import ProgressBar from '@/components/atomics/atoms/ProgressBar'
+import { DataTablePagination } from '@/components/atomics/organisms/DataTable/DataTablePagination'
+import { DataTableProvider } from '@/components/atomics/organisms/DataTable/DataTableContext'
 
 export default function SpasTable() {
     const {
@@ -51,9 +54,9 @@ export default function SpasTable() {
     } = useQuery({
         queryKey: ['spas'],
         queryFn: async () =>
-            spasAccessor().then((spas) =>
+            (await spasAccessor().then((spas) =>
                 spas.map((s) => ({ ...s, uuid: s.id }))
-            ) as Promise<DType[]>,
+            )) as DType[],
     })
     const spaCreateMutation = useMutation({
         mutationFn: async (spa?: CreateSpaType) => {
@@ -69,8 +72,22 @@ export default function SpasTable() {
         },
     })
     const spaDeleteMutation = useMutation({
-        mutationFn: async (id: number) => {
-            return await deleteSpa(id)
+        mutationFn: async (ids: number[]) => {
+            let count = 0
+            setDeleteContext({
+                numberOfSelectedRows: ids.length,
+                numberOfDeletedRows: 0,
+            })
+            await Promise.all(
+                ids.map(async (i) => {
+                    await deleteSpa(i)
+                    count++
+                    setDeleteContext({
+                        numberOfSelectedRows: ids.length,
+                        numberOfDeletedRows: count,
+                    })
+                })
+            )
         },
         onError: (error) => {
             toast.error('server error')
@@ -82,78 +99,82 @@ export default function SpasTable() {
         },
     })
 
-    const tableRef = React.useRef<Table<DType>>(null)
-
+    const [deleteContext, setDeleteContext] = React.useState<{
+        numberOfSelectedRows: number
+        numberOfDeletedRows: number
+    }>()
     const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false)
-    const [isDeletDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
-    const [selectedSpaToDelete, setSelectedSpaToDelete] =
-        React.useState<DType>()
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
+    const [selectedSpas, setSelectedSpa] = React.useState<DType[]>()
 
-    const columns = useColumns({
-        onRowDelete: async (row) => {
-            setSelectedSpaToDelete(row.original)
+    const columnsOptions: ColumnOptions = {
+        onRowDelete: async (spa) => {
+            setSelectedSpa([spa])
             setIsDeleteDialogOpen(true)
         },
-        useLoaderOnRowDelete: true,
-    })
+        onMultipleRowDelete: async (spas) => {
+            setSelectedSpa(spas)
+            setIsDeleteDialogOpen(true)
+        },
+    }
+
+    const columns = useColumns(columnsOptions)
 
     return (
         <div className="w-full h-full">
             <AlertDialog
-                open={isDeletDialogOpen}
+                open={isDeleteDialogOpen}
                 onOpenChange={setIsDeleteDialogOpen}
             >
                 <AlertDialogContent>
                     <DeleteSpa
                         onDelete={() =>
-                            spaDeleteMutation.mutate(selectedSpaToDelete?.id!)
+                            spaDeleteMutation.mutate(
+                                selectedSpas?.map((s) => s.id)!
+                            )
                         }
                         isLoading={spaDeleteMutation.isPending}
                         onCancel={() => setIsDeleteDialogOpen(false)}
+                        deleteContext={deleteContext}
                     />
                 </AlertDialogContent>
             </AlertDialog>
             <div className="flex flex-col gap-4 h-full">
-                <div className="flex justify-end">
-                    <div className="flex gap-2">
-                        <DataTableViewOptions
-                            className="h-full"
-                            table={
-                                tableRef.current === null
-                                    ? undefined
-                                    : tableRef.current
-                            }
-                        />
-                        <Dialog
-                            open={isCreateDialogOpen}
-                            onOpenChange={setIsCreateDialogOpen}
-                        >
-                            <DialogTrigger asChild>
-                                <Button variant="outline">+</Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[800px]">
-                                <DialogHeader>
-                                    <DialogTitle>Create service</DialogTitle>
-                                    <DialogDescription>
-                                        create a new service and add it to the
-                                        list
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <CreateSpa
-                                    onSubmit={spaCreateMutation.mutate}
-                                    isLoading={spaCreateMutation.isPending}
-                                />
-                            </DialogContent>
-                        </Dialog>
+                <DataTableProvider columns={columns} data={spas ?? []}>
+                    <div className="flex justify-end">
+                        <div className="flex gap-2">
+                            <DataTableViewOptions className="h-full" />
+                            <Dialog
+                                open={isCreateDialogOpen}
+                                onOpenChange={setIsCreateDialogOpen}
+                            >
+                                <DialogTrigger asChild>
+                                    <Button variant="outline">+</Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[800px]">
+                                    <DialogHeader>
+                                        <DialogTitle>
+                                            Create service
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                            create a new service and add it to
+                                            the list
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <CreateSpa
+                                        onSubmit={spaCreateMutation.mutate}
+                                        isLoading={spaCreateMutation.isPending}
+                                    />
+                                </DialogContent>
+                            </Dialog>
+                        </div>
                     </div>
-                </div>
-                <DataTable
-                    columns={columns}
-                    data={spas ?? []}
-                    isLoading={!isFetched}
-                    notFound="no spas found"
-                    tableRef={tableRef}
-                />
+                    <DataTable
+                        isLoading={!isFetched}
+                        notFound="no spas found"
+                    />
+                    <DataTablePagination />
+                </DataTableProvider>
             </div>
         </div>
     )
@@ -163,9 +184,18 @@ type DeleteImageProps = {
     isLoading?: boolean
     onDelete?: () => void
     onCancel?: () => void
+    deleteContext?: {
+        numberOfSelectedRows: number
+        numberOfDeletedRows: number
+    }
 }
 
-function DeleteSpa({ isLoading, onDelete, onCancel }: DeleteImageProps) {
+function DeleteSpa({
+    isLoading,
+    onDelete,
+    onCancel,
+    deleteContext,
+}: DeleteImageProps) {
     return (
         <>
             <AlertDialogHeader>
@@ -175,6 +205,13 @@ function DeleteSpa({ isLoading, onDelete, onCancel }: DeleteImageProps) {
                     the image and remove the data associated from our servers.
                 </AlertDialogDescription>
             </AlertDialogHeader>
+            {isLoading && deleteContext && (
+                <ProgressBar
+                    out={deleteContext.numberOfDeletedRows}
+                    of={deleteContext.numberOfSelectedRows}
+                    label="users"
+                />
+            )}
             <AlertDialogFooter>
                 <Button variant={'outline'} onClick={onCancel}>
                     Cancel

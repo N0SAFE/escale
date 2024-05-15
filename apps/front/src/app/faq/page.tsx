@@ -1,5 +1,3 @@
-'use client'
-
 import Loader from '@/components/Loader/index'
 import {
     Accordion,
@@ -16,22 +14,10 @@ type Faq = {
     answer: string
 }
 
-export default function Faq() {
-    const { data, error, isFetched } = useQuery({
-        queryFn: async () => {
-            const { data } = await xiorInstance.get<Faq[]>('/faqs')
-            return data
-        },
-        queryKey: ['faqs'],
+export default async function Faq() {
+    const { data } = await xiorInstance.get<Faq[]>('/faqs', {
+        cache: 'no-store',
     })
-
-    if (!isFetched) {
-        return (
-            <div className="h-full w-full flex justify-center items-center">
-                <Loader />
-            </div>
-        )
-    }
 
     return (
         <div className="mb-16 mt-4">

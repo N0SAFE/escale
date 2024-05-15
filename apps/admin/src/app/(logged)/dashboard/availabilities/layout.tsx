@@ -41,11 +41,12 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog'
-import AvailabilityEdit from '@/components/atomics/templates/AvailabillityEdit'
+import AvailabilityEdit from '@/components/atomics/templates/Edit/AvailabillityEdit'
 import { AlertDialogFooter } from '@/components/ui/alert-dialog'
 import Loader from '@/components/atomics/atoms/Loader'
 import { DateTime } from 'luxon'
 import { parseAsInteger, useQueryState } from 'nuqs'
+import AvailabilityCreate from '@/components/atomics/templates/Create/AvailabillityCreate'
 
 export const AvailabilityContext = createContext<{
     spas: {
@@ -172,92 +173,98 @@ export default function AvailabilityLayout({
                 },
             }}
         >
-            <Tabs
-                className="w-full flex justify-between"
-                value={selectedTab || 'calendar'}
-            >
-                <Button variant="outline" className="invisible">
-                    +
-                </Button>
-                <TabsList className="w-fit">
-                    <Link href="/dashboard/availabilities/calendar">
-                        <TabsTrigger value="calendar">calendar</TabsTrigger>
-                    </Link>
-                    <Link href="/dashboard/availabilities/list">
-                        <TabsTrigger value="list">list</TabsTrigger>
-                    </Link>
-                </TabsList>
-                <Dialog
-                    open={isCreateDialogOpen}
-                    onOpenChange={setIsCreateDialogOpen}
+            <div className="flex flex-col gap-4 h-[-webkit-fill-available]">
+                <Tabs
+                    className="w-full flex justify-between"
+                    value={selectedTab || 'calendar'}
                 >
-                    <DialogTrigger asChild>
-                        <Button variant="outline">+</Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[800px] h-full">
-                        <div className="overflow-auto scrollbar-none">
-                            <DialogHeader>
-                                <DialogTitle>Create availability</DialogTitle>
-                                <DialogDescription>
-                                    create a new availability and add it to the
-                                    list
-                                </DialogDescription>
-                            </DialogHeader>
-                            <AvailabilityEdit
-                                getClostestAvailabilities={async (
-                                    date: string
-                                ) =>
-                                    (await getClosestAvailabilities(date))
-                                        ?.data!
-                                }
-                                onMonthChange={setSelectedMonth}
-                                spas={spas}
-                                onChange={(data) => {
-                                    setCreatedAvailability(data.availability)
-                                }}
-                                defaultSelectedSpa={defaultSelectedSpa}
-                            />
-                        </div>
-                        <AlertDialogFooter>
-                            <Button
-                                className="relative"
-                                onClick={() => {
-                                    availabilityCreateMutation.mutate(
-                                        createdAvailability
-                                    )
-                                }}
-                                disabled={availabilityCreateMutation.isPending}
-                            >
-                                <span
-                                    className={
+                    <Button variant="outline" className="invisible">
+                        +
+                    </Button>
+                    <TabsList className="w-fit">
+                        <Link href="/dashboard/availabilities/calendar">
+                            <TabsTrigger value="calendar">calendar</TabsTrigger>
+                        </Link>
+                        <Link href="/dashboard/availabilities/list">
+                            <TabsTrigger value="list">list</TabsTrigger>
+                        </Link>
+                    </TabsList>
+                    <Dialog
+                        open={isCreateDialogOpen}
+                        onOpenChange={setIsCreateDialogOpen}
+                    >
+                        <DialogTrigger asChild>
+                            <Button variant="outline">+</Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[800px] h-full">
+                            <div className="overflow-auto scrollbar-none">
+                                <DialogHeader>
+                                    <DialogTitle>
+                                        Create availability
+                                    </DialogTitle>
+                                    <DialogDescription>
+                                        create a new availability and add it to
+                                        the list
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <AvailabilityCreate
+                                    getClostestAvailabilities={async (
+                                        date: string
+                                    ) =>
+                                        (await getClosestAvailabilities(date))
+                                            ?.data!
+                                    }
+                                    onMonthChange={setSelectedMonth}
+                                    spas={spas}
+                                    onChange={(data) => {
+                                        setCreatedAvailability(data)
+                                    }}
+                                    defaultSelectedSpa={defaultSelectedSpa}
+                                />
+                            </div>
+                            <AlertDialogFooter>
+                                <Button
+                                    className="relative"
+                                    onClick={() => {
+                                        availabilityCreateMutation.mutate(
+                                            createdAvailability
+                                        )
+                                    }}
+                                    disabled={
                                         availabilityCreateMutation.isPending
-                                            ? 'invisible'
-                                            : 'visible'
                                     }
                                 >
-                                    Save change
-                                </span>
-                                {availabilityCreateMutation.isPending ? (
-                                    <div className="flex items-center justify-center absolute">
-                                        <Loader size={'4'} />
-                                    </div>
-                                ) : (
-                                    ''
-                                )}
-                            </Button>
-                        </AlertDialogFooter>
-                    </DialogContent>
-                </Dialog>
-            </Tabs>
-            <Suspense
-                fallback={
-                    <div className="w-full h-full flex justify-center items-center">
-                        <Loader />
-                    </div>
-                }
-            >
-                {children}
-            </Suspense>
+                                    <span
+                                        className={
+                                            availabilityCreateMutation.isPending
+                                                ? 'invisible'
+                                                : 'visible'
+                                        }
+                                    >
+                                        Save change
+                                    </span>
+                                    {availabilityCreateMutation.isPending ? (
+                                        <div className="flex items-center justify-center absolute">
+                                            <Loader size={'4'} />
+                                        </div>
+                                    ) : (
+                                        ''
+                                    )}
+                                </Button>
+                            </AlertDialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </Tabs>
+                <Suspense
+                    fallback={
+                        <div className="w-full h-full flex justify-center items-center">
+                            <Loader />
+                        </div>
+                    }
+                >
+                    {children}
+                </Suspense>
+            </div>
         </AvailabilityContext.Provider>
     )
 }

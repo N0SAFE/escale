@@ -20,7 +20,9 @@ import {
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
+    Row,
     SortingState,
+    Table,
     useReactTable,
     VisibilityState,
 } from '@tanstack/react-table'
@@ -48,7 +50,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import React from 'react'
+import React, { MouseEventHandler } from 'react'
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 import {
     deleteAvailability,
@@ -59,122 +61,24 @@ import {
 import { toast } from 'sonner'
 import { DateTime } from 'luxon'
 import { Input } from '@/components/ui/input'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table'
-import AvailabilityEdit from '@/components/atomics/templates/AvailabillityEdit'
+import AvailabilityEdit from '@/components/atomics/templates/Edit/AvailabillityEdit'
 import Loader from '@/components/atomics/atoms/Loader'
 import { useAvailabilityContext } from '../layout'
-
-const columns: ColumnDef<Availability>[] = [
-    {
-        id: 'select',
-        header: ({ table }) => (
-            <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && 'indeterminate')
-                }
-                onCheckedChange={(value: boolean) =>
-                    table.toggleAllPageRowsSelected(!!value)
-                }
-                aria-label="Select all"
-            />
-        ),
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value: boolean) =>
-                    row.toggleSelected(!!value)
-                }
-                aria-label="Select row"
-            />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-    },
-    {
-        accessorKey: 'startAt',
-        header: 'Start at',
-        cell: ({ row }) => (
-            <div className="capitalize">{row.original.startAt}</div>
-        ),
-    },
-    {
-        accessorKey: 'endAt',
-        header: 'End at',
-        cell: ({ row }) => (
-            <div className="capitalize">{row.original.endAt}</div>
-        ),
-    },
-    {
-        accessorKey: 'spa',
-        header: 'Spa',
-        cell: ({ row }) =>
-            row.original?.spa?.id ? (
-                <Link
-                    href={`../spa/${row.original.spa.title}`}
-                    className="lowercase"
-                >
-                    {row.original.spa.title}
-                </Link>
-            ) : (
-                <div className="lowercase">none</div>
-            ),
-    },
-    {
-        id: 'actions',
-        enableHiding: false,
-        header: () => <div className="text-right">actions</div>,
-        cell: ({ row, table }) => {
-            const availability = row.original
-
-            const { setSelectedAvailabilityToDelete } = table.options.meta as {
-                setSelectedAvailabilityToDelete: (image: Availability) => void
-            }
-            return (
-                <div className="flex justify-end">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Open menu</span>
-                                <DotsHorizontalIcon className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem>
-                                <SheetTrigger className="w-full text-left">
-                                    Edit
-                                </SheetTrigger>
-                            </DropdownMenuItem>
-                            <AlertDialogTrigger
-                                asChild
-                                className="bg-red-600 hover:bg-red-500 text-white cursor-pointer"
-                            >
-                                <DropdownMenuItem
-                                    onClick={() =>
-                                        setSelectedAvailabilityToDelete(
-                                            availability
-                                        )
-                                    }
-                                >
-                                    Delete
-                                </DropdownMenuItem>
-                            </AlertDialogTrigger>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            )
-        },
-    },
-]
+import { DataTable } from '@/components/atomics/organisms/DataTable'
+import { useColumns, ColumnOptions } from './columns'
+import { DataTableViewOptions } from '@/components/atomics/organisms/DataTable/DataTableViewOptions'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog'
+import { availabilitiesAccessor, DType } from './utils'
+import ProgressBar from '@/components/atomics/atoms/ProgressBar'
+import { DataTablePagination } from '@/components/atomics/organisms/DataTable/DataTablePagination'
+import { DataTableProvider } from '@/components/atomics/organisms/DataTable/DataTableContext'
 
 type ListViewProps = {}
 
@@ -186,50 +90,61 @@ export default function AvailabilityListView({}: ListViewProps) {
             availability,
         }: {
             id: number
-            availability: UpdateAvailability
+            availability: DType
         }) => {
             if (!availability) {
                 return
             }
-            return await updateAvailability(id, availability)
+            return await updateAvailability(id, {
+                startAt: availability.startAt,
+                endAt: availability.endAt,
+                spa: availability.spa.id,
+                monPrice: availability.monPrice,
+                tuePrice: availability.tuePrice,
+                wedPrice: availability.wedPrice,
+                thuPrice: availability.thuPrice,
+                friPrice: availability.friPrice,
+                satPrice: availability.satPrice,
+                sunPrice: availability.sunPrice,
+            })
         },
         onError: (error) => {
             toast.error('server error')
         },
         onSuccess: async (data) => {
             toast.success('availability updated')
+            tableRef.current?.resetRowSelection()
             await refetch()
         },
     })
     const availabilityDeleteMutation = useMutation({
-        mutationFn: async (id: number) => {
-            return await deleteAvailability(id)
+        mutationFn: async (ids: number[]) => {
+            let count = 0
+            setDeleteContext({
+                numberOfSelectedRows: deleteContext?.numberOfSelectedRows!,
+                numberOfDeletedRows: 0,
+            })
+            await Promise.all(
+                ids.map(async (i) => {
+                    await deleteAvailability(i)
+                    count++
+                    setDeleteContext({
+                        numberOfSelectedRows:
+                            deleteContext?.numberOfSelectedRows!,
+                        numberOfDeletedRows: count,
+                    })
+                })
+            )
         },
         onError: (error) => {
             toast.error('server error')
         },
         onSuccess: async (data) => {
             toast.success('availability deleted')
-            setSheetIsOpen(false)
-            // setIsDeleteDialogOpen(false)
+            tableRef.current?.resetRowSelection()
             await refetch()
         },
     })
-    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
-    const [globalFilter, setGlobalFilter] = React.useState('')
-    const [sheetIsOpen, setSheetIsOpen] = React.useState<false | number>(false)
-    const [updatedAvailability, setUpdatedAvailability] = React.useState<{
-        id: number
-        availability: UpdateAvailability
-    }>()
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [columnFilters, setColumnFilters] =
-        React.useState<ColumnFiltersState>([])
-    const [columnVisibility, setColumnVisibility] =
-        React.useState<VisibilityState>({})
-    const [rowSelection, setRowSelection] = React.useState({})
-    const [selectedAvailabilityToDelete, setSelectedAvailabilityToDelete] =
-        React.useState<Availability>()
 
     const {
         data: availabilities,
@@ -239,330 +154,174 @@ export default function AvailabilityListView({}: ListViewProps) {
     } = useQuery({
         placeholderData: keepPreviousData,
         queryKey: ['availabilities'],
-        queryFn: async () =>
-            await getAvailabilities({
-                groups: ['availabilities:spa'],
-            }),
+        queryFn: async () => await availabilitiesAccessor(),
     })
 
-    const table = useReactTable({
-        data: availabilities ?? [],
-        columns,
-        onGlobalFilterChange: setGlobalFilter,
-        globalFilterFn: (row, columnId, value, addMeta) => {
-            value = value.toLowerCase()
-            // check if the value is YYYY-MM-DD
-            if (!value.match(/\d{4}-\d{2}-\d{2}/)) {
-                return true
-            }
+    const tableRef = React.useRef<Table<DType>>(null)
 
-            const dateTime = DateTime.fromISO(value)
-            const startAtDateTime = DateTime.fromISO(row.original.startAt)
-            const endAtDateTime = DateTime.fromISO(row.original.endAt)
+    const [updatedAvailability, setUpdatedAvailability] =
+        React.useState<DType>()
+    const [deleteContext, setDeleteContext] = React.useState<{
+        numberOfSelectedRows: number
+        numberOfDeletedRows: number
+    }>()
+    const [isEditing, setIsEditing] = React.useState(false)
+    const [isDeleting, setIsDeleting] = React.useState(false)
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
+    const [isEditSheetOpen, setIsEditSheetOpen] = React.useState(false)
+    const [selectedAvailabilities, setSelectedAvailabilities] =
+        React.useState<DType[]>()
 
-            if (!dateTime.isValid) {
-                return true
-            }
-            if (dateTime < startAtDateTime || dateTime > endAtDateTime) {
-                return false
-            }
-            return true
+    const columnsOptions: ColumnOptions = {
+        onRowDelete: async (availability) => {
+            setSelectedAvailabilities([availability])
+            setIsDeleteDialogOpen(true)
         },
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
-        getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        onColumnVisibilityChange: setColumnVisibility,
-        onRowSelectionChange: setRowSelection,
-        state: {
-            sorting,
-            columnFilters,
-            columnVisibility,
-            rowSelection,
-            globalFilter,
+        onMultipleRowDelete: async (availabilities) => {
+            setSelectedAvailabilities(availabilities)
+            setIsDeleteDialogOpen(true)
         },
-        meta: {
-            setSelectedAvailabilityToDelete,
+        onRowEdit: async (availability) => {
+            setSelectedAvailabilities([availability])
+            setIsEditSheetOpen(true)
         },
-    })
+    }
+
+    const columns = useColumns(columnsOptions)
 
     return (
-        <div className="w-full">
-            <div className="flex items-center py-4 justify-between">
-                <Input
-                    placeholder="Filter availabilities..."
-                    value={globalFilter ?? ''}
-                    onChange={(event) =>
-                        setGlobalFilter(String(event.target.value))
-                    }
-                    className="max-w-sm"
-                />
-                <div className="flex gap-2">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="ml-auto">
-                                Columns{' '}
-                                <ChevronDownIcon className="ml-2 h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            {table
-                                .getAllColumns()
-                                .filter((column) => column.getCanHide())
-                                .map((column) => {
-                                    return (
-                                        <DropdownMenuCheckboxItem
-                                            key={column.id}
-                                            className="capitalize"
-                                            checked={column.getIsVisible()}
-                                            onCheckedChange={(value) =>
-                                                column.toggleVisibility(!!value)
-                                            }
-                                        >
-                                            {column.id}
-                                        </DropdownMenuCheckboxItem>
+        <div className="w-full h-full overflow-hidden">
+            <div className="flex flex-col gap-4 h-full">
+                <DataTableProvider
+                    tableRef={tableRef}
+                    columns={columns}
+                    data={availabilities ?? []}
+                >
+                    <div className="flex justify-end">
+                        <div className="flex gap-2">
+                            <DataTableViewOptions className="h-full" />
+                        </div>
+                    </div>
+                    <DataTable
+                        isLoading={!isFetched}
+                        notFound="no spas found"
+                    />
+                    <DataTablePagination />
+                </DataTableProvider>
+                <Sheet open={isEditSheetOpen} onOpenChange={setIsEditSheetOpen}>
+                    <SheetContent className="sm:max-w-lg md:max-w-xl w-[100vw] flex flex-col justify-between">
+                        <div className="overflow-auto scrollbar-none">
+                            <SheetHeader>
+                                <SheetTitle>
+                                    Edit profile{' '}
+                                    {selectedAvailabilities?.[0]?.id}
+                                </SheetTitle>
+                                <SheetDescription>
+                                    Make changes to your profile here. Click
+                                    save when you&apos;re done.
+                                </SheetDescription>
+                            </SheetHeader>
+                            <AvailabilityEdit
+                                spas={spas.data}
+                                isSpaLoading={spas.isLoading}
+                                selectedSpa={
+                                    selectedAvailabilities?.[0]?.spa
+                                        ? spas?.data?.find(
+                                              (s) =>
+                                                  s.id ===
+                                                  selectedAvailabilities?.[0]
+                                                      ?.spa?.id
+                                          )
+                                        : undefined
+                                }
+                                getClostestAvailabilities={async (
+                                    date: string
+                                ) =>
+                                    (await getClosestAvailabilities(date))
+                                        ?.data!
+                                }
+                                defaultValues={selectedAvailabilities?.[0]!}
+                                onChange={(data) => {
+                                    setUpdatedAvailability(data)
+                                }}
+                            />
+                        </div>
+                        <SheetFooter className="flex sm:justify-between gap-4">
+                            <Button
+                                onClick={async (e) => {
+                                    e.preventDefault()
+                                    setIsDeleting(true)
+                                    await columnsOptions?.onRowDelete?.(
+                                        selectedAvailabilities?.[0]!
                                     )
-                                })}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            </div>
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
-                                    return (
-                                        <TableHead key={header.id}>
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(
-                                                      header.column.columnDef
-                                                          .header,
-                                                      header.getContext()
-                                                  )}
-                                        </TableHead>
-                                    )
-                                })}
-                            </TableRow>
-                        ))}
-                    </TableHeader>
-                    <TableBody>
-                        <AlertDialog
-                            open={isDeleteDialogOpen}
-                            onOpenChange={setIsDeleteDialogOpen}
-                        >
-                            {isFetched ? (
-                                table.getRowModel().rows?.length ? (
-                                    table.getRowModel().rows.map((row) => (
-                                        <Sheet
-                                            key={row.id}
-                                            open={
-                                                sheetIsOpen === row.original.id
-                                            }
-                                            onOpenChange={() =>
-                                                setSheetIsOpen(
-                                                    sheetIsOpen ===
-                                                        row.original.id
-                                                        ? false
-                                                        : row.original.id
-                                                )
-                                            }
-                                        >
-                                            <TableRow
-                                                data-state={
-                                                    row.getIsSelected() &&
-                                                    'selected'
-                                                }
-                                            >
-                                                {row
-                                                    .getVisibleCells()
-                                                    .map((cell) => (
-                                                        <TableCell
-                                                            key={cell.id}
-                                                        >
-                                                            {flexRender(
-                                                                cell.column
-                                                                    .columnDef
-                                                                    .cell,
-                                                                cell.getContext()
-                                                            )}
-                                                        </TableCell>
-                                                    ))}
-                                            </TableRow>
-                                            <SheetContent className="sm:max-w-lg md:max-w-xl w-[100vw] h-screen flex flex-col justify-between">
-                                                <div>
-                                                    <SheetHeader>
-                                                        <SheetTitle>
-                                                            Edit profile{' '}
-                                                            {row.original?.id}
-                                                        </SheetTitle>
-                                                        <SheetDescription>
-                                                            Make changes to your
-                                                            profile here. Click
-                                                            save when
-                                                            you&apos;re done.
-                                                        </SheetDescription>
-                                                    </SheetHeader>
-                                                    <AvailabilityEdit
-                                                        spas={spas?.data}
-                                                        isSpaLoading={
-                                                            spas.isLoading
-                                                        }
-                                                        selectedSpa={
-                                                            updatedAvailability
-                                                                ?.availability
-                                                                ?.spa
-                                                                ? spas?.data?.find(
-                                                                      (s) =>
-                                                                          s.id ===
-                                                                          updatedAvailability
-                                                                              ?.availability
-                                                                              ?.spa
-                                                                  )
-                                                                : undefined
-                                                        }
-                                                        getClostestAvailabilities={async (
-                                                            date: string
-                                                        ) =>
-                                                            (
-                                                                await getClosestAvailabilities(
-                                                                    date
-                                                                )
-                                                            )?.data!
-                                                        }
-                                                        defaultValues={
-                                                            row.original
-                                                        }
-                                                        onChange={(data) => {
-                                                            setUpdatedAvailability(
-                                                                {
-                                                                    id: data.id!,
-                                                                    availability:
-                                                                        data.availability,
-                                                                }
-                                                            )
-                                                        }}
-                                                    />
-                                                </div>
-                                                <SheetFooter className="flex sm:justify-between gap-4">
-                                                    <Button
-                                                        onClick={() => {
-                                                            availabilityDeleteMutation.mutate(
-                                                                updatedAvailability?.id!
-                                                            )
-                                                        }}
-                                                        variant={'destructive'}
-                                                    >
-                                                        {availabilityDeleteMutation.isPending ? (
-                                                            <div className="relative">
-                                                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                                                                    <Loader size="4" />
-                                                                </div>
-                                                                <span className="invisible">
-                                                                    Delete
-                                                                </span>
-                                                            </div>
-                                                        ) : (
-                                                            'Delete'
-                                                        )}
-                                                    </Button>
-                                                    <Button
-                                                        onClick={() => {
-                                                            availabilityUpdateMutation.mutate(
-                                                                updatedAvailability!
-                                                            )
-                                                        }}
-                                                        className="relative"
-                                                    >
-                                                        {availabilityUpdateMutation.isPending ? (
-                                                            <div className="relative">
-                                                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                                                                    <Loader size="4" />
-                                                                </div>
-                                                                <span className="invisible">
-                                                                    Save change
-                                                                </span>
-                                                            </div>
-                                                        ) : (
-                                                            'Save change'
-                                                        )}
-                                                    </Button>
-                                                </SheetFooter>
-                                            </SheetContent>
-                                        </Sheet>
-                                    ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell
-                                            colSpan={columns.length}
-                                            className="h-24 text-center"
-                                        >
-                                            <span className="flex items-center justify-center">
-                                                <span>
-                                                    no availability found
-                                                </span>
-                                            </span>
-                                        </TableCell>
-                                    </TableRow>
-                                )
-                            ) : (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={columns.length}
-                                        className="h-24 text-center"
-                                    >
-                                        <span className="flex items-center justify-center">
-                                            <Loader />
+                                    setIsDeleting(false)
+                                }}
+                                variant={'destructive'}
+                            >
+                                {isDeleting ? (
+                                    <div className="relative">
+                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                                            <Loader size="4" />
+                                        </div>
+                                        <span className="invisible">
+                                            Delete
                                         </span>
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                            <AlertDialogContent>
-                                <DeleteImage
-                                    onDelete={() =>
-                                        availabilityDeleteMutation.mutate(
-                                            selectedAvailabilityToDelete?.id!
-                                        )
-                                    }
-                                    isLoading={
-                                        availabilityDeleteMutation.isPending
-                                    }
-                                    onCancel={() =>
-                                        setIsDeleteDialogOpen(false)
-                                    }
-                                />
-                            </AlertDialogContent>
-                        </AlertDialog>
-                    </TableBody>
-                </Table>
-            </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex-1 text-sm text-muted-foreground">
-                    {table.getFilteredSelectedRowModel().rows.length} of{' '}
-                    {table.getFilteredRowModel().rows.length} row(s) selected.
-                </div>
-                <div className="space-x-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        Previous
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        Next
-                    </Button>
-                </div>
+                                    </div>
+                                ) : (
+                                    'Delete'
+                                )}
+                            </Button>
+                            <Button
+                                onClick={async (e) => {
+                                    e.preventDefault()
+                                    setIsEditing(true)
+                                    await availabilityUpdateMutation.mutateAsync(
+                                        {
+                                            id: updatedAvailability?.id!,
+                                            availability: updatedAvailability!,
+                                        }
+                                    )
+                                    setIsEditing(false)
+                                }}
+                                className="relative"
+                            >
+                                {isEditing ? (
+                                    <div className="relative">
+                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                                            <Loader size="4" />
+                                        </div>
+                                        <span className="invisible">
+                                            Save change
+                                        </span>
+                                    </div>
+                                ) : (
+                                    'Save change'
+                                )}
+                            </Button>
+                        </SheetFooter>
+                    </SheetContent>
+                </Sheet>
+                <AlertDialog
+                    open={isDeleteDialogOpen}
+                    onOpenChange={setIsDeleteDialogOpen}
+                >
+                    <AlertDialogContent>
+                        <DeleteImage
+                            onDelete={async (e) => {
+                                e.preventDefault()
+                                setIsDeleting(true)
+                                await availabilityDeleteMutation.mutateAsync(
+                                    selectedAvailabilities?.map((a) => a.id) ??
+                                        []
+                                )
+                                setIsDeleting(false)
+                            }}
+                            isLoading={isDeleting}
+                            onCancel={() => setIsDeleteDialogOpen(false)}
+                            deleteContext={deleteContext}
+                        />
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
         </div>
     )
@@ -570,11 +329,20 @@ export default function AvailabilityListView({}: ListViewProps) {
 
 type DeleteImageProps = {
     isLoading?: boolean
-    onDelete?: () => void
-    onCancel?: () => void
+    onDelete?: MouseEventHandler<HTMLButtonElement>
+    onCancel?: MouseEventHandler<HTMLButtonElement>
+    deleteContext?: {
+        numberOfSelectedRows: number
+        numberOfDeletedRows: number
+    }
 }
 
-function DeleteImage({ isLoading, onDelete, onCancel }: DeleteImageProps) {
+function DeleteImage({
+    isLoading,
+    onDelete,
+    onCancel,
+    deleteContext,
+}: DeleteImageProps) {
     return (
         <>
             <AlertDialogHeader>
@@ -584,6 +352,13 @@ function DeleteImage({ isLoading, onDelete, onCancel }: DeleteImageProps) {
                     the image and remove the data associated from our servers.
                 </AlertDialogDescription>
             </AlertDialogHeader>
+            {isLoading && deleteContext && (
+                <ProgressBar
+                    out={deleteContext.numberOfDeletedRows}
+                    of={deleteContext.numberOfSelectedRows}
+                    label="users"
+                />
+            )}
             <AlertDialogFooter>
                 <Button variant={'outline'} onClick={onCancel}>
                     Cancel

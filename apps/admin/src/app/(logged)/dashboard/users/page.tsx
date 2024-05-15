@@ -36,10 +36,13 @@ import { Card } from '@/components/ui/card'
 import dynamic from 'next/dynamic'
 import { toast } from 'sonner'
 import { useColumns } from './columns'
-import { DataTable } from '@/components/atomics/organisms/DataTable/index'
+import { DataTable } from '@/components/atomics/organisms/DataTable'
 import { DataTableViewOptions } from '@/components/atomics/organisms/DataTable/DataTableViewOptions'
 import { DType } from './type'
 import { usersAccessor } from './utils'
+import ProgressBar from '@/components/atomics/atoms/ProgressBar'
+import { DataTablePagination } from '@/components/atomics/organisms/DataTable/DataTablePagination'
+import { DataTableProvider } from '@/components/atomics/organisms/DataTable/DataTableContext'
 
 export default function UsersTable() {
     const {
@@ -142,46 +145,41 @@ export default function UsersTable() {
                 </AlertDialogContent>
             </AlertDialog>
             <div className="flex flex-col gap-4 h-full">
-                <div className="flex justify-end">
-                    <div className="flex gap-2">
-                        <DataTableViewOptions
-                            className="h-full"
-                            table={
-                                tableRef.current === null
-                                    ? undefined
-                                    : tableRef.current
-                            }
-                        />
-                        <Dialog
-                            open={isCreateDialogOpen}
-                            onOpenChange={setIsCreateDialogOpen}
-                        >
-                            <DialogTrigger asChild>
-                                <Button variant="outline">+</Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[800px]">
-                                <DialogHeader>
-                                    <DialogTitle>Create service</DialogTitle>
-                                    <DialogDescription>
-                                        create a new service and add it to the
-                                        list
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <CreateSpa
-                                    onSubmit={userCreateMutation.mutate}
-                                    isLoading={userCreateMutation.isPending}
-                                />
-                            </DialogContent>
-                        </Dialog>
+                <DataTableProvider columns={columns} data={users ?? []}>
+                    <div className="flex justify-end">
+                        <div className="flex gap-2">
+                            <DataTableViewOptions className="h-full" />
+                            <Dialog
+                                open={isCreateDialogOpen}
+                                onOpenChange={setIsCreateDialogOpen}
+                            >
+                                <DialogTrigger asChild>
+                                    <Button variant="outline">+</Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[800px]">
+                                    <DialogHeader>
+                                        <DialogTitle>
+                                            Create service
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                            create a new service and add it to
+                                            the list
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <CreateSpa
+                                        onSubmit={userCreateMutation.mutate}
+                                        isLoading={userCreateMutation.isPending}
+                                    />
+                                </DialogContent>
+                            </Dialog>
+                        </div>
                     </div>
-                </div>
-                <DataTable
-                    columns={columns}
-                    data={users ?? []}
-                    isLoading={!isFetched}
-                    notFound="no spas found"
-                    tableRef={tableRef}
-                />
+                    <DataTable
+                        isLoading={!isFetched}
+                        notFound="no spas found"
+                    />
+                    <DataTablePagination />
+                </DataTableProvider>
             </div>
         </div>
     )
@@ -213,25 +211,12 @@ function DeleteSpa({
                 </AlertDialogDescription>
             </AlertDialogHeader>
             {isLoading && deleteContext && (
-                <div className="flex gap-4">
-                    <Label htmlFor="progress" className="text-right">
-                        Progress
-                    </Label>
-                    <Progress
-                        value={
-                            (deleteContext.numberOfDeletedRows /
-                                deleteContext.numberOfSelectedRows) *
-                            100
-                        }
-                        className="w-full"
-                    />
-                    <span>
-                        {deleteContext.numberOfDeletedRows} /{' '}
-                        {deleteContext.numberOfSelectedRows} deleted
-                    </span>
-                </div>
+                <ProgressBar
+                    out={deleteContext.numberOfDeletedRows}
+                    of={deleteContext.numberOfSelectedRows}
+                    label="users"
+                />
             )}
-
             <AlertDialogFooter>
                 <Button variant={'outline'} onClick={onCancel}>
                     Cancel

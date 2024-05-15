@@ -3,7 +3,7 @@
 import { xiorInstance } from '@/utils/xiorInstance'
 import { getSpas } from './spas/actions'
 import { getServices } from './services/actions'
-import { getImages } from './images/actions'
+import { getImages } from './files/images/actions'
 
 export { getSpas, getServices, getImages }
 

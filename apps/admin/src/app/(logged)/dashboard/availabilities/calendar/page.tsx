@@ -22,7 +22,7 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet'
 import { Calendar } from '@/components/ui/calendar'
-import AvailabilityEdit from '@/components/atomics/templates/AvailabillityEdit'
+import AvailabilityEdit from '@/components/atomics/templates/Edit/AvailabillityEdit'
 import { Button } from '@/components/ui/button'
 import Loader from '@/components/atomics/atoms/Loader'
 import { toast } from 'sonner'
@@ -40,10 +40,8 @@ const AvailabilityCalendarView = () => {
     const [sheetIsOpen, setSheetIsOpen] = React.useState(false)
     const [selectedAvailability, setSelectedAvailability] =
         React.useState<Availability>()
-    const [updatedAvailability, setUpdatedAvailability] = React.useState<{
-        id: number
-        availability: UpdateAvailability
-    }>()
+    const [updatedAvailability, setUpdatedAvailability] =
+        React.useState<Availability>()
 
     const { data: spas, isFetched: isSpaFetched } = useQuery({
         queryKey: ['spas'],
@@ -62,12 +60,23 @@ const AvailabilityCalendarView = () => {
             availability,
         }: {
             id: number
-            availability: UpdateAvailability
+            availability: Availability
         }) => {
             if (!availability) {
                 return
             }
-            return await updateAvailability(id, availability)
+            return await updateAvailability(id, {
+                startAt: availability.startAt,
+                endAt: availability.endAt,
+                spa: availability.spa.id,
+                monPrice: availability.monPrice,
+                tuePrice: availability.tuePrice,
+                wedPrice: availability.wedPrice,
+                thuPrice: availability.thuPrice,
+                friPrice: availability.friPrice,
+                satPrice: availability.satPrice,
+                sunPrice: availability.sunPrice,
+            })
         },
         onError: (error) => {
             toast.error('server error')
@@ -220,23 +229,19 @@ const AvailabilityCalendarView = () => {
                         spas={spas}
                         isSpaLoading={!isSpaFetched}
                         selectedSpa={
-                            updatedAvailability?.availability?.spa
+                            updatedAvailability?.spa
                                 ? spas?.find(
                                       (s) =>
-                                          s.id ===
-                                          updatedAvailability?.availability?.spa
+                                          s.id === updatedAvailability?.spa?.id
                                   )
                                 : undefined
                         }
                         getClostestAvailabilities={async (date: string) =>
                             (await getClosestAvailabilities(date))?.data!
                         }
-                        defaultValues={selectedAvailability}
+                        defaultValues={selectedAvailability as Availability}
                         onChange={(data) => {
-                            setUpdatedAvailability({
-                                id: data.id!,
-                                availability: data.availability,
-                            })
+                            setUpdatedAvailability(data as Availability)
                         }}
                     />
                 </div>
@@ -264,8 +269,7 @@ const AvailabilityCalendarView = () => {
                         onClick={() => {
                             availabilityUpdateMutation.mutate({
                                 id: updatedAvailability?.id!,
-                                availability:
-                                    updatedAvailability?.availability!,
+                                availability: updatedAvailability!,
                             })
                         }}
                         className="relative"

@@ -1,39 +1,27 @@
-'use client'
-
 import { getHomeDetails } from '@/actions/home/index'
 import ApiImage from '@/components/ApiImage'
 import ApiVideo from '@/components/ApiVideo'
 import Comment from '@/components/Comment'
 import Loader from '@/components/Loader/index'
 import { createAttachmentUrl } from '@/hooks/useAttachmentUrl'
-import HomeRelations from '@/types/model/Home'
+import HomeRelations, { Home as HomeType } from '@/types/model/Home'
 import { useQuery } from '@tanstack/react-query'
 import 'react-multi-carousel/lib/styles.css'
+import VideoRelations from '@/types/model/Video'
+import { xiorInstance } from '@/utils/xiorInstance'
 
-export default function Home() {
-    const {
-        data: homeData,
-        error,
-        isFetched,
-    } = useQuery({
-        queryFn: async () => {
-            return await getHomeDetails<
-                [HomeRelations.image, HomeRelations.commentBackgroundImage]
-            >()
-        },
-        queryKey: ['home'],
-    })
-
-    console.log(homeData)
-
-    if (!isFetched) {
-        return (
-            <div className="h-full w-full flex justify-center items-center">
-                <Loader />
-            </div>
-        )
-    }
-
+export default async function Home() {
+    const { data: homeData } = await xiorInstance.get<
+        HomeType<
+            [
+                HomeRelations.homeComments,
+                HomeRelations.video,
+                VideoRelations.sources,
+                HomeRelations.image,
+                HomeRelations.commentBackgroundImage
+            ]
+        >
+    >('/home', { cache: 'no-store' })
     return (
         <main className="flex min-h-screen flex-col items-center justify-between text-white">
             <section>

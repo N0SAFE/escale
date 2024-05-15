@@ -13,17 +13,40 @@ import {
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { CellContext, ColumnDef, Row } from '@tanstack/react-table'
 import Link from 'next/link'
-import React, { useMemo } from 'react'
+import React, { MouseEventHandler, useMemo } from 'react'
 import {
     LoggedDashboardSpasId,
     LoggedDashboardSpasIdEdit,
 } from '@/routes/index'
-import { DType } from './type'
+import { DType } from './utils'
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from '@/components/ui/sheet'
+import AvailabilityEdit from '@/components/atomics/templates/Edit/AvailabillityEdit'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { availabilitiesAccessor } from './utils'
+import { useAvailabilityContext } from '../layout'
+import { getClosestAvailabilities } from '../actions'
+import {
+    AlertDialog,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 type Promised<T> = T | Promise<T>
 
 export type ColumnOptions = {
-    onRowDelete?: (props: DType) => Promised<void>
+    onRowDelete?: (row: DType) => Promised<void>
+    onRowEdit?: (row: DType) => Promised<void>
     onMultipleRowDelete?: (props: DType[]) => Promised<void>
 }
 
@@ -56,27 +79,41 @@ export const useColumns = (options?: ColumnOptions) => {
             enableHiding: false,
         },
         {
-            accessorKey: 'title',
-            header: ({ column }) => {
-                return <DataTableColumnHeader column={column} title="Title" />
-            },
-            cell: ({ row }) => (
-                <div className="capitalize">{row.getValue('title')}</div>
-            ),
-        },
-        {
-            accessorKey: 'description',
+            accessorKey: 'startAt',
             header: ({ column }) => {
                 return (
-                    <DataTableColumnHeader
-                        column={column}
-                        title="Description"
-                    />
+                    <DataTableColumnHeader column={column} title="Start at" />
                 )
             },
             cell: ({ row }) => (
-                <div className="lowercase">{row.getValue('description')}</div>
+                <div className="capitalize">{row.original.startAt}</div>
             ),
+        },
+        {
+            accessorKey: 'endAt',
+            header: ({ column }) => {
+                return <DataTableColumnHeader column={column} title="End at" />
+            },
+            cell: ({ row }) => (
+                <div className="capitalize">{row.original.endAt}</div>
+            ),
+        },
+        {
+            accessorKey: 'spa',
+            header: ({ column }) => {
+                return <DataTableColumnHeader column={column} title="Spa" />
+            },
+            cell: ({ row }) =>
+                row.original?.spa?.id ? (
+                    <Link
+                        href={`../spa/${row.original.spa.title}`}
+                        className="lowercase"
+                    >
+                        {row.original.spa.title}
+                    </Link>
+                ) : (
+                    <div className="lowercase">none</div>
+                ),
         },
         {
             id: 'actions',
@@ -137,8 +174,9 @@ const ActionsCellHeader = ({ rows, options }: ActionsCellHeaderProps) => {
                         onClick={async (e) => {
                             e.preventDefault()
                             options?.onMultipleRowDelete?.(
-                                rows.map((r) => r.original)
+                                rows.map((row) => row.original)
                             )
+                            setActionsDropdownIsOpen(false)
                         }}
                     >
                         {isLoading ? (
@@ -159,9 +197,8 @@ type ActionsCellRowProps = {
     options?: ColumnOptions
 }
 const ActionsCellRow = ({ row, options }: ActionsCellRowProps) => {
-    const spa = row.original
+    const availability = row.original
 
-    const [isLoading, setIsLoading] = React.useState(false)
     const [actionsDropdownIsOpen, setActionsDropdownIsOpen] =
         React.useState(false)
 
@@ -182,34 +219,26 @@ const ActionsCellRow = ({ row, options }: ActionsCellRowProps) => {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
                         <LoggedDashboardSpasId.Link
-                            spaId={spa.id.toString()}
+                            spaId={availability.id.toString()}
                             className="w-full"
                         >
                             Details
                         </LoggedDashboardSpasId.Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        <LoggedDashboardSpasIdEdit.Link
-                            spaId={spa.id.toString()}
-                            className="w-full"
-                        >
-                            Edit
-                        </LoggedDashboardSpasIdEdit.Link>
+                    <DropdownMenuItem
+                        onClick={async (e) => {
+                            options?.onRowEdit?.(row.original)
+                        }}
+                    >
+                        Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         className="bg-red-600 hover:bg-red-500 text-white cursor-pointer"
                         onClick={async (e) => {
-                            e.preventDefault()
-                            await options?.onRowDelete?.(row.original)
+                            options?.onRowDelete?.(row.original)
                         }}
                     >
-                        {isLoading ? (
-                            <div className="flex items-center justify-center w-full">
-                                <Loader size="4" />
-                            </div>
-                        ) : (
-                            'Delete'
-                        )}
+                        Delete
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>

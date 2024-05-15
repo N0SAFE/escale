@@ -9,7 +9,6 @@ export default class HasRole {
     // code for middleware goes here. ABOVE THE NEXT CALL
     try {
       const user = await auth.use('jwt').authenticate()
-      console.log(user)
       if (!user) {
         return response.unauthorized({ error: 'Unauthorized' })
       }

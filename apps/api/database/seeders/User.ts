@@ -5,7 +5,40 @@ import Image from 'App/Models/Image'
 import File from 'App/Models/File'
 import Drive from '@ioc:Adonis/Core/Drive'
 import Role from 'App/Models/Role'
-import { roles } from './Role'
+
+function pickRandomByWeight<T> (
+  items: {
+    data: T
+    weight: number
+  }[],
+  none?: number
+): T | null {
+  // Calculate the total weight
+  let totalWeight = items.reduce((acc, item) => acc + item.weight, 0) + (none ?? 0)
+
+  // Generate a random number in the range [0, totalWeight)
+  let randomNum = Math.random() * totalWeight
+
+  // Find and return the item based on its weight
+  for (let i = 0; i < items.length; i++) {
+    // Subtract the current item's weight from the random number
+    randomNum -= items[i].weight
+
+    // If the random number is less than or equal to zero, return the current item
+    if (randomNum <= 0) {
+      return items[i].data
+    }
+  }
+
+  return null
+}
+
+const rolesWeights = [
+  {
+    data: 'admin',
+    weight: 1,
+  },
+]
 
 export default class UserSeeder extends BaseSeeder {
   public async run () {
@@ -14,7 +47,7 @@ export default class UserSeeder extends BaseSeeder {
       acc[role.label] = role
       return acc
     }, {}) as {
-      [key in keyof typeof roles]: Role
+      [key: string]: Role
     }
     await Promise.all([
       User.create({
@@ -64,13 +97,15 @@ export default class UserSeeder extends BaseSeeder {
             const ro = Array.from(
               new Set(
                 Array.from(
-                  { length: Math.floor(Math.random() * Object.keys(roles).length) },
+                  { length: Math.round(Math.random() * Object.keys(rolesDict).length) },
                   () => {
-                    return Math.round(Math.random() * (Object.keys(roles).length - 1))
+                    return pickRandomByWeight(rolesWeights, 4)
                   }
                 )
               )
-            ).map((i) => rolesDict[Object.keys(roles)[i]])
+            )
+              ?.filter((r) => r !== null)
+              .map((label) => rolesDict[label as string])
             resolve(
               User.create({
                 email: email,

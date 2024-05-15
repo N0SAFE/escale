@@ -13,25 +13,24 @@ import {
     DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
-import { useReducer } from 'react'
+import React, { useReducer } from 'react'
+import { useDataTableContext } from './DataTableContext'
 
 interface DataTableViewOptionsProps<TData>
-    extends React.HTMLAttributes<HTMLButtonElement> {
-    table?: Table<TData> | undefined
-}
+    extends React.HTMLAttributes<HTMLButtonElement> {}
 
 export function DataTableViewOptions<TData>({
-    table,
     className,
     ...props
 }: DataTableViewOptionsProps<TData>) {
-    const [_, forceUpdate] = useReducer((x) => x + 1, 0)
+    const { table } = useDataTableContext(
+        'DataTableViewOptions has to be render inside a DataTableProvider'
+    )
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="outline"
-                    size="sm"
                     className={cn('flex', className)}
                     {...props}
                 >
@@ -55,9 +54,11 @@ export function DataTableViewOptions<TData>({
                                 key={column.id}
                                 className="capitalize"
                                 checked={column.getIsVisible()}
-                                onCheckedChange={(value) => {
-                                    column.toggleVisibility(!!value)
-                                    forceUpdate()
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    column.toggleVisibility(
+                                        !column.getIsVisible()
+                                    )
                                 }}
                             >
                                 {column.id}

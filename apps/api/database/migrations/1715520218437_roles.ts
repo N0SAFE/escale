@@ -20,6 +20,19 @@ export default class extends BaseSchema {
       table.boolean('is_active').notNullable().defaultTo(true)
       table.timestamp('deleted_at', { useTz: true }).nullable()
     })
+
+    this.defer(async (db) => {
+      await Promise.all([
+        db.table(this.tableName).insert({
+          id: 1,
+          label: 'admin',
+          description: 'Administrator',
+          is_admin: true,
+          is_default: false,
+          is_active: true,
+        }),
+      ])
+    })
   }
 
   public async down () {

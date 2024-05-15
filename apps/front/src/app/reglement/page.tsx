@@ -1,5 +1,3 @@
-'use client'
-
 import { List } from '@/components/List'
 import Loader from '@/components/Loader/index'
 import { xiorInstance } from '@/utils/xiorInstance'
@@ -9,22 +7,10 @@ type Rule = {
     rule: string
 }
 
-export default function Reglement() {
-    const { data, error, isFetched } = useQuery({
-        queryFn: async () => {
-            const { data } = await xiorInstance.get<Rule[]>('/rules')
-            return data
-        },
-        queryKey: ['rules'],
+export default async function Reglement() {
+    const { data } = await xiorInstance.get<Rule[]>('/rules', {
+        cache: 'no-store',
     })
-
-    if (!isFetched) {
-        return (
-            <div className="h-full w-full flex justify-center items-center">
-                <Loader />
-            </div>
-        )
-    }
 
     return (
         <div className="mb-16 mt-4">

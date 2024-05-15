@@ -52,6 +52,10 @@ import {
     Users,
     Wifi,
     Home,
+    Files,
+    ArrowUp,
+    ArrowRight,
+    ArrowDown,
 } from 'lucide-react'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import dynamic from 'next/dynamic'
@@ -65,7 +69,7 @@ import {
     DrawerTitle,
 } from '@/components/ui/drawer'
 
-type RouteLink = {
+interface RouteLink {
     name: string
     icon: React.ReactNode
     active: boolean
@@ -75,12 +79,21 @@ type RouteLink = {
     url?: string
 }
 
-type RouteComponent = {
+interface RouteComponent {
     component: React.ReactNode
     type: 'component'
 }
 
-type RouteType = RouteLink | RouteComponent
+interface RouteDirectory {
+    active: boolean
+    type: 'directory'
+    name: string
+    path: string
+    icon: React.ReactNode
+    children: RouteType[]
+}
+
+type RouteType = RouteLink | RouteComponent | RouteDirectory
 
 const ITEMS_TO_DISPLAY_IN_BREADCRUMB = 2
 
@@ -124,12 +137,22 @@ export default function Layout({
             active: false,
         },
         {
-            type: 'link',
-            name: 'Images',
-            path: '/images',
-            icon: <ImageIcon size="16" />,
+            type: 'directory',
+            icon: <Files size="16" />,
+            name: 'Files',
+            path: '/files',
             active: false,
+            children: [
+                {
+                    type: 'link',
+                    name: 'Images',
+                    path: '/images',
+                    icon: <ImageIcon size="16" />,
+                    active: false,
+                },
+            ],
         },
+
         {
             type: 'link',
             name: 'reservations',
@@ -168,37 +191,95 @@ export default function Layout({
         (route) => route.type === 'link'
     ) as RouteLink[]
 
-    const route = routesLink.find((route) =>
-        route?.path ? tail.startsWith(route.path) : false
-    )
-    if (route) {
-        route.active = true
+    const activateRoute = (routes: RouteType[], path: string = '') => {
+        return routes.map((route): RouteType => {
+            if (route.type === 'link') {
+                return {
+                    ...route,
+                    active: tail.startsWith(path + route.path),
+                } as RouteLink
+            }
+            if (route.type === 'directory') {
+                const children = activateRoute(
+                    route.children,
+                    path + route.path
+                )
+                const isSomeActive = children.some((child) =>
+                    child.type === 'link' || child.type === 'directory'
+                        ? child.active
+                        : false
+                )
+                return {
+                    ...route,
+                    children,
+                    active: isSomeActive,
+                } as RouteDirectory
+            }
+            return route as RouteType
+        })
     }
 
-    const [routeState, setRouteState] = React.useState(routes)
+    const [routeState, setRouteState] = React.useState(activateRoute(routes))
 
     useEffect(() => {
-        setRouteState(routes)
+        setRouteState(activateRoute(routes))
         setRouteIsChanging(false)
     }, [pathname])
 
-    const onClickHandler = (route: RouteLink) => {
-        setRouteState(
-            routeState.map((r) => {
-                if (r.type === 'link' && route.type === 'link') {
+    const onClickHandler = (route: RouteType) => {
+        if (route.type !== 'link') {
+            return
+        }
+        const buildArray = (routes: RouteType[]) => {
+            return routes.map((r): RouteType => {
+                if (r.type === 'link') {
                     if (r.name === route.name) {
                         return {
                             ...r,
                             active: true,
-                        }
+                        } as RouteLink
                     }
+                    return {
+                        ...r,
+                        active: false,
+                    } as RouteLink
                 }
-                return {
-                    ...r,
-                    active: false,
+                if (r.type === 'directory') {
+                    const childArray = buildArray(r.children)
+                    const isSomeActive = childArray.some((child) =>
+                        child.type === 'link' || child.type === 'directory'
+                            ? child.active
+                            : false
+                    )
+                    return {
+                        ...r,
+                        children: childArray,
+                        active: isSomeActive,
+                    } as RouteDirectory
                 }
+                return r
             })
-        )
+        }
+        const array = buildArray(routeState)
+        setRouteState(array)
+        const getFullPath = (routes: RouteType[]): string => {
+            const activeRoute = routes.find((r) =>
+                r.type === 'link' || r.type === 'directory' ? r.active : false
+            )
+            if (activeRoute?.type === 'link') {
+                return activeRoute.path || ''
+            }
+            if (activeRoute?.type === 'directory') {
+                return activeRoute.path + getFullPath(activeRoute.children)
+            }
+            return ''
+        }
+        if (route.external) {
+            return
+        }
+        if (getFullPath(array) === tail) {
+            return
+        }
         setRouteIsChanging(true)
     }
 
@@ -229,39 +310,11 @@ export default function Layout({
                     </div>
                     <div className="flex-1 overflow-auto py-2">
                         <nav className="grid items-start px-4 text-sm font-medium">
-                            {routeState.map((route, index) => {
-                                return (
-                                    <div key={uuid()}>
-                                        {route.type === 'component' ? (
-                                            <div>{route.component}</div>
-                                        ) : (
-                                            <Link
-                                                onClick={() =>
-                                                    onClickHandler(route)
-                                                }
-                                                className={
-                                                    route.active
-                                                        ? `flex items-center justify-between gap-3 rounded-lg bg-gray-100 px-3 py-2 text-gray-900  transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50`
-                                                        : `flex items-center justify-between rounded-lg px-3 py-2 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50`
-                                                }
-                                                href={
-                                                    (route.path
-                                                        ? head + route.path
-                                                        : route.url) as string
-                                                }
-                                            >
-                                                <div className="flex gap-3 items-center">
-                                                    {route.icon}
-                                                    {route.name}
-                                                </div>
-                                                {route.external && (
-                                                    <ExternalLinkIcon size="16" />
-                                                )}
-                                            </Link>
-                                        )}
-                                    </div>
-                                )
-                            })}
+                            <Nav
+                                routes={routeState}
+                                onClickHandler={onClickHandler}
+                                head={head}
+                            />
                         </nav>
                     </div>
                 </div>
@@ -296,46 +349,11 @@ export default function Layout({
                             <div className="flex h-full max-h-screen flex-col gap-2">
                                 <div className="flex-1 overflow-hidden py-2">
                                     <nav className="grid items-start text-sm font-medium">
-                                        {routeState.map((route, index) => {
-                                            return (
-                                                <div key={uuid()}>
-                                                    {route.type ===
-                                                    'component' ? (
-                                                        <div>
-                                                            {route.component}
-                                                        </div>
-                                                    ) : (
-                                                        <Link
-                                                            onClick={() =>
-                                                                onClickHandler(
-                                                                    route
-                                                                )
-                                                            }
-                                                            key={route.path}
-                                                            className={
-                                                                route.active
-                                                                    ? `flex items-center justify-between gap-3 rounded-lg bg-gray-100 px-3 py-2 text-gray-900  transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50`
-                                                                    : `flex items-center justify-between rounded-lg px-3 py-2 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50`
-                                                            }
-                                                            href={
-                                                                (route.path
-                                                                    ? head +
-                                                                      route.path
-                                                                    : route.url) as string
-                                                            }
-                                                        >
-                                                            <div className="flex gap-3 items-center">
-                                                                {route.icon}
-                                                                {route.name}
-                                                            </div>
-                                                            {route.external && (
-                                                                <ExternalLinkIcon size="16" />
-                                                            )}
-                                                        </Link>
-                                                    )}
-                                                </div>
-                                            )
-                                        })}
+                                        <Nav
+                                            routes={routeState}
+                                            onClickHandler={onClickHandler}
+                                            head={head}
+                                        />
                                     </nav>
                                 </div>
                                 <div className="mt-auto p-4">
@@ -691,3 +709,94 @@ const EllipsisBreadcrumbMenuElementNoSSR = dynamic(
         ssr: false,
     }
 ) as <T>(props: EllipsisBreadcrumbMenuElementProps<T>) => JSX.Element
+
+export function Nav({
+    routes,
+    onClickHandler,
+    head,
+}: {
+    routes: RouteType[]
+    onClickHandler: (route: RouteType) => void
+    head: string
+}) {
+    return routes.map((route, index) => {
+        return (
+            <div key={uuid()}>
+                {route.type === 'component' ? (
+                    <div>{route.component}</div>
+                ) : route.type === 'link' ? (
+                    <Link
+                        onClick={() => onClickHandler(route)}
+                        className={
+                            route.active
+                                ? `flex items-center justify-between gap-3 rounded-lg bg-gray-100 px-3 py-2 text-gray-900  transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50`
+                                : `flex items-center justify-between rounded-lg px-3 py-2 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50`
+                        }
+                        href={
+                            (route.path
+                                ? head + route.path
+                                : route.url) as string
+                        }
+                    >
+                        <div className="flex gap-3 items-center">
+                            {route.icon}
+                            {route.name}
+                        </div>
+                        {route.external && <ExternalLinkIcon size="16" />}
+                    </Link>
+                ) : (
+                    <NavDir
+                        route={route}
+                        head={head}
+                        onClickHandler={onClickHandler}
+                    />
+                )}
+            </div>
+        )
+    })
+}
+
+export function NavDir({
+    route,
+    head,
+    onClickHandler,
+}: {
+    route: RouteDirectory
+    head: string
+    onClickHandler: (route: RouteType) => void
+}) {
+    const [isOpen, setIsOpen] = React.useState(false)
+
+    return (
+        <div>
+            <div
+                className="flex items-center justify-between gap-3 rounded-lg transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
+                onClick={() => setIsOpen(!isOpen)}
+            >
+                <Button
+                    className="gap-3 items-center hover:bg-inherit py-2 px-3 w-full flex justify-between"
+                    variant="ghost"
+                >
+                    <div className="flex gap-3 items-center">
+                        {route.icon}
+                        {route.name}
+                    </div>
+                    {isOpen || route.active ? (
+                        <ArrowDown className="h-4 w-4" />
+                    ) : (
+                        <ArrowRight className="h-4 w-4" />
+                    )}
+                </Button>
+            </div>
+            {(isOpen || route.active) && (
+                <div className="pl-4">
+                    <Nav
+                        routes={route.children}
+                        head={head + route.path}
+                        onClickHandler={onClickHandler}
+                    />
+                </div>
+            )}
+        </div>
+    )
+}

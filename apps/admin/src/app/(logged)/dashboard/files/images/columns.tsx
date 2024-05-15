@@ -10,21 +10,56 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { DotsHorizontalIcon } from '@radix-ui/react-icons'
+import { DotsHorizontalIcon, CaretSortIcon } from '@radix-ui/react-icons'
 import { CellContext, ColumnDef, Row } from '@tanstack/react-table'
 import Link from 'next/link'
-import React, { useMemo } from 'react'
+import React, { MouseEventHandler, useMemo } from 'react'
 import {
     LoggedDashboardSpasId,
     LoggedDashboardSpasIdEdit,
 } from '@/routes/index'
-import { DType } from './type'
+import { DType } from './utils'
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from '@/components/ui/sheet'
+import AvailabilityEdit from '@/components/atomics/templates/Edit/AvailabillityEdit'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { imagesAccessor } from './utils'
+import {
+    AlertDialog,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import ApiImage from '@/components/atomics/atoms/ApiImage'
 
 type Promised<T> = T | Promise<T>
 
 export type ColumnOptions = {
-    onRowDelete?: (props: DType) => Promised<void>
+    onRowDelete?: (row: DType) => Promised<void>
+    onRowEdit?: (row: DType) => Promised<void>
     onMultipleRowDelete?: (props: DType[]) => Promised<void>
+}
+
+type Size = `${number}b` | `${number}kb` | `${number}mb` | `${number}gb`
+
+function fromBytes(bytes: number): Size {
+    const units = ['b', 'kb', 'mb', 'gb']
+    let value = bytes
+    let unit = 0
+    while (value > 1024) {
+        value /= 1024
+        unit++
+    }
+    return `${value.toFixed()}${units[unit]}` as Size
 }
 
 export const useColumns = (options?: ColumnOptions) => {
@@ -56,26 +91,38 @@ export const useColumns = (options?: ColumnOptions) => {
             enableHiding: false,
         },
         {
-            accessorKey: 'title',
+            accessorKey: 'image',
             header: ({ column }) => {
-                return <DataTableColumnHeader column={column} title="Title" />
+                return <DataTableColumnHeader column={column} title="Image" />
             },
             cell: ({ row }) => (
-                <div className="capitalize">{row.getValue('title')}</div>
+                <ApiImage
+                    className="h-auto w-auto"
+                    path={row.original.path}
+                    width={50}
+                    height={50}
+                    alt={row.original.alt}
+                />
             ),
         },
         {
-            accessorKey: 'description',
+            accessorKey: 'name',
             header: ({ column }) => {
-                return (
-                    <DataTableColumnHeader
-                        column={column}
-                        title="Description"
-                    />
-                )
+                return <DataTableColumnHeader column={column} title="Name" />
             },
             cell: ({ row }) => (
-                <div className="lowercase">{row.getValue('description')}</div>
+                <div className="capitalize">{row.original.file.name}</div>
+            ),
+        },
+        {
+            accessorKey: 'size',
+            header: ({ column }) => {
+                return <DataTableColumnHeader column={column} title="Size" />
+            },
+            cell: ({ row }) => (
+                <div className="lowercase">
+                    {fromBytes(row.original.file.size)}
+                </div>
             ),
         },
         {
@@ -137,8 +184,9 @@ const ActionsCellHeader = ({ rows, options }: ActionsCellHeaderProps) => {
                         onClick={async (e) => {
                             e.preventDefault()
                             options?.onMultipleRowDelete?.(
-                                rows.map((r) => r.original)
+                                rows.map((row) => row.original)
                             )
+                            setActionsDropdownIsOpen(false)
                         }}
                     >
                         {isLoading ? (
@@ -159,9 +207,8 @@ type ActionsCellRowProps = {
     options?: ColumnOptions
 }
 const ActionsCellRow = ({ row, options }: ActionsCellRowProps) => {
-    const spa = row.original
+    const availability = row.original
 
-    const [isLoading, setIsLoading] = React.useState(false)
     const [actionsDropdownIsOpen, setActionsDropdownIsOpen] =
         React.useState(false)
 
@@ -182,34 +229,26 @@ const ActionsCellRow = ({ row, options }: ActionsCellRowProps) => {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
                         <LoggedDashboardSpasId.Link
-                            spaId={spa.id.toString()}
+                            spaId={availability.id.toString()}
                             className="w-full"
                         >
                             Details
                         </LoggedDashboardSpasId.Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        <LoggedDashboardSpasIdEdit.Link
-                            spaId={spa.id.toString()}
-                            className="w-full"
-                        >
-                            Edit
-                        </LoggedDashboardSpasIdEdit.Link>
+                    <DropdownMenuItem
+                        onClick={async (e) => {
+                            options?.onRowEdit?.(row.original)
+                        }}
+                    >
+                        Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         className="bg-red-600 hover:bg-red-500 text-white cursor-pointer"
                         onClick={async (e) => {
-                            e.preventDefault()
-                            await options?.onRowDelete?.(row.original)
+                            options?.onRowDelete?.(row.original)
                         }}
                     >
-                        {isLoading ? (
-                            <div className="flex items-center justify-center w-full">
-                                <Loader size="4" />
-                            </div>
-                        ) : (
-                            'Delete'
-                        )}
+                        Delete
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>

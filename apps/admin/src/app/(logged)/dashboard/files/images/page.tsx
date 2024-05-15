@@ -10,6 +10,7 @@ import {
     ColumnDef,
     ColumnFiltersState,
     SortingState,
+    Table,
     VisibilityState,
     flexRender,
     getCoreRowModel,
@@ -31,14 +32,6 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table'
 import { createImage, deleteImage, getImages } from './actions'
 import {
     CreateImage as CreateImageType,
@@ -48,13 +41,22 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import Loader from '@/components/atomics/atoms/Loader'
 import Link from 'next/link'
 import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from '@/components/ui/sheet'
+import {
     AlertDialog,
-    AlertDialogTrigger,
     AlertDialogContent,
     AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
+    AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import Image from 'next/image'
 import {
@@ -70,6 +72,14 @@ import { toast } from 'sonner'
 import { Label } from '@/components/ui/label'
 import FileInput from '@/components/atomics/atoms/FileInput'
 import ApiImage from '@/components/atomics/atoms/ApiImage'
+import { ColumnOptions, useColumns } from './columns'
+import { DataTableViewOptions } from '@/components/atomics/organisms/DataTable/DataTableViewOptions'
+import { DataTable } from '@/components/atomics/organisms/DataTable'
+import { imagesAccessor, DType } from './utils'
+import { Progress } from '@/components/ui/progress'
+import ProgressBar from '@/components/atomics/atoms/ProgressBar'
+import { DataTableProvider } from '@/components/atomics/organisms/DataTable/DataTableContext'
+import { DataTablePagination } from '@/components/atomics/organisms/DataTable/DataTablePagination'
 
 type Size = `${number}b` | `${number}kb` | `${number}mb` | `${number}gb`
 
@@ -116,6 +126,7 @@ const columns: ColumnDef<ImageType>[] = [
         header: 'Image',
         cell: ({ row }) => (
             <ApiImage
+                className="h-auto w-auto"
                 path={row.original.path}
                 width={50}
                 height={50}
@@ -209,9 +220,14 @@ const columns: ColumnDef<ImageType>[] = [
 ]
 
 export default function ServicesTable() {
-    const { data, error, isFetched, refetch } = useQuery({
+    const {
+        data: images,
+        error,
+        isFetched,
+        refetch,
+    } = useQuery({
         queryKey: ['images'],
-        queryFn: async () => getImages(),
+        queryFn: async () => imagesAccessor(),
     })
     const imageCreateMutation = useMutation({
         mutationFn: async (service?: CreateImageType) => {
@@ -225,233 +241,205 @@ export default function ServicesTable() {
         },
         onSuccess: async (data) => {
             toast.success('image created')
-            setOpen(false)
+            tableRef.current?.resetRowSelection()
             await refetch()
         },
     })
     const imageDeleteMutation = useMutation({
-        mutationFn: async (id: number) => {
-            return await deleteImage(id)
+        mutationFn: async (ids: number[]) => {
+            let count = 0
+            setDeleteContext({
+                numberOfSelectedRows: ids.length,
+                numberOfDeletedRows: 0,
+            })
+            await Promise.all(
+                ids.map(async (i) => {
+                    await deleteImage(i)
+                    count++
+                    setDeleteContext({
+                        numberOfSelectedRows: ids.length,
+                        numberOfDeletedRows: count,
+                    })
+                })
+            )
+            setIsDeleteDialogOpen(false)
+            setIsEditSheetOpen(false)
         },
         onError: (error) => {
             toast.error('server error')
         },
         onSuccess: async (data) => {
             toast.success('image deleted')
+            tableRef.current?.resetRowSelection()
             setIsDeleteDialogOpen(false)
+            setIsEditSheetOpen(false)
             await refetch()
         },
     })
-    const [open, setOpen] = React.useState(false)
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [columnFilters, setColumnFilters] =
-        React.useState<ColumnFiltersState>([])
-    const [columnVisibility, setColumnVisibility] =
-        React.useState<VisibilityState>({})
-    const [rowSelection, setRowSelection] = React.useState({})
-    const [selectedImageToDelete, setSelectedImageToDelete] =
-        React.useState<ImageType>()
-    const [isDeletDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
-    const [isDeleting, setIsDeleting] = React.useState(false)
 
-    const table = useReactTable({
-        data: data ?? [],
-        columns,
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
-        getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        onColumnVisibilityChange: setColumnVisibility,
-        onRowSelectionChange: setRowSelection,
-        state: {
-            sorting,
-            columnFilters,
-            columnVisibility,
-            rowSelection,
+    const tableRef = React.useRef<Table<DType>>(null)
+
+    const [deleteContext, setDeleteContext] = React.useState<{
+        numberOfSelectedRows: number
+        numberOfDeletedRows: number
+    }>()
+    const [isEditing, setIsEditing] = React.useState(false)
+    const [isDeleting, setIsDeleting] = React.useState(false)
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
+    const [isEditSheetOpen, setIsEditSheetOpen] = React.useState(false)
+    const [selectedAvailabilities, setSelectedAvailabilities] =
+        React.useState<DType[]>()
+
+    const columnsOptions: ColumnOptions = {
+        onRowDelete: async (availability) => {
+            setSelectedAvailabilities([availability])
+            setIsDeleteDialogOpen(true)
         },
-        meta: {
-            setSelectedImageToDelete,
+        onMultipleRowDelete: async (availabilities) => {
+            setSelectedAvailabilities(availabilities)
+            setIsDeleteDialogOpen(true)
         },
-    })
+        onRowEdit: async (availability) => {
+            setSelectedAvailabilities([availability])
+            setIsEditSheetOpen(true)
+        },
+    }
+
+    const columns = useColumns(columnsOptions)
 
     return (
-        <div className="w-full">
-            <div className="flex items-center py-4 justify-between">
-                <Input
-                    placeholder="Filter services..."
-                    value={
-                        (table.getColumn('name')?.getFilterValue() as string) ??
-                        ''
-                    }
-                    onChange={(event) =>
-                        table
-                            .getColumn('name')
-                            ?.setFilterValue(event.target.value)
-                    }
-                    className="max-w-sm"
-                />
-                <div className="flex gap-2">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="ml-auto">
-                                Columns{' '}
-                                <ChevronDownIcon className="ml-2 h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            {table
-                                .getAllColumns()
-                                .filter((column) => column.getCanHide())
-                                .map((column) => {
-                                    return (
-                                        <DropdownMenuCheckboxItem
-                                            key={column.id}
-                                            className="capitalize"
-                                            checked={column.getIsVisible()}
-                                            onCheckedChange={(value) =>
-                                                column.toggleVisibility(!!value)
-                                            }
-                                        >
-                                            {column.id}
-                                        </DropdownMenuCheckboxItem>
+        <div className="w-full h-full overflow-hidden">
+            <div className="flex flex-col gap-4 h-full">
+                <DataTableProvider
+                    columns={columns}
+                    data={images ?? []}
+                    tableRef={tableRef}
+                >
+                    <div className="flex justify-end">
+                        <div className="flex gap-2">
+                            <DataTableViewOptions className="h-full" />
+                        </div>
+                    </div>
+                    <DataTable
+                        isLoading={!isFetched}
+                        notFound="no images found"
+                    />
+                    <DataTablePagination />
+                </DataTableProvider>
+                <Sheet open={isEditSheetOpen} onOpenChange={setIsEditSheetOpen}>
+                    <SheetContent className="sm:max-w-lg md:max-w-xl w-[100vw] flex flex-col justify-between">
+                        <div className="overflow-auto scrollbar-none">
+                            <SheetHeader>
+                                <SheetTitle>
+                                    Edit profile{' '}
+                                    {selectedAvailabilities?.[0]?.id}
+                                </SheetTitle>
+                                <SheetDescription>
+                                    Make changes to your profile here. Click
+                                    save when you&apos;re done.
+                                </SheetDescription>
+                            </SheetHeader>
+                            {/* <AvailabilityEdit
+                                spas={spas.data}
+                                isSpaLoading={spas.isLoading}
+                                selectedSpa={
+                                    selectedAvailabilities?.[0]?.spa
+                                        ? spas?.data?.find(
+                                              (s) =>
+                                                  s.id ===
+                                                  selectedAvailabilities?.[0]
+                                                      ?.spa?.id
+                                          )
+                                        : undefined
+                                }
+                                getClostestAvailabilities={async (
+                                    date: string
+                                ) =>
+                                    (await getClosestAvailabilities(date))
+                                        ?.data!
+                                }
+                                defaultValues={selectedAvailabilities?.[0]!}
+                                onChange={(data) => {
+                                    setUpdatedAvailability(data)
+                                }}
+                            /> */}
+                        </div>
+                        <SheetFooter className="flex sm:justify-between gap-4">
+                            <Button
+                                onClick={async (e) => {
+                                    e.preventDefault()
+                                    setIsDeleting(true)
+                                    await columnsOptions?.onRowDelete?.(
+                                        selectedAvailabilities?.[0]!
                                     )
-                                })}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                    <Dialog open={open} onOpenChange={setOpen}>
-                        <DialogTrigger asChild>
-                            <Button variant="outline">+</Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[800px]">
-                            <DialogHeader>
-                                <DialogTitle>Create service</DialogTitle>
-                                <DialogDescription>
-                                    create a new service and add it to the list
-                                </DialogDescription>
-                            </DialogHeader>
-                            <CreateImage
-                                onSubmit={imageCreateMutation.mutate}
-                                isLoading={imageCreateMutation.isPending}
-                            />
-                        </DialogContent>
-                    </Dialog>
-                </div>
-            </div>
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
-                                    return (
-                                        <TableHead key={header.id}>
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(
-                                                      header.column.columnDef
-                                                          .header,
-                                                      header.getContext()
-                                                  )}
-                                        </TableHead>
-                                    )
-                                })}
-                            </TableRow>
-                        ))}
-                    </TableHeader>
-                    <TableBody>
-                        <AlertDialog
-                            open={isDeletDialogOpen}
-                            onOpenChange={(t) => setIsDeleteDialogOpen(t)}
-                        >
-                            {isFetched ? (
-                                table.getRowModel().rows?.length ? (
-                                    table.getRowModel().rows.map((row) => (
-                                        <TableRow
-                                            key={row.id}
-                                            data-state={
-                                                row.getIsSelected() &&
-                                                'selected'
-                                            }
-                                        >
-                                            {row
-                                                .getVisibleCells()
-                                                .map((cell) => (
-                                                    <TableCell key={cell.id}>
-                                                        {flexRender(
-                                                            cell.column
-                                                                .columnDef.cell,
-                                                            cell.getContext()
-                                                        )}
-                                                    </TableCell>
-                                                ))}
-                                        </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell
-                                            colSpan={columns.length}
-                                            className="h-24 text-center"
-                                        >
-                                            <span className="flex items-center justify-center">
-                                                <span>no image found</span>
-                                            </span>
-                                        </TableCell>
-                                    </TableRow>
-                                )
-                            ) : (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={columns.length}
-                                        className="h-24 text-center"
-                                    >
-                                        <span className="flex items-center justify-center">
-                                            <Loader />
+                                    setIsDeleting(false)
+                                }}
+                                variant={'destructive'}
+                            >
+                                {isDeleting ? (
+                                    <div className="relative">
+                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                                            <Loader size="4" />
+                                        </div>
+                                        <span className="invisible">
+                                            Delete
                                         </span>
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                            <AlertDialogContent>
-                                <DeleteImage
-                                    onDelete={() =>
-                                        imageDeleteMutation.mutate(
-                                            selectedImageToDelete?.id!
-                                        )
-                                    }
-                                    isLoading={imageDeleteMutation.isPending}
-                                    onCancel={() =>
-                                        setIsDeleteDialogOpen(false)
-                                    }
-                                />
-                            </AlertDialogContent>
-                        </AlertDialog>
-                    </TableBody>
-                </Table>
-            </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex-1 text-sm text-muted-foreground">
-                    {table.getFilteredSelectedRowModel().rows.length} of{' '}
-                    {table.getFilteredRowModel().rows.length} row(s) selected.
-                </div>
-                <div className="space-x-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        Previous
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        Next
-                    </Button>
-                </div>
+                                    </div>
+                                ) : (
+                                    'Delete'
+                                )}
+                            </Button>
+                            <Button
+                                onClick={async (e) => {
+                                    e.preventDefault()
+                                    setIsEditing(true)
+                                    // await availabilityUpdateMutation.mutateAsync(
+                                    //     {
+                                    //         id: updatedAvailability?.id!,
+                                    //         availability: updatedAvailability!,
+                                    //     }
+                                    // )
+                                    setIsEditing(false)
+                                }}
+                                className="relative"
+                            >
+                                {isEditing ? (
+                                    <div className="relative">
+                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                                            <Loader size="4" />
+                                        </div>
+                                        <span className="invisible">
+                                            Save change
+                                        </span>
+                                    </div>
+                                ) : (
+                                    'Save change'
+                                )}
+                            </Button>
+                        </SheetFooter>
+                    </SheetContent>
+                </Sheet>
+                <AlertDialog
+                    open={isDeleteDialogOpen}
+                    onOpenChange={setIsDeleteDialogOpen}
+                >
+                    <AlertDialogContent>
+                        <DeleteImage
+                            onDelete={async (e) => {
+                                e.preventDefault()
+                                setIsDeleting(true)
+                                await imageDeleteMutation.mutateAsync(
+                                    selectedAvailabilities?.map((a) => a.id) ??
+                                        []
+                                )
+                                setIsDeleting(false)
+                            }}
+                            isLoading={isDeleting}
+                            onCancel={() => setIsDeleteDialogOpen(false)}
+                            deleteContext={deleteContext}
+                        />
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
         </div>
     )
@@ -459,11 +447,20 @@ export default function ServicesTable() {
 
 type DeleteImageProps = {
     isLoading?: boolean
-    onDelete?: () => void
-    onCancel?: () => void
+    onDelete?: React.MouseEventHandler<HTMLButtonElement>
+    onCancel?: React.MouseEventHandler<HTMLButtonElement>
+    deleteContext?: {
+        numberOfSelectedRows: number
+        numberOfDeletedRows: number
+    }
 }
 
-function DeleteImage({ isLoading, onDelete, onCancel }: DeleteImageProps) {
+function DeleteImage({
+    isLoading,
+    onDelete,
+    onCancel,
+    deleteContext,
+}: DeleteImageProps) {
     return (
         <>
             <AlertDialogHeader>
@@ -473,20 +470,29 @@ function DeleteImage({ isLoading, onDelete, onCancel }: DeleteImageProps) {
                     the image and remove the data associated from our servers.
                 </AlertDialogDescription>
             </AlertDialogHeader>
+            {isLoading && deleteContext && (
+                <ProgressBar
+                    out={deleteContext.numberOfDeletedRows}
+                    of={deleteContext.numberOfSelectedRows}
+                    label="images"
+                />
+            )}
             <AlertDialogFooter>
-                <Button variant={'outline'} onClick={onCancel}>
+                <Button
+                    variant={'outline'}
+                    onClick={onCancel}
+                    disabled={isLoading}
+                >
                     Cancel
                 </Button>
                 <Button disabled={isLoading} onClick={onDelete}>
                     <span className={isLoading ? 'invisible' : 'visible'}>
                         Continue
                     </span>
-                    {isLoading ? (
+                    {isLoading && (
                         <div className="flex items-center justify-center absolute">
                             <Loader size={'4'} />
                         </div>
-                    ) : (
-                        ''
                     )}
                 </Button>
             </AlertDialogFooter>

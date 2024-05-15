@@ -40,5 +40,7 @@ export async function updateImage(id: number, data?: UpdateImage) {
 export async function deleteImage(id: number) {
     'use server'
 
+    console.log(id)
+
     await xiorInstance.delete(`/images/${id}`)
 }
