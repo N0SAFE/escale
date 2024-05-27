@@ -4,7 +4,7 @@ import { Entity, IdedEntity, UnwrapEntity } from './utils'
 
 export type Image<
     Relations extends string[] = [],
-    Nullable extends null | false = false
+    Nullable extends null | false = false,
 > = Pretify<
     IdedEntity<
         Entity<{

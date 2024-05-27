@@ -1,22 +1,23 @@
 'use client'
 
-import { Reservation, Spa, UpdateReservation } from '@/types/index'
+import { Reservation, UpdateReservation } from '@/types/model/Reservation'
+import { Spa } from '@/types/model/Spa'
 import React, { useEffect, useMemo } from 'react'
 import { getSpas } from '../../actions'
 import { useWindowSize } from '@uidotdev/usehooks'
 import {
     keepPreviousData,
     useMutation,
+    useQueries,
     useQuery,
     useQueryClient,
 } from '@tanstack/react-query'
 import { DateTime } from 'luxon'
-import { block } from 'million/react'
 import {
     deleteReservation,
-    getClosestReservations,
     updateReservation,
-    getUnreservableData,
+    createReservation,
+    getCalendarEvents,
 } from '../actions'
 import {
     Sheet,
@@ -31,18 +32,36 @@ import { Button } from '@/components/ui/button'
 import Loader from '@/components/atomics/atoms/Loader'
 import { toast } from 'sonner'
 import Combobox from '@/components/atomics/molecules/Combobox'
-import ReservationEdit from '@/components/atomics/templates/ReservationEdit'
 import { parseAsInteger, useQueryState } from 'nuqs'
-import { querySpaId } from '../layout'
+import { querySpaId } from '../utils'
+import CreateDialog from '@/components/atomics/templates/CreateDialog'
+import CreateReservation from '@/components/atomics/templates/Create/CreateReservation'
+import { CreateReservation as CreateReservationType } from '@/types/model/Reservation'
+import EditSheet from '@/components/atomics/templates/EditSheet'
+import DeleteDialog from '@/components/atomics/templates/DeleteDialog'
+import useTableHooks from '@/hooks/useTableHooks'
+import EditReservation from '@/components/atomics/templates/Edit/EditReservation'
+import { DType, reservationsAccessor, spaAccessor } from '../utils'
+import { start } from 'repl'
+import { xiorInstance } from '@/utils/xiorInstance'
+import { xior } from 'xior'
 
 const ReservationCalendarView = () => {
-    const queryClient = useQueryClient()
+    const {
+        data: spas,
+        isFetched: isSpaFetched,
+        isError,
+    } = useQuery({
+        queryKey: ['spas'],
+        queryFn: async () => {
+            return await spaAccessor()
+        },
+    })
     const [selectedMonth, setSelectedMonth] = React.useState<Date>(new Date())
     const [selectedSpaId, setSelectedSpaId] = useQueryState(
         querySpaId,
         parseAsInteger
     )
-    const [sheetIsOpen, setSheetIsOpen] = React.useState(false)
     const [selectedReservations, setSelectedReservations] = React.useState<{
         list: Reservation[]
         active?: Reservation
@@ -52,54 +71,45 @@ const ReservationCalendarView = () => {
         reservation: UpdateReservation
     }>()
 
-    const { data: spas, isFetched: spaIsFetched } = useQuery({
-        queryKey: ['spas'],
-        queryFn: async () => {
-            return await getSpas()
-        },
-    })
-
     const selectedSpa = useMemo(() => {
         return spas?.find((spa) => spa.id === selectedSpaId)
     }, [spas, selectedSpaId])
 
-    const reservationUpdateMutation = useMutation({
+    const reservationEditMutation = useMutation({
         mutationFn: async ({
+            updatedReservation,
             id,
-            reservation,
         }: {
+            updatedReservation: UpdateReservation
             id: number
-            reservation: UpdateReservation
         }) => {
-            if (!reservation) {
-                return
-            }
-            return await updateReservation(id, reservation)
+            return await updateReservation(id, updatedReservation)
         },
         onError: (error) => {
             toast.error('server error')
         },
         onSuccess: async (data) => {
-            queryClient.invalidateQueries({
-                queryKey: ['reservations'],
-            })
-            toast.success('reservation updated')
+            toast.success('Reservation updated')
             await refetch()
         },
     })
     const reservationDeleteMutation = useMutation({
-        mutationFn: async (id: number) => {
-            return await deleteReservation(id)
+        mutationFn: async (reservations: Reservation[]) => {
+            await Promise.all(
+                reservations.map(async (r) => {
+                    await deleteReservation(r.id)
+                    incrementDeleteContext()
+                })
+            )
         },
         onError: (error) => {
             toast.error('server error')
         },
         onSuccess: async (data) => {
-            queryClient.invalidateQueries({
-                queryKey: ['reservations'],
-            })
             toast.success('reservation deleted')
-            setSheetIsOpen(false)
+            setIsDeleteDialogOpen(false)
+            setIsEditSheetOpen(false)
+            await refetch()
         },
     })
 
@@ -118,53 +128,228 @@ const ReservationCalendarView = () => {
         [size]
     )
 
-    const { data: allReservations, refetch } = useQuery({
-        placeholderData: keepPreviousData,
-        queryKey: [
-            'reservations',
-            selectedSpa?.id,
-            selectedMonth.toISOString(),
-        ],
+    const { data } = useQuery({
+        queryKey: [],
         queryFn: async () => {
-            return selectedSpa?.id
-                ? await getUnreservableData(
-                      selectedSpa?.id,
-                      DateTime.fromJSDate(selectedMonth)
-                          .minus({ month: 1 })
-                          .toISODate()!,
-                      DateTime.fromJSDate(selectedMonth)
-                          .plus({
-                              month: calendarSize + 1,
-                          })
-                          .toISODate()!
-                  )
-                : {
-                      reservations: [],
-                      blockedEvents: [],
-                      reservedEvents: [],
-                  }
+            return await xior.create().get('http')
         },
     })
 
-    const { reservations, blockedEvents, reservedEvents } = allReservations || {
-        reservations: [],
+    console.log(data)
+
+    const {
+        refetch,
+        data: [{ data: events }, { data: reservations }],
+    } = useQueries({
+        combine: (array) => {
+            return {
+                data: array,
+                refetch: () => {
+                    array.forEach((query) => {
+                        query.refetch()
+                    })
+                },
+            }
+        },
+        queries: [
+            {
+                placeholderData: keepPreviousData,
+                queryKey: [
+                    'events',
+                    selectedSpa?.externalCalendar.id,
+                    selectedMonth.toISOString(),
+                ],
+                queryFn: async () => {
+                    if (!selectedSpa?.id || selectedSpa?.id === -1) {
+                        return []
+                    }
+                    return getCalendarEvents(selectedSpa.externalCalendar.id, {
+                        from: DateTime.fromJSDate(selectedMonth)
+                            .minus({ month: 1 })
+                            .toISODate()!,
+                        to: DateTime.fromJSDate(selectedMonth)
+                            .plus({ month: calendarSize + 1 })
+                            .toISODate()!,
+                    })
+                },
+            },
+            {
+                placeholderData: keepPreviousData,
+                queryKey: [
+                    'reservations',
+                    selectedSpa?.id,
+                    selectedMonth.toISOString(),
+                ],
+                queryFn: async () => {
+                    if (!selectedSpa?.id || selectedSpa?.id === -1) {
+                        return []
+                    }
+                    const reservations = await reservationsAccessor({
+                        search: {
+                            spaId: selectedSpa?.id || -1,
+                        },
+                        dates: {
+                            startAt: {
+                                after: DateTime.fromJSDate(selectedMonth)
+                                    .minus({ month: 1 })
+                                    .toISODate()!,
+                            },
+                            endAt: {
+                                before: DateTime.fromJSDate(selectedMonth)
+                                    .plus({ month: calendarSize + 1 })
+                                    .toISODate()!,
+                            },
+                        },
+                    })
+                    return reservations
+                },
+            },
+        ],
+    })
+
+    // const { data: events } = useQuery({
+    //     placeholderData: keepPreviousData,
+    //     queryKey: [
+    //         'events',
+    //         selectedSpa?.externalCalendar.id,
+    //         selectedMonth.toISOString(),
+    //     ],
+    //     queryFn: async () => {
+    //         if (!selectedSpa?.id || selectedSpa?.id === -1) {
+    //             return []
+    //         }
+    //         return getCalendarEvents(selectedSpa.externalCalendar.id, {
+    //             from: DateTime.fromJSDate(selectedMonth)
+    //                 .minus({ month: 1 })
+    //                 .toISODate()!,
+    //             to: DateTime.fromJSDate(selectedMonth)
+    //                 .plus({ month: calendarSize + 1 })
+    //                 .toISODate()!,
+    //         })
+    //     },
+    // })
+
+    // console.log(events)
+
+    // console.log(selectedSpa?.id)
+
+    // const {
+    //     data: reservations,
+    //     error,
+    //     isFetched,
+    //     refetch,
+    // } = useQuery({
+    //     placeholderData: keepPreviousData,
+    //     queryKey: [
+    //         'reservations',
+    //         selectedSpa?.id,
+    //         selectedMonth.toISOString(),
+    //     ],
+    //     queryFn: async () => {
+    //         console.log(selectedSpa?.id)
+    //         console.log({
+    //             search: {
+    //                 spaId: selectedSpa?.id || -1,
+    //             },
+    //             dates: {
+    //                 startAt: {
+    //                     after: DateTime.fromJSDate(selectedMonth)
+    //                         .minus({ month: 1 })
+    //                         .toISODate()!,
+    //                 },
+    //                 endAt: {
+    //                     before: DateTime.fromJSDate(selectedMonth)
+    //                         .plus({ month: calendarSize + 1 })
+    //                         .toISODate()!,
+    //                 },
+    //             },
+    //         })
+    //         try {
+    //             const reservations = await reservationsAccessor({
+    //                 search: {
+    //                     spaId: selectedSpa?.id || -1,
+    //                 },
+    //                 dates: {
+    //                     startAt: {
+    //                         after: DateTime.fromJSDate(selectedMonth)
+    //                             .minus({ month: 1 })
+    //                             .toISODate()!,
+    //                     },
+    //                     endAt: {
+    //                         before: DateTime.fromJSDate(selectedMonth)
+    //                             .plus({ month: calendarSize + 1 })
+    //                             .toISODate()!,
+    //                     },
+    //                 },
+    //             })
+    //             console.log(reservations)
+    //             return reservations
+    //         } catch (error) {
+    //             console.log(error)
+    //         }
+
+    //     },
+    // })
+
+    // console.log(reservations)
+
+    const { blockedEvents, reservedEvents } = events?.reduce<{
+        blockedEvents: typeof events
+        reservedEvents: typeof events
+    }>(
+        (acc, e) => ({
+            blockedEvents:
+                e.type === 'blocked'
+                    ? [...acc.blockedEvents, e]
+                    : acc.blockedEvents,
+            reservedEvents:
+                e.type === 'reserved'
+                    ? [...acc.reservedEvents, e]
+                    : acc.reservedEvents,
+        }),
+        { blockedEvents: [], reservedEvents: [] }
+    ) || {
         blockedEvents: [],
         reservedEvents: [],
     }
 
+    const {
+        deleteContext,
+        isCreateDialogOpen,
+        isDeleteDialogOpen,
+        isEditSheetOpen,
+        isViewSheetOpen,
+        selectedToDelete,
+        selectedToEdit,
+        selectedToView,
+        setDeleteContext,
+        setIsCreateDialogOpen,
+        setIsDeleteDialogOpen,
+        setIsEditSheetOpen,
+        setIsViewSheetOpen,
+        triggerToDelete,
+        triggerToEdit,
+        triggerToView,
+        incrementDeleteContext,
+    } = useTableHooks<DType>()
+
+    // console.log(selectedSpa)
+    // console.log(spas)
+
     return (
-        <Sheet
-            open={sheetIsOpen}
-            onOpenChange={() => setSheetIsOpen(!sheetIsOpen)}
-        >
-            <div className="w-full py-4 flex justify-center ">
+        // <Sheet
+        //     open={sheetIsOpen}
+        //     onOpenChange={() => setSheetIsOpen(!sheetIsOpen)}
+        // >
+        <>
+            <div className="flex w-full justify-center py-4 ">
                 <Combobox
                     className="col-span-3"
                     items={spas?.map((spa) => ({
                         label: spa.title,
                         value: spa,
                     }))}
-                    isLoading={!spaIsFetched}
+                    isLoading={!isSpaFetched}
                     defaultPreviewText="Select a spa..."
                     value={selectedSpa}
                     onSelect={(spa): void => {
@@ -176,7 +361,7 @@ const ReservationCalendarView = () => {
                 month={selectedMonth}
                 onMonthChange={setSelectedMonth}
                 mode="range"
-                className="w-full overflow-hidden flex justify-center"
+                className="flex w-full justify-center overflow-hidden"
                 selected={undefined}
                 numberOfMonths={calendarSize}
                 displayedRange={{
@@ -217,39 +402,81 @@ const ReservationCalendarView = () => {
                         return
                     }
                     if (displayedReservations.length === 1) {
-                        setSelectedReservations({
-                            list: displayedReservations.map((a) => a.item),
-                            active: displayedReservations[0].item,
-                        })
-                        setUpdatedReservation({
-                            id: displayedReservations[0].item.id,
-                            reservation: {
-                                ...displayedReservations[0].item,
-                                spa: displayedReservations[0].item.spaId,
-                            },
-                        })
-                        setSheetIsOpen(true)
+                        // setSelectedReservations({
+                        //     list: displayedReservations.map((a) => a.item),
+                        //     active: displayedReservations[0].item,
+                        // })
+                        // setUpdatedReservation({
+                        //     id: displayedReservations[0].item.id,
+                        //     reservation: {
+                        //         ...displayedReservations[0].item,
+                        //         spaId: displayedReservations[0].item.spaId,
+                        //     },
+                        // })
+                        triggerToEdit(displayedReservations.map((r) => r.item))
                         return
                     }
-                    setUpdatedReservation({
-                        id: displayedReservations[0].item.id,
-                        reservation: {
-                            ...displayedReservations[0].item,
-                            spa: displayedReservations[0].item.spaId,
-                        },
-                    })
-                    setSelectedReservations({
-                        list: displayedReservations.map((a) => a.item),
-                        active: displayedReservations[0].item,
-                    })
-                    setSheetIsOpen(true)
+                    // setUpdatedReservation({
+                    //     id: displayedReservations[0].item.id,
+                    //     reservation: {
+                    //         ...displayedReservations[0].item,
+                    //         spaId: displayedReservations[0].item.spaId,
+                    //     },
+                    // })
+                    // setSelectedReservations({
+                    //     list: displayedReservations.map((a) => a.item),
+                    //     active: displayedReservations[0].item,
+                    // })
+                    triggerToEdit(displayedReservations.map((r) => r.item))
                     return
                 }}
                 triggerColorChangeOnHover
             />
 
-            <SheetContent className="sm:max-w-lg md:max-w-xl w-[100vw] flex flex-col justify-between">
-                <div className="overflow-auto scrollbar-none">
+            <EditSheet
+                open={isEditSheetOpen}
+                onOpenChange={setIsEditSheetOpen}
+                items={selectedToEdit ?? []}
+                isLoading={false}
+                label={(item) => `Edit ${item?.id}`}
+            >
+                {(item) => {
+                    console.log(item)
+                    return (
+                        <EditReservation
+                            isUpdating={reservationEditMutation.isPending}
+                            onEdit={(updatedReservation) =>
+                                reservationEditMutation.mutate({
+                                    id: item.id,
+                                    updatedReservation,
+                                })
+                            }
+                            onDelete={async (reservation: DType) =>
+                                await triggerToDelete([reservation])
+                            }
+                            state={{
+                                spas: spas!,
+                            }}
+                            defaultValue={item}
+                        />
+                    )
+                }}
+            </EditSheet>
+            <DeleteDialog
+                items={selectedToDelete! || []}
+                open={isDeleteDialogOpen}
+                onOpenChange={setIsDeleteDialogOpen}
+                onDelete={async (e, items) => {
+                    await reservationDeleteMutation.mutateAsync(items!)
+                    setIsEditSheetOpen(false)
+                }}
+                deleteContext={deleteContext}
+                isLoading={reservationDeleteMutation.isPending}
+                onCancel={(e, items) => setIsDeleteDialogOpen(false)}
+            />
+
+            {/* <SheetContent className="sm:max-w-lg md:max-w-xl w-[100vw] flex flex-col justify-between">
+                <div className="overflow-auto scrollbar-thin scrollbar-thumb-secondary scrollbar-track-transparent">
                     <SheetHeader>
                         <SheetTitle>
                             Edit profile{' '}
@@ -263,8 +490,8 @@ const ReservationCalendarView = () => {
                         </SheetDescription>
                     </SheetHeader>
                     <ReservationEdit
-                        spas={spas}
-                        isSpaLoading={!spaIsFetched}
+                        spas={spas?.data}
+                        isSpaLoading={spas.isLoading}
                         defaultValues={selectedReservations?.active}
                         reservationsList={selectedReservations?.list}
                         onChange={(data) => {
@@ -316,8 +543,9 @@ const ReservationCalendarView = () => {
                         )}
                     </Button>
                 </SheetFooter>
-            </SheetContent>
-        </Sheet>
+            </SheetContent> */}
+        </>
+        // </Sheet>
     )
 }
 

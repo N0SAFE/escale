@@ -1,5 +1,5 @@
 {
-    "name": "next",
+    "name": "@escale/front",
     "version": "0.1.0",
     "private": true,
     "scripts": {
@@ -45,6 +45,7 @@
         "dotenv": "^16.4.5",
         "draft-js": "^0.11.7",
         "embla-carousel-react": "^8.0.0-rc22",
+        "eslint-plugin-react-compiler": "^0.0.0-experimental-c8b3f72-20240517",
         "lucide-react": "^0.320.0",
         "luxon": "^3.4.4",
         "million": "^3.0.6",
@@ -72,6 +73,8 @@
         "autoprefixer": "^10.4.16",
         "eslint-config-next": "^14.2.2",
         "postcss": "^8.4.31",
+        "prettier": "^3.2.5",
+        "prettier-plugin-tailwindcss": "^0.5.14",
         "tailwindcss": "^3.3.5",
         "typescript": "^5",
         "yaml": "^2.4.2"

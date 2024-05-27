@@ -11,7 +11,7 @@ type RelationCases = [
     {
         key: 'video' // @ts-ignore
         value: Video
-    }
+    },
 ]
 
 type RelationKeyCases = [[VideoSourceRelation.video, 'video']]

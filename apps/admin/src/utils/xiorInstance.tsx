@@ -7,46 +7,43 @@ export const xiorInstance = xior.create({
 })
 
 xiorInstance.interceptors.request.use(async (config) => {
-    const session = await getSession()
-    const token = session?.jwt?.token
-    const refreshToken = session?.jwt?.refreshToken
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`
-        config.headers.refresh_token = refreshToken
+    // console.log('interceptor')
+    // const session = await getSession()
+    // console.log(config)
+    // console.log("here's the session", session)
+    // const token = session?.jwt?.token
+    // const refreshToken = session?.jwt?.refreshToken
+    // if (token) {
+    //     config.headers.Authorization = `Bearer ${token}`
+    //     config.headers.refresh_token = refreshToken
+    // }
+    // console.log('config', config)
+    const {
+        baseURL: configBaseUrl,
+        data: configData,
+        method: configMethod,
+        headers: configHeaders,
+        withCredentials: configCredentials,
+        params: configParams,
+        url: _,
+        ...rest
+    } = config
+    const config_Url = config._url || config.url
+
+    config.method = 'POST'
+    config.baseURL = process.env.NEXT_PUBLIC_ADMIN_URL
+    config._url = '/api' + config_Url
+    config.url = '/api' + config_Url
+    config.params = {}
+    config.data = {
+        data: configData || '',
+        baseUrl: configBaseUrl,
+        method: configMethod,
+        headers: configHeaders,
+        withCredentials: configCredentials,
+        params: configParams,
+        ...rest,
     }
+
     return config
 })
-
-// if the request does not work with the token, try to use the refresh token to get a new token
-xiorInstance.interceptors.response.use(
-    (response) => {
-        return response
-    },
-    async (error) => {
-        const originalRequest = error.config
-        if (
-            originalRequest &&
-            error.response?.status === 401 &&
-            !(originalRequest as any)._retry
-        ) {
-            console.log('401 error, refreshing token...')
-            if (!(await getSession())?.jwt?.refreshToken) {
-                console.log('no session')
-                return Promise.reject(redirect('/login'))
-            }
-            const session = await refreshToken(true)
-            if (await isLogin({ session })) {
-                console.log('token as been refreshed')
-                const tokenType = session?.jwt?.type
-                const token = session?.jwt?.token
-                if (originalRequest.headers) {
-                    originalRequest.headers.Authorization = `${tokenType} ${token}`
-                }
-                return xiorInstance.request(originalRequest)
-            } else {
-                console.log("token can't be refreshed")
-            }
-        }
-        return Promise.reject(error)
-    }
-)

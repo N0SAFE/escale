@@ -1,9 +1,9 @@
 'use server'
 
 import { xiorInstance } from '@/utils/xiorInstance'
-import { getSpas } from './spas/actions'
-import { getServices } from './services/actions'
-import { getImages } from './files/images/actions'
+import { getSpas } from '@/actions/Spa'
+import { getServices } from '@/actions/Service'
+import { getImages } from '@/actions/Image'
 
 export { getSpas, getServices, getImages }
 

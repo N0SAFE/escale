@@ -29,7 +29,7 @@ export default function FileUploader<
     D extends {
         id: number
         order: number
-    }
+    },
 >({
     onSort,
     onSortStart,
@@ -99,10 +99,10 @@ export default function FileUploader<
         <div className={cn('flex flex-col gap-3', className)}>
             <Button
                 variant="ghost"
-                className="border-2 border-dashed border-gray-200 rounded-lg w-full p-6 flex items-center justify-center hover:bg-slate-200"
+                className="flex w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-200 p-6 hover:bg-slate-200"
                 onClick={() => inputFileRef?.current?.click()}
             >
-                <FileIcon className="w-6 h-6" />
+                <FileIcon className="h-6 w-6" />
                 <div className="text-sm text-gray-500">
                     Drag and drop your files here
                 </div>
@@ -115,14 +115,14 @@ export default function FileUploader<
                 />
             </Button>
             {isLoading && !data ? (
-                <div className="bg-slate-300 z-10 bg-opacity-60 flex items-center justify-center grow rounded-lg">
+                <div className="z-10 flex grow items-center justify-center rounded-lg bg-slate-300 bg-opacity-60">
                     <Loader />
                 </div>
             ) : (
                 <ScrollArea>
                     <div className="relative">
                         {isLoading && (
-                            <div className="absolute inset-0 bg-slate-300 z-10 bg-opacity-60 flex items-center justify-center">
+                            <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-300 bg-opacity-60">
                                 <Loader />
                             </div>
                         )}

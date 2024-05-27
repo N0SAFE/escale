@@ -13,7 +13,7 @@ export default class ReservationFilter extends compose(
   groupsFilterMixin,
   PropertiesFilter(),
   DatesFilter(['startAt', 'endAt']),
-  SearchFilter([]),
+  SearchFilter(['spaId']),
   OrderFilter()
 ) {
   public $setupPromise: Promise<void>

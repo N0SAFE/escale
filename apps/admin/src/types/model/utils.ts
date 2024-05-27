@@ -14,7 +14,7 @@ export type IdedEntity<
         | {
               id: id
           }[],
-    Nullable extends null | false = false
+    Nullable extends null | false = false,
 > =
     | (T & {
           [IdedSymbol]: true
@@ -27,13 +27,13 @@ export type Entity<T extends {}> = Pretify<
             [K in keyof T as Extract<K, string> extends never
                 ? never
                 : T[Extract<K, string>] extends
-                      | {
-                            [IdedSymbol]: true
-                        }
-                      | undefined
-                      | null
-                ? `${Extract<K, string>}Id`
-                : never]-?: Exclude<T[K], undefined> extends
+                        | {
+                              [IdedSymbol]: true
+                          }
+                        | undefined
+                        | null
+                  ? `${Extract<K, string>}Id`
+                  : never]-?: Exclude<T[K], undefined> extends
                 | {
                       [IdedSymbol]: true
                   }
@@ -46,10 +46,10 @@ export type Entity<T extends {}> = Pretify<
                         ? id[] | null
                         : id[]
                     : Exclude<T[K], undefined> extends {
-                          [IdedNullableSymbol]: true
-                      }
-                    ? id | null
-                    : id
+                            [IdedNullableSymbol]: true
+                        }
+                      ? id | null
+                      : id
                 : never
         }>
 >
@@ -67,14 +67,14 @@ export type UnwrapEntity<T> = Pretify<{
     [K in keyof T as Extract<K, string> extends never
         ? never
         : T[K] extends
-              | {
-                    [IdedSymbol]: boolean | null
-                }
-              | {
-                    [IdedNullableSymbol]: boolean | null
-                }
-        ? never
-        : K]: UnwrapEntity<T[K]>
+                | {
+                      [IdedSymbol]: boolean | null
+                  }
+                | {
+                      [IdedNullableSymbol]: boolean | null
+                  }
+          ? never
+          : K]: UnwrapEntity<T[K]>
 }>
 
 export type RemoveSubEntity<T, Keep extends keyof T | null = null> = {
@@ -82,25 +82,25 @@ export type RemoveSubEntity<T, Keep extends keyof T | null = null> = {
         ? K extends Keep
             ? K
             : K extends string
-            ? `${K}Id` extends Keep
-                ? K
-                : never
-            : never
+              ? `${K}Id` extends Keep
+                  ? K
+                  : never
+              : never
         : K]: T[K]
 }
 
 export type RemoveIsOfSubEntity<
     T extends Record<string, any>,
     Keep extends string | symbol | null = null,
-    Deep extends boolean = false
+    Deep extends boolean = false,
 > = {
     [K in keyof T as K extends `${infer F}Id`
         ? T[F] extends { [IdedSymbol]: true }
             ? F extends Keep
                 ? K
                 : K extends Keep
-                ? K
-                : never
+                  ? K
+                  : never
             : K
         : K]: Deep extends true ? RemoveIsOfSubEntity<T[K], Keep, Deep> : T[K]
 }
@@ -110,15 +110,22 @@ export type RemoveIsOfSubEntity<
 export type TypeSwitch<
     ToCheck,
     Cases extends [any, any][],
-    Default = never
+    Default = never,
 > = Cases extends [
     [infer Check, infer IfTrue],
-    ...infer Rest extends [any, any][]
+    ...infer Rest extends [any, any][],
 ]
     ? ToCheck extends Check
         ? IfTrue
         : TypeSwitch<ToCheck, Rest, Default>
     : Default
+
+export type ObjectTypeSwitch<
+    ToCheck extends any[],
+    Key extends string | number | Symbol,
+    KeyName extends keyof ToCheck[number],
+    Default = never,
+> = ToCheck[number][KeyName] extends Key ? ToCheck[number] : Default
 
 // type Test = RemoveIsOfSubEntity<
 //     Entity<{

@@ -1,11 +1,33 @@
-import { IsDefined, IsObject, ValidateNested } from 'class-validator'
+import { IsDefined, IsEmail, IsObject, Matches, ValidateNested } from 'class-validator'
 import { Exclude, Type } from 'class-transformer'
 import { AsSameProperties } from '../type/AsSameProperties'
 import { RequestContract } from '@ioc:Adonis/Core/Request'
 import { BaseDto } from '../BaseDto'
 import { SkipTransform } from '../Decorator/SkipTransform'
 
-export class UsersRessourcePostBodyDto {}
+export class UsersRessourcePostBodyDto {
+  @IsDefined()
+  @IsEmail()
+  public email: string
+
+  @IsDefined()
+  @Matches(/.{8,}$/, {
+    message: 'password must be at least 8 characters',
+  })
+  @Matches(/[a-z]/, {
+    message: 'password must contain at least one lowercase letter',
+  })
+  @Matches(/[A-Z]/, {
+    message: 'password must contain at least one uppercase letter',
+  })
+  @Matches(/[0-9]/, {
+    message: 'password must contain at least one number',
+  })
+  @Matches(/[!@#$%^&*]/, {
+    message: 'password must contain at least one special character',
+  })
+  public password: string
+}
 
 export class UsersRessourcePostQueryDto {}
 
@@ -54,8 +76,10 @@ export class UsersRessourcePostDto extends BaseDto {
   }
 }
 
-export class UsersRessourcePostBodyDtoAfter
-implements AsSameProperties<UsersRessourcePostBodyDto> {}
+export class UsersRessourcePostBodyDtoAfter implements AsSameProperties<UsersRessourcePostBodyDto> {
+  public email: string
+  public password: string
+}
 
 export class UsersRessourcePostQueryDtoAfter
 implements AsSameProperties<UsersRessourcePostQueryDto> {}

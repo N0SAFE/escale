@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress'
 type ProgressBarProps = {
     out: number
     of: number
-    label: string
+    label?: string
 }
 
 export default function ProgressBar({ out, of, label }: ProgressBarProps) {
@@ -17,7 +17,7 @@ export default function ProgressBar({ out, of, label }: ProgressBarProps) {
             </Label>
             <Progress value={(out / of) * 100} className="w-full" />
             <span>
-                {out} / {of} {label}
+                {out} / {of} {label ? label : 'items'}
             </span>
         </div>
     )

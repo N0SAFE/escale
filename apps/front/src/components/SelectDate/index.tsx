@@ -81,7 +81,7 @@ export default function SelectDate({
                         id="date"
                         variant={'outline'}
                         className={cn(
-                            'max-w-[300px] w-full justify-start text-left font-normal',
+                            'w-full max-w-[300px] justify-start text-left font-normal',
                             !rangeDate && !rangeDate && 'text-muted-foreground'
                         )}
                     >

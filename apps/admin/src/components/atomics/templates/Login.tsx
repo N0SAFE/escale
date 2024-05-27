@@ -40,11 +40,11 @@ export function Login({ onSubmit }: LoginProps) {
     }
 
     return (
-        <div className="min-h-screen flex">
-            <div className="w-1/2 bg-black text-white p-12 flex flex-col justify-between">
+        <div className="flex min-h-screen">
+            <div className="flex w-1/2 flex-col justify-between bg-black p-12 text-white">
                 <div>
-                    <GlobeIcon className="text-white w-6 h-6" />
-                    <h1 className="text-4xl font-bold mt-4">Acme Inc</h1>
+                    <GlobeIcon className="h-6 w-6 text-white" />
+                    <h1 className="mt-4 text-4xl font-bold">Acme Inc</h1>
                 </div>
                 <div>
                     <p className="text-xl leading-relaxed">
@@ -52,15 +52,15 @@ export function Login({ onSubmit }: LoginProps) {
                         and helped me deliver stunning designs to my clients
                         faster than ever before.&quot;
                     </p>
-                    <p className="text-lg font-semibold mt-4">Sofia Davis</p>
+                    <p className="mt-4 text-lg font-semibold">Sofia Davis</p>
                 </div>
             </div>
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(handleSubmit)}
-                    className="w-1/2 bg-white p-12 flex flex-col justify-center gap-8"
+                    className="flex w-1/2 flex-col justify-center gap-8 bg-white p-12"
                 >
-                    <h2 className="text-4xl font-bold mb-6">
+                    <h2 className="mb-6 text-4xl font-bold">
                         Sign in to yout account
                     </h2>
                     <FormField

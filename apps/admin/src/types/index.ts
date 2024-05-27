@@ -196,3 +196,48 @@ export type Uuidable<T extends {}> = T & {
 export type Orderable<T extends {}> = T & {
     $order: number
 }
+
+export type ApiRessource<T, C extends any[]> = {
+    data: T
+    context: C[number]
+}
+
+export type PaginationContext = {
+    paginator: {
+        total: number
+        per_page: number
+        current_page: number
+        last_page: number
+        first_page: number
+        first_page_url: string
+        last_page_url: string
+        next_page_url: string
+        previous_page_url: string
+    }
+}
+
+export type relationName = string
+export type relationValue = string
+export type externalModel<T extends string[] = []> = any
+export type RelationsContract = Record<string, string>
+export type RelationCasesContract<R extends string[] = []> = {
+    key: string
+    context: ContextContract<R>
+    relationKey: relationValue
+}[]
+export type RelationKeyCasesContract = [relationValue, string][]
+export type RelationValueCasesContract<R extends string[] = []> = [
+    relationValue,
+    externalModel<Exclude<R, relationValue>>,
+][]
+
+export type model = Entity<{}>
+
+export type ContextContract<R extends string[] = []> = {
+    relations: RelationsContract
+    relationCases: RelationCasesContract<R>
+    model: model
+}
+
+export type VerifyRelationCases<T extends RelationCasesContract> = T
+export type VerifyContext<T extends ContextContract> = T

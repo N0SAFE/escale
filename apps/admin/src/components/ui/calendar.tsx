@@ -129,6 +129,8 @@ function Calendar<T extends { id: number }>({
     onDisplayedRangeOut,
     ...props
 }: CalendarProps<T>) {
+    // ! change all of the displayedRange to be not a modifier but a components day
+
     const [hoveredItems, setHoveredItems] = React.useState<
         DisplayedProps<T>[] | null
     >(null)
@@ -294,8 +296,8 @@ function Calendar<T extends { id: number }>({
                                                 ? 'hover:text-white asToHandleOnDayMouseEnter'
                                                 : 'hover:bg-red-600'
                                             : triggerColorChangeOnHover
-                                            ? 'hover:bg-red-600'
-                                            : 'hover:bg-red-300'
+                                              ? 'hover:bg-red-600'
+                                              : 'hover:bg-red-300'
                                     ),
                                     [`end-${state}-${color}`]: cn(
                                         `custom-day end-day-${color} ${state} ${
@@ -308,8 +310,8 @@ function Calendar<T extends { id: number }>({
                                                 ? 'hover:text-white asToHandleOnDayMouseEnter'
                                                 : 'hover:bg-red-600'
                                             : triggerColorChangeOnHover
-                                            ? 'hover:bg-red-600'
-                                            : 'hover:bg-red-300'
+                                              ? 'hover:bg-red-600'
+                                              : 'hover:bg-red-300'
                                     ),
                                     [`middle-${state}-${color}`]: cn(
                                         `custom-day middle-day-${color} ${state} ${
@@ -322,8 +324,8 @@ function Calendar<T extends { id: number }>({
                                                 ? 'hover:text-white asToHandleOnDayMouseEnter'
                                                 : 'hover:bg-red-600'
                                             : triggerColorChangeOnHover
-                                            ? 'hover:bg-red-600'
-                                            : 'hover:bg-red-300'
+                                              ? 'hover:bg-red-600'
+                                              : 'hover:bg-red-300'
                                     ),
                                 }
                             }

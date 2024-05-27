@@ -53,9 +53,9 @@ export const useColumns = (options?: ColumnOptions) => {
         },
         {
             accessorKey: 'actions',
-            header: 'Actions',
+            header: () => <div className="flex justify-end">Actions</div>,
             cell: ({ row }) => (
-                <div className="flex h-12">
+                <div className="flex h-12 justify-end">
                     <Button
                         variant="destructive"
                         className="h-full"
@@ -65,7 +65,7 @@ export const useColumns = (options?: ColumnOptions) => {
                     >
                         <Trash2 className="h-4 w-4" />
                     </Button>
-                    <div className="flex flex-col h-full justify-center">
+                    <div className="flex h-full flex-col justify-center">
                         {/* button arrow up and down */}
                         <Button
                             variant="ghost"
@@ -114,6 +114,7 @@ const QuestionCell = memo(function QuestionCell({
         <Input
             value={value}
             onChange={(e) => {
+                console.log('onChange')
                 setValue(e.target.value)
             }}
             onBlur={onBlur}
@@ -130,23 +131,11 @@ const ResponseCell = memo(function ResponseCell({
     defaultValue,
     onUpdate,
 }: ResponseCellProps) {
-    const [value, setValue] = React.useState(defaultValue)
-
-    useEffect(() => {
-        setValue(defaultValue)
-    }, [defaultValue])
+    const ref = React.useRef<HTMLTextAreaElement>(null)
 
     const onBlur = () => {
-        onUpdate(value)
+        onUpdate(ref.current?.value)
     }
 
-    return (
-        <Textarea
-            value={value}
-            onChange={(e) => {
-                setValue(e.target.value)
-            }}
-            onBlur={onBlur}
-        />
-    )
+    return <Textarea ref={ref} defaultValue={defaultValue} onBlur={onBlur} />
 })

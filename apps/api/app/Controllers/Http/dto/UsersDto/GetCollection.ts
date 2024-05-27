@@ -1,4 +1,4 @@
-import { IsDefined, IsObject, ValidateNested } from 'class-validator'
+import { IsDefined, IsNumber, IsObject, IsOptional, ValidateNested } from 'class-validator'
 import { Exclude, Type } from 'class-transformer'
 import { AsSameProperties } from '../type/AsSameProperties'
 import { RequestContract } from '@ioc:Adonis/Core/Request'
@@ -7,7 +7,17 @@ import { SkipTransform } from '../Decorator/SkipTransform'
 
 export class UsersRessourceGetCollectionBodyDto {}
 
-export class UsersRessourceGetCollectionQueryDto {}
+export class UsersRessourceGetCollectionQueryDto {
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  public page?: number
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  public limit?: number
+}
 
 export class UsersRessourceGetCollectionParamsDto {}
 
@@ -58,7 +68,10 @@ export class UsersRessourceGetCollectionBodyDtoAfter
 implements AsSameProperties<UsersRessourceGetCollectionBodyDto> {}
 
 export class UsersRessourceGetCollectionQueryDtoAfter
-implements AsSameProperties<UsersRessourceGetCollectionQueryDto> {}
+implements AsSameProperties<UsersRessourceGetCollectionQueryDto> {
+  public page?: number
+  public limit?: number
+}
 
 export class UsersRessourceGetCollectionParamsDtoAfter
 implements AsSameProperties<UsersRessourceGetCollectionParamsDto> {}

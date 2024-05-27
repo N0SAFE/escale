@@ -5,7 +5,7 @@ import Footer from '@/components/Footer'
 import '@/lib/fontAwesome'
 import { Toaster } from '@/components/ui/toaster'
 import { inter } from '@/fonts/index'
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense } from 'react'
 import { Input } from '@/components/ui/input'
 import Loader from '@/components/Loader'
 import { Toaster as ToasterSonner } from '@/components/ui/sonner'
@@ -24,12 +24,12 @@ export default function RootLayout({
     return (
         <html lang="en" translate="no">
             <body
-                className={`${inter.className} bg-[#000000] text-white min-h-screen flex flex-col justify-between dark`}
+                className={`${inter.className} dark flex min-h-screen flex-col justify-between bg-[#000000] text-white`}
             >
                 <ReactQueryProviders>
                     <Suspense
                         fallback={
-                            <div className="w-screen h-screen flex items-center justify-center">
+                            <div className="flex h-screen w-screen items-center justify-center">
                                 <Loader />
                             </div>
                         }

@@ -1,5 +1,3 @@
-'use server'
-
 import HomeRelations, { Home, UpdateHome } from '@/types/model/Home'
 import { xiorInstance } from '@/utils/xiorInstance'
 import VideoRelations from '@/types/model/Video'
@@ -12,12 +10,10 @@ export const getHomeDetails = async <R extends string[] = []>(): Promise<
             HomeRelations.video,
             HomeRelations.image,
             HomeRelations.commentBackgroundImage,
-            VideoRelations.sources
+            VideoRelations.sources,
         ]
     >
 > => {
-    'use server'
-
     const { data } = await xiorInstance.get<
         Home<
             [
@@ -26,16 +22,16 @@ export const getHomeDetails = async <R extends string[] = []>(): Promise<
                 HomeRelations.video,
                 HomeRelations.image,
                 HomeRelations.commentBackgroundImage,
-                VideoRelations.sources
+                VideoRelations.sources,
             ]
         >
-    >('/home')
+    >('/home', {
+        cache: 'no-store',
+    })
     return data
 }
 
 export const updateHomeDetails = async (data: UpdateHome) => {
-    'use server'
-
     const transformedData = {
         description: data.description,
         imageId: data.imageId,

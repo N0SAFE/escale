@@ -25,7 +25,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import React, { CSSProperties, useEffect } from 'react'
+import React, { CSSProperties, PointerEvent, useEffect } from 'react'
 import Loader from '@/components/atomics/atoms/Loader'
 import { DataTablePagination } from './DataTablePagination'
 import { cn } from '@/lib/utils'
@@ -42,6 +42,9 @@ import {
     DragEndEvent,
     KeyboardSensor,
     MouseSensor,
+    PointerSensor,
+    PointerSensorOptions,
+    Sensor,
     TouchSensor,
     UniqueIdentifier,
     useSensor,
@@ -55,9 +58,15 @@ interface DataTableProps<TData extends { uuid: UniqueIdentifier }, TValue>
     extends React.ComponentProps<typeof Table> {
     tableClassName?: string
     isLoading?: boolean
+    isLoadingMore?: boolean
     notFound?: React.ReactNode
     useDragabble?: boolean
     rowIsDraggable?: boolean
+    sensor?: {
+        disableMouse?: boolean
+        disableTouch?: boolean
+        disableKeyboard?: boolean
+    }
     onReorder?: (event: DragEndEvent) => void
     useId?: (data: TData) => UniqueIdentifier
 }
@@ -114,6 +123,7 @@ function DraggableRow<TData extends { uuid: UniqueIdentifier }>({
 
 export function DataTable<TData extends { uuid: UniqueIdentifier }, TValue>({
     isLoading,
+    isLoadingMore,
     notFound,
     tableClassName,
     className,
@@ -122,6 +132,11 @@ export function DataTable<TData extends { uuid: UniqueIdentifier }, TValue>({
     rowIsDraggable,
     onReorder,
     useId,
+    sensor: {
+        disableMouse = false,
+        disableTouch = false,
+        disableKeyboard = false,
+    } = {},
     ...props
 }: DataTableProps<TData, TValue>) {
     const { table } = useDataTableContext(
@@ -129,9 +144,24 @@ export function DataTable<TData extends { uuid: UniqueIdentifier }, TValue>({
     )
 
     const sensors = useSensors(
-        useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
-        useSensor(TouchSensor, { activationConstraint: { distance: 5 } }),
-        useSensor(KeyboardSensor, {})
+        useSensor(
+            disableMouse
+                ? ({ activators: [] as any[] } as Sensor<any>)
+                : MouseSensor,
+            { activationConstraint: { distance: 5 } }
+        ),
+        useSensor(
+            disableTouch
+                ? ({ activators: [] as any[] } as Sensor<any>)
+                : TouchSensor,
+            { activationConstraint: { distance: 5 } }
+        ),
+        useSensor(
+            disableKeyboard
+                ? ({ activators: [] as any[] } as Sensor<any>)
+                : KeyboardSensor,
+            {}
+        )
     )
 
     const dataIds = React.useMemo<UniqueIdentifier[]>(
@@ -150,22 +180,27 @@ export function DataTable<TData extends { uuid: UniqueIdentifier }, TValue>({
         >
             <div
                 className={cn(
-                    'flex flex-col gap-4 overflow-hidden justify-between h-full',
+                    'flex h-full flex-col justify-between gap-4 overflow-hidden',
                     className
                 )}
             >
-                <div className="rounded-md border overflow-hidden border-border">
+                <div className="relative overflow-hidden rounded-md border border-border">
+                    {isLoadingMore && (
+                        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-black opacity-70">
+                            <Loader size="8" />
+                        </div>
+                    )}
                     <Table
                         className={cn(
-                            'w-full h-10 overflow-clip relative',
+                            'relative h-10 w-full table-auto overflow-clip',
                             tableClassName
                         )}
                         divClassname={cn(
-                            'max-h-full overflow-y-auto scrollbar-thin scrollbar-thumb-secondary scrollbar-track-transparent',
+                            'max-h-full overflow-auto scrollbar-thin scrollbar-thumb-secondary scrollbar-track-transparent',
                             divClassname
                         )}
                     >
-                        <TableHeader className="sticky w-full top-0 h-10 border-b-2 border-border rounded-t-md bg-secondary z-10">
+                        <TableHeader className="sticky top-0 z-10 h-10 w-full rounded-t-md border-b-2 border-border bg-secondary">
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id}>
                                     {headerGroup.headers.map((header) => {

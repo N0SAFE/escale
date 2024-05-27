@@ -113,7 +113,7 @@ export default function Layout({
         },
         {
             type: 'component',
-            component: <MenubarSeparator className="bg-slate-400 my-4" />,
+            component: <MenubarSeparator className="my-4 bg-slate-400" />,
         },
         {
             type: 'link',
@@ -169,7 +169,7 @@ export default function Layout({
         },
         {
             type: 'component',
-            component: <MenubarSeparator className="bg-slate-400 my-4" />,
+            component: <MenubarSeparator className="my-4 bg-slate-400" />,
         },
         {
             type: 'link',
@@ -277,7 +277,7 @@ export default function Layout({
         if (route.external) {
             return
         }
-        if (getFullPath(array) === tail) {
+        if (tail.startsWith(getFullPath(array))) {
             return
         }
         setRouteIsChanging(true)
@@ -295,10 +295,10 @@ export default function Layout({
 
     // get the path after the last slash
     return (
-        <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
-            <div className="hidden lg:block absolute border-r bg-gray-100/40 dark:bg-gray-800/40 lg:relative">
-                <div className="flex h-full max-h-screen flex-col gap-2">
-                    <div className="flex h-[60px] items-center border-b px-6 gap-2">
+        <div className="h-[inherit] w-[inherit] lg:grid lg:grid-cols-[280px_1fr]">
+            <div className="absolute hidden w-[280px] border-r bg-gray-100/40 dark:bg-gray-800/40 lg:relative lg:block">
+                <div className="flex h-full w-full flex-col gap-2">
+                    <div className="flex h-[60px] items-center gap-2 border-b px-6">
                         <Link
                             className="flex items-center gap-2 font-semibold"
                             href="/"
@@ -320,8 +320,8 @@ export default function Layout({
                 </div>
             </div>
 
-            <div className="flex flex-col max-h-screen  ">
-                <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-gray-100/40 px-6 dark:bg-gray-800/40 justify-between lg:justify-end">
+            <div className="flex h-[inherit] flex-col ">
+                <header className="flex h-14 items-center justify-between gap-4 border-b bg-gray-100/40 px-6 dark:bg-gray-800/40 lg:h-[60px] lg:justify-end">
                     <Sheet>
                         <SheetTrigger className="lg:hidden" asChild>
                             <Button
@@ -433,16 +433,16 @@ export default function Layout({
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </header>
-                <main className="flex flex-1 flex-col gap-4 h-0">
-                    <div className="p-4 md:gap-8 md:p-6 h-full overflow-y-auto relative">
+                <main className="flex h-0 flex-1 flex-col gap-4">
+                    <div className="relative h-full overflow-y-auto p-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-secondary md:gap-8 md:p-6">
                         {routeIsChanging ? (
-                            <div className="flex justify-center items-center  w-full h-full">
+                            <div className="flex h-full w-full  items-center justify-center">
                                 <Loader />
                             </div>
                         ) : (
                             <Suspense
                                 fallback={
-                                    <div className="flex justify-center items-center  w-full h-full">
+                                    <div className="flex h-full w-full  items-center justify-center">
                                         <Loader />
                                     </div>
                                 }
@@ -738,7 +738,7 @@ export function Nav({
                                 : route.url) as string
                         }
                     >
-                        <div className="flex gap-3 items-center">
+                        <div className="flex items-center gap-3">
                             {route.icon}
                             {route.name}
                         </div>
@@ -774,10 +774,10 @@ export function NavDir({
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <Button
-                    className="gap-3 items-center hover:bg-inherit py-2 px-3 w-full flex justify-between"
+                    className="flex w-full items-center justify-between gap-3 px-3 py-2 hover:bg-inherit"
                     variant="ghost"
                 >
-                    <div className="flex gap-3 items-center">
+                    <div className="flex items-center gap-3">
                         {route.icon}
                         {route.name}
                     </div>

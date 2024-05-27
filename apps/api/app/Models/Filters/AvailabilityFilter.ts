@@ -13,7 +13,7 @@ export default class AvailabilityFilter extends compose(
   groupsFilterMixin,
   PropertiesFilter(),
   DatesFilter(['startAt', 'endAt']),
-  SearchFilter([]),
+  SearchFilter(['spaId']),
   OrderFilter()
 ) {
   public $setupPromise: Promise<void>
@@ -36,5 +36,9 @@ export default class AvailabilityFilter extends compose(
 
   public spas (value: number[]): void {
     this.$query.whereIn('spa_id', value)
+  }
+
+  public notInIds (ids: number[]): void {
+    this.$query.whereNotIn('id', ids)
   }
 }

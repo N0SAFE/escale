@@ -193,7 +193,7 @@ const columns: ColumnDef<ImageType>[] = [
                             </DropdownMenuItem>
                             <AlertDialogTrigger
                                 asChild
-                                className="bg-red-600 hover:bg-red-500 text-white cursor-pointer"
+                                className="cursor-pointer bg-red-600 text-white hover:bg-red-500"
                             >
                                 <DropdownMenuItem
                                     onClick={() =>
@@ -281,7 +281,7 @@ export default function ServicesTable() {
 
     return (
         <div className="w-full">
-            <div className="flex items-center py-4 justify-between">
+            <div className="flex items-center justify-between py-4">
                 <Input
                     placeholder="Filter services..."
                     value={
@@ -485,7 +485,7 @@ function DeleteImage({ isLoading, onDelete, onCancel }: DeleteImageProps) {
                         Continue
                     </span>
                     {isLoading ? (
-                        <div className="flex items-center justify-center absolute">
+                        <div className="absolute flex items-center justify-center">
                             <Loader size={'4'} />
                         </div>
                     ) : (
@@ -513,7 +513,7 @@ function CreateImage({ isLoading, onSubmit }: CreateImageProps) {
     })
     return (
         <div>
-            <div className="grid gap-4 py-4  w-full">
+            <div className="grid w-full gap-4  py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="alt" className="text-right">
                         alt
@@ -542,8 +542,8 @@ function CreateImage({ isLoading, onSubmit }: CreateImageProps) {
                                 name: imageState.name
                                     ? imageState.name
                                     : files?.[0]
-                                    ? files?.[0].name
-                                    : imageState.name,
+                                      ? files?.[0].name
+                                      : imageState.name,
                             })
                         }
                         className="col-span-3 w-full"
@@ -576,7 +576,7 @@ function CreateImage({ isLoading, onSubmit }: CreateImageProps) {
                         Save change
                     </span>
                     {isLoading ? (
-                        <div className="flex items-center justify-center absolute">
+                        <div className="absolute flex items-center justify-center">
                             <Loader size={'4'} />
                         </div>
                     ) : (

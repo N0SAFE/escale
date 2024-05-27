@@ -39,8 +39,9 @@ Route.group(() => {
 
 Route.get('mail/test', async () => {
   await Mail.send((message) => {
+    console.log('from mailtrap@sebille.net')
     message
-      .from('info@example.com')
+      .from('port-hub@sebille.net')
       .to('sssebillemathis@gmail.com')
       .subject('Welcome Onboard!')
       .htmlView('emails/test', {
@@ -128,11 +129,15 @@ Route.group(() => {
   Route.group(() => {
     Route.get(
       'external-calendars/:externalCalendar/events/blocked',
-      'ExternalEventsController.getBlockedDates'
+      'ExternalCalendarEventsController.getBlockedDates'
     )
     Route.get(
       'external-calendars/:externalCalendar/events/reserved',
-      'ExternalEventsController.getReservedDates'
+      'ExternalCalendarEventsController.getReservedDates'
+    )
+    Route.get(
+      'external-calendars/:externalCalendar/events',
+      'ExternalCalendarEventsController.index'
     )
     Route.get('reservations/price', 'ReservationsController.price')
     Route.get('spas/:spa/images', 'SpasController.getImages')

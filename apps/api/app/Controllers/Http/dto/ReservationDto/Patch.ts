@@ -3,6 +3,7 @@ import {
   IsISO8601,
   IsNumber,
   IsObject,
+  IsOptional,
   IsString,
   ValidateNested,
   ValidationArguments,
@@ -29,7 +30,7 @@ function checkDateIsAfter (date1: string, args: ValidationArguments) {
 export class ReservationRessourcePatchBodyDto {
   @IsDefined()
   @EntityExist(Spa)
-  public spa: number
+  public spaId: number
 
   @IsDefined()
   @IsISO8601()
@@ -43,9 +44,9 @@ export class ReservationRessourcePatchBodyDto {
   @IsISO8601()
   public endAt: string
 
-  @IsDefined()
+  @IsOptional()
   @IsString()
-  public notes: string
+  public notes?: string
 }
 
 export class ReservationRessourcePatchQueryDto {}
@@ -103,9 +104,7 @@ export class ReservationRessourcePatchDto extends BaseDto {
 
 export class ReservationRessourcePatchBodyDtoAfter
 implements AsSameProperties<ReservationRessourcePatchBodyDto> {
-  @Transform(async ({ value }) => await Spa.findOrFail(value))
-  @AwaitPromise
-  public spa: Spa
+  public spaId: number
 
   @Transform(({ value }) => DateTime.fromISO(value))
   public startAt: DateTime
@@ -113,7 +112,7 @@ implements AsSameProperties<ReservationRessourcePatchBodyDto> {
   @Transform(({ value }) => DateTime.fromISO(value))
   public endAt: DateTime
 
-  public notes: string
+  public notes?: string
 }
 
 export class ReservationRessourcePatchQueryDtoAfter

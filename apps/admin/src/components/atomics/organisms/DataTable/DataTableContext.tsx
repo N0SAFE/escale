@@ -6,6 +6,8 @@ import {
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
+    PaginationState,
+    RowModel,
     SortingState,
     Table,
     TableOptions,
@@ -22,9 +24,14 @@ const DataTableContext = React.createContext<{
 
 export type DataTableProviderProps<
     TData extends { uuid: UniqueIdentifier },
-    TValue
+    TValue,
 > = {
-    tableOptions?: TableOptions<TData>
+    tableOptions?: Omit<
+        TableOptions<TData>,
+        'data' | 'columns' | 'getCoreRowModel'
+    > & {
+        getCoreRowModel?: (table: Table<any>) => () => RowModel<any>
+    }
     columns: ColumnDef<TData, TValue>[]
     data: TData[] | undefined
     tableRef?: React.RefObject<Table<TData>>
@@ -64,7 +71,6 @@ const DataTableProvider = <TData extends { uuid: UniqueIdentifier }, TValue>({
             ...tableOptions?.state,
         },
     })
-
     React.useImperativeHandle(tableRef, () => table, [table])
 
     return (

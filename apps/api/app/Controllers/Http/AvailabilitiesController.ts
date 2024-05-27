@@ -71,7 +71,7 @@ export default class AvailabilitiesController {
     const availability = await Availability.create({
       startAt: body.startAt,
       endAt: body.endAt,
-      spaId: body.spa.id,
+      spaId: body.spaId,
     })
 
     const daysPrice = [
@@ -152,7 +152,6 @@ export default class AvailabilitiesController {
     const { body, params } = await dto.after.customTransform
 
     const availability = params.id
-    availability.related('spa').associate(body.spa)
 
     const prices = Array.from(
       new Set([
@@ -219,6 +218,7 @@ export default class AvailabilitiesController {
     availability.merge({
       startAt: body.startAt,
       endAt: body.endAt,
+      spaId: body.spaId,
       monPriceId: daysMap.get('mon')?.id,
       tuePriceId: daysMap.get('tue')?.id,
       wedPriceId: daysMap.get('wed')?.id,

@@ -20,11 +20,11 @@ export async function getVideos<R extends string[] = []>() {
 export async function getVideo(id: number) {
     'use server'
 
-    return await xiorInstance
-        .get<Video>(`/videos/${id}`)
-        .then(function ({ data }) {
-            return data
-        })
+    return await xiorInstance.get<Video>(`/videos/${id}`).then(function ({
+        data,
+    }) {
+        return data
+    })
 }
 
 export async function updateVideo(id: number, data: FormData) {

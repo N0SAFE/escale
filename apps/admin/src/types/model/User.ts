@@ -5,7 +5,7 @@ import { Entity } from './utils'
 
 export type User<
     Relations extends string[] = [],
-    Nullable extends null | false = false
+    Nullable extends null | false = false,
 > = Pretify<
     Entity<{
         id: number

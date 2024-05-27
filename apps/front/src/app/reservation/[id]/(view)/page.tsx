@@ -361,10 +361,12 @@ const Reservation = ({ params }: { params: { id: string } }) => {
     //     return confirm(Number(id), selected, date);
     // }
 
+    console.log(isSpaFetched)
+
     if (!isSpaFetched) {
         // ! try to know why the data is not loaded the same way in the admin part than in this part (prefetching data not here)
         return (
-            <div className="w-full h-full flex items-center justify-center">
+            <div className="flex h-full w-full items-center justify-center">
                 <Loader />
             </div>
         )
@@ -372,7 +374,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
 
     if (!spa) {
         return (
-            <div className="w-full h-full flex items-center justify-center">
+            <div className="flex h-full w-full items-center justify-center">
                 <h1>Spa not found</h1>
             </div>
         )
@@ -383,8 +385,8 @@ const Reservation = ({ params }: { params: { id: string } }) => {
             <div className="mx-4 mt-4">
                 <div className="md:hidden">
                     <Drawer>
-                        <div className="w-full flex px-8 py-10">
-                            <span className="text-2xl font-bold flex-1">
+                        <div className="flex w-full px-8 py-10">
+                            <span className="flex-1 text-2xl font-bold">
                                 à partir de 150 €
                             </span>
                             <DrawerTrigger asChild>
@@ -407,10 +409,10 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                             </DrawerHeader>
                             <div
                                 className={
-                                    'flex flex-col gap-2 w-full mt-4 px-10'
+                                    'mt-4 flex w-full flex-col gap-2 px-10'
                                 }
                             >
-                                <div className="flex gap-2 items-center justify-between">
+                                <div className="flex items-center justify-between gap-2">
                                     <span className="text-nowrap">
                                         réserver pour :{' '}
                                     </span>
@@ -422,7 +424,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                                             )
                                         }}
                                     >
-                                        <SelectTrigger className="max-w-[190px] w-full">
+                                        <SelectTrigger className="w-full max-w-[190px]">
                                             <SelectValue placeholder="select a reservation time" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -436,7 +438,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className="flex gap-2 items-center justify-between">
+                                <div className="flex items-center justify-between gap-2">
                                     <span className="text-nowrap">
                                         sélectionner des dates :
                                     </span>
@@ -554,10 +556,10 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                         })!
                     }
                 />
-                <div className="xl:mx-46 lg:mx-24 md:mx-0 flex gap-8 flex-row py-8">
-                    <div className="w-full lg:w-2/3 md:w-1/2">
+                <div className="xl:mx-46 flex flex-row gap-8 py-8 md:mx-0 lg:mx-24">
+                    <div className="w-full md:w-1/2 lg:w-2/3">
                         <div>
-                            <h1 className="text-6xl my-8">{spa.title}</h1>
+                            <h1 className="my-8 text-6xl">{spa.title}</h1>
                             <div className="mb-4">
                                 <Link
                                     className="underline underline-offset-4"
@@ -594,7 +596,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                                                 alt={service.label}
                                                 width={300}
                                                 height={100}
-                                                className="rounded-lg h-full w-full"
+                                                className="h-full w-full rounded-lg"
                                             />
                                         </AspectRatio>
                                         <p>{service.label}</p>
@@ -604,14 +606,14 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                             {/* <img src={spa.image} alt={spa.name} /> */}
                         </div>
                     </div>
-                    <div className="w-full lg:w-1/3 md:w-1/2 h-fit gap-8 hidden md:flex">
+                    <div className="hidden h-fit w-full gap-8 md:flex md:w-1/2 lg:w-1/3">
                         <Separator orientation="vertical" className="h-auto" />
                         <div>
                             <span className="text-2xl font-bold">
                                 à partir de 150 €
                             </span>
-                            <div className={'flex flex-col gap-2 w-full mt-4'}>
-                                <div className="flex gap-2 items-center justify-between">
+                            <div className={'mt-4 flex w-full flex-col gap-2'}>
+                                <div className="flex items-center justify-between gap-2">
                                     <span className="text-nowrap">
                                         réserver pour :{' '}
                                     </span>
@@ -623,7 +625,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                                             )
                                         }}
                                     >
-                                        <SelectTrigger className="max-w-[190px] w-full">
+                                        <SelectTrigger className="w-full max-w-[190px]">
                                             <SelectValue placeholder="select a reservation time" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -637,7 +639,7 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className="flex gap-2 items-center justify-between">
+                                <div className="flex items-center justify-between gap-2">
                                     <span className="text-nowrap">
                                         sélectionner des dates :
                                     </span>

@@ -1,34 +1,19 @@
 import { DataTableColumnHeader } from '@/components/atomics/organisms/DataTable/DataTableColumnHeader'
-import Loader from '@/components/atomics/atoms/Loader'
-import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { DotsHorizontalIcon } from '@radix-ui/react-icons'
-import { CellContext, ColumnDef, Row } from '@tanstack/react-table'
-import Link from 'next/link'
+import { ColumnDef } from '@tanstack/react-table'
 import React, { useMemo } from 'react'
-import {
-    LoggedDashboardUsersId,
-    LoggedDashboardUsersIdEdit,
-} from '@/routes/index'
-import { DType } from './type'
+import { DType } from './utils'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { createAttachmentUrl } from '@/hooks/useAttachmentUrl'
+import { ActionsCellRow } from '@/components/atomics/organisms/DataTable/ActionsCellRow'
+import { ActionsCellHeader } from '@/components/atomics/organisms/DataTable/ActionsCellHeader'
+import { Promisable } from '@/types/utils'
 
-type Promised<T> = T | Promise<T>
-
-type ColumnOptions = {
-    onRowDelete?: (props: Row<DType>) => Promised<void>
-    onMultipleRowDelete?: (props: Row<DType>[]) => Promised<void>
-    useLoaderOnRowDelete?: boolean
+export type ColumnOptions = {
+    onRowDelete?: (rows: DType[]) => Promisable<void>
+    onRowEdit?: (rows: DType[]) => Promisable<void>
+    onRowView?: (rows: DType[]) => Promisable<void>
 }
 
 export const useColumns = (options?: ColumnOptions) => {
@@ -133,126 +118,4 @@ export const useColumns = (options?: ColumnOptions) => {
         },
     ]
     return columns
-}
-
-type ActionsCellHeaderProps = {
-    rows: Row<DType>[]
-    options?: ColumnOptions
-}
-
-const ActionsCellHeader = ({ rows, options }: ActionsCellHeaderProps) => {
-    const [isLoading, setIsLoading] = React.useState(false)
-    const [actionsDropdownIsOpen, setActionsDropdownIsOpen] =
-        React.useState(false)
-
-    return (
-        <div className="flex justify-end">
-            <DropdownMenu
-                open={actionsDropdownIsOpen}
-                onOpenChange={setActionsDropdownIsOpen}
-            >
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <DotsHorizontalIcon className="h-4 w-4" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                        className="bg-red-600 hover:bg-red-500 text-white cursor-pointer"
-                        onClick={async (e) => {
-                            e.preventDefault()
-                            if (options?.useLoaderOnRowDelete) {
-                                setIsLoading(true)
-                            }
-                            await options?.onMultipleRowDelete?.(rows)
-                            setActionsDropdownIsOpen(false)
-                            if (options?.useLoaderOnRowDelete) {
-                                setIsLoading(false)
-                            }
-                        }}
-                    >
-                        {isLoading ? (
-                            <div className="flex items-center justify-center w-full">
-                                <Loader size="4" />
-                            </div>
-                        ) : (
-                            'Delete'
-                        )}
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
-    )
-}
-type ActionsCellRowProps = {
-    row: Row<DType>
-    options?: ColumnOptions
-}
-const ActionsCellRow = ({ row, options }: ActionsCellRowProps) => {
-    const spa = row.original
-
-    const [isLoading, setIsLoading] = React.useState(false)
-    const [actionsDropdownIsOpen, setActionsDropdownIsOpen] =
-        React.useState(false)
-
-    return (
-        <div className="flex justify-end">
-            <DropdownMenu
-                open={actionsDropdownIsOpen}
-                onOpenChange={setActionsDropdownIsOpen}
-            >
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <DotsHorizontalIcon className="h-4 w-4" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                        <LoggedDashboardUsersId.Link
-                            userId={spa.id.toString()}
-                            className="w-full"
-                        >
-                            Details
-                        </LoggedDashboardUsersId.Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        <LoggedDashboardUsersIdEdit.Link
-                            userId={spa.id.toString()}
-                            className="w-full"
-                        >
-                            Edit
-                        </LoggedDashboardUsersIdEdit.Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                        className="bg-red-600 hover:bg-red-500 text-white cursor-pointer"
-                        onClick={async (e) => {
-                            e.preventDefault()
-                            if (options?.useLoaderOnRowDelete) {
-                                setIsLoading(true)
-                            }
-                            await options?.onRowDelete?.(row)
-                            setActionsDropdownIsOpen(false)
-                            if (options?.useLoaderOnRowDelete) {
-                                setIsLoading(false)
-                            }
-                        }}
-                    >
-                        {isLoading ? (
-                            <div className="flex items-center justify-center w-full">
-                                <Loader size="4" />
-                            </div>
-                        ) : (
-                            'Delete'
-                        )}
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
-    )
 }

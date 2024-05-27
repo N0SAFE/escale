@@ -24,6 +24,8 @@ import { useRouter } from 'next/router'
 import { useMutation } from '@tanstack/react-query'
 import Loader from '@/components/atomics/atoms/Loader'
 import dynamic from 'next/dynamic'
+import { Vortex } from '@/components/ui/vortex'
+import { BackgroundBeams } from '@/components/ui/background-beams'
 
 const FormSchema = z.object({
     email: z.string().email(),
@@ -69,11 +71,17 @@ const pageNoSsr = dynamic(
             })
 
             return (
-                <div className="min-h-screen flex">
-                    <div className="w-1/2 bg-black text-white p-12 flex-col justify-between hidden md:flex">
+                <div className="flex min-h-screen">
+                    <Vortex
+                        backgroundColor="black"
+                        containerClassName="hidden w-1/2 flex-col justify-between bg-black p-12 text-white md:flex overflow-hidden h-screen"
+                        className="h-full flex-col justify-between md:flex"
+                        rangeY={800}
+                        particleCount={500}
+                    >
                         <div>
-                            <GlobeIcon className="text-white w-6 h-6" />
-                            <h1 className="text-4xl font-bold mt-4">
+                            <GlobeIcon className="h-6 w-6 text-white" />
+                            <h1 className="mt-4 text-4xl font-bold">
                                 Acme Inc
                             </h1>
                         </div>
@@ -83,19 +91,19 @@ const pageNoSsr = dynamic(
                                 of work and helped me deliver stunning designs
                                 to my clients faster than ever before.&quot;
                             </p>
-                            <p className="text-lg font-semibold mt-4">
+                            <p className="mt-4 text-lg font-semibold">
                                 Sofia Davis
                             </p>
-                        </div>
-                    </div>
+                        </div>{' '}
+                    </Vortex>
                     <Form {...form}>
                         <form
                             onSubmit={form.handleSubmit((data) =>
                                 loginMutation.mutate(data)
                             )}
-                            className="w-screen p-12 flex flex-col justify-center gap-8 md:w-[inherit]"
+                            className="relative flex w-screen flex-1 flex-col justify-center gap-8 p-12 antialiased md:w-[inherit]"
                         >
-                            <h2 className="text-xl sm:text-2xl md:text-4xl font-bold mb-6">
+                            <h2 className="mb-6 text-xl font-bold sm:text-2xl md:text-4xl">
                                 Sign in to your account
                             </h2>
                             <FormField
@@ -163,8 +171,10 @@ const pageNoSsr = dynamic(
                                 </Link>
                                 .
                             </p>
+                            <BackgroundBeams />
                         </form>
                     </Form>
+
                     {/* <form className="w-1/2 bg-white p-12 flex flex-col justify-center">
                 <h2 className="text-4xl font-bold mb-6">Create an account</h2>
                 <p className="text-lg mb-6">Enter your email below to create your account</p>

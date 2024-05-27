@@ -29,14 +29,14 @@ type RelationCases = [
     {
         key: 'commentBackgroundImage'
         value: Image
-    }
+    },
 ]
 
 type RelationKeyCases = [
     [Relations.homeComments, 'homeComments'],
     [Relations.video, 'video'],
     [Relations.image, 'image'],
-    [Relations.commentBackgroundImage, 'commentBackgroundImage']
+    [Relations.commentBackgroundImage, 'commentBackgroundImage'],
 ]
 type RelationValueCases<R extends string[] = []> = [
     [Relations.homeComments, HomeComment<Exclude<R, Relations.homeComments>>[]],
@@ -44,8 +44,8 @@ type RelationValueCases<R extends string[] = []> = [
     [Relations.image, Image<Exclude<R, Relations.image>>],
     [
         Relations.commentBackgroundImage,
-        Image<Exclude<R, Relations.commentBackgroundImage>>
-    ]
+        Image<Exclude<R, Relations.commentBackgroundImage>>,
+    ],
 ]
 
 export type Home<R extends string[] = []> = Entity<

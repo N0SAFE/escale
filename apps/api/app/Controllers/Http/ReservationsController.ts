@@ -35,6 +35,8 @@ export default class ReservationsController {
 
     const { page, limit, ...rest } = query
 
+    console.log(rest)
+
     const reservationQuery = Reservation.filter(rest)
 
     if (page || limit) {
@@ -70,7 +72,8 @@ export default class ReservationsController {
     const reservation = await Reservation.create({
       startAt: body.startAt,
       endAt: body.endAt,
-      spaId: body.spa.id,
+      spaId: body.spaId,
+      notes: body.notes,
     })
 
     return response.ok(reservation)
@@ -108,11 +111,13 @@ export default class ReservationsController {
       return response.badRequest({ message: 'reservation overlap' })
     }
 
+    console.log(body.notes)
+
     reservation.merge({
       startAt: body.startAt,
       endAt: body.endAt,
       notes: body.notes,
-      spaId: body.spa.id,
+      spaId: body.spaId,
     })
 
     await reservation.save()

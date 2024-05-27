@@ -14,7 +14,7 @@ type Props = {
 export default function SpaDetails({ spa }: Props) {
     return (
         <div>
-            <h1 className="text-6xl my-8">{spa.title}</h1>
+            <h1 className="my-8 text-6xl">{spa.title}</h1>
             <div className="mb-4">
                 <Link
                     className="underline underline-offset-4"
@@ -47,7 +47,7 @@ export default function SpaDetails({ spa }: Props) {
                                 alt={service.label}
                                 width={300}
                                 height={100}
-                                className="rounded-lg h-full w-full"
+                                className="h-full w-full rounded-lg"
                             />
                         </AspectRatio>
                         <p>{service.label}</p>

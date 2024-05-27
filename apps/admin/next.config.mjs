@@ -1,8 +1,9 @@
 import million from 'million/compiler'
+import MillionLint from '@million/lint'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    reactStrictMode: false,
+    reactStrictMode: true,
     images: {
         domains: [
             'localhost',

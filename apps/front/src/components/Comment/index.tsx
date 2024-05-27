@@ -64,7 +64,7 @@ export default function Comment({ comments }: Props) {
                     key={comment.id}
                     style={{ display: 'flex', justifyContent: 'center' }}
                 >
-                    <div className="flex flex-col items-center text-center w-80">
+                    <div className="flex w-80 flex-col items-center text-center">
                         <Avatar>
                             <AvatarImage
                                 alt={'avatar of ' + comment?.user?.username}

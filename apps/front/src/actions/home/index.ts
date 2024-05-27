@@ -10,22 +10,23 @@ export const getHomeDetails = async <R extends string[] = []>(): Promise<
             ...R,
             HomeRelations.homeComments,
             HomeRelations.video,
-            VideoRelations.sources
+            VideoRelations.sources,
         ]
     >
 > => {
     'use server'
 
-    const { data } = await xiorInstance.get<
-        Home<
-            [
-                ...R,
-                HomeRelations.homeComments,
-                HomeRelations.video,
-                VideoRelations.sources
-            ]
-        >
-    >('/home')
+    const { data } =
+        await xiorInstance.get<
+            Home<
+                [
+                    ...R,
+                    HomeRelations.homeComments,
+                    HomeRelations.video,
+                    VideoRelations.sources,
+                ]
+            >
+        >('/home')
     return data
 }
 

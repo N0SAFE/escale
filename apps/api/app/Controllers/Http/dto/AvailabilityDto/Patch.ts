@@ -42,7 +42,7 @@ export class Price {
 export class AvailabilityRessourcePatchBodyDto {
   @IsDefined()
   @EntityExist(Spa)
-  public spa: number
+  public spaId: number
 
   @IsDefined()
   @IsISO8601()
@@ -182,9 +182,7 @@ export class AvailabilityRessourcePatchDto extends BaseDto {
 
 export class AvailabilityRessourcePatchBodyDtoAfter
 implements AsSameProperties<AvailabilityRessourcePatchBodyDto> {
-  @Transform(async ({ value }) => await Spa.findOrFail(value))
-  @AwaitPromise
-  public spa: Spa
+  public spaId: number
 
   @Transform(({ value }) => DateTime.fromISO(value))
   public startAt: DateTime

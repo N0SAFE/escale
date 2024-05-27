@@ -29,17 +29,17 @@ export default function ContactForm({ onSubmit }: ContactFormProps) {
         })
     }
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 gap-16 md:grid-cols-2">
                 <div>
-                    <h2 className="text-2xl font-semibold mb-4">
+                    <h2 className="mb-4 text-2xl font-semibold">
                         Des questions ? Merci de remplir le formulaire
                         ci-dessous.
                     </h2>
                     <form className="space-y-6" onSubmit={handleSubmit}>
                         <div>
                             <label
-                                className="block text-sm font-medium mb-1"
+                                className="mb-1 block text-sm font-medium"
                                 htmlFor="name"
                             >
                                 Votre nom (obligatoire)
@@ -53,7 +53,7 @@ export default function ContactForm({ onSubmit }: ContactFormProps) {
                         </div>
                         <div>
                             <label
-                                className="block text-sm font-medium mb-1"
+                                className="mb-1 block text-sm font-medium"
                                 htmlFor="email"
                             >
                                 Votre adresse de messagerie (obligatoire)
@@ -68,7 +68,7 @@ export default function ContactForm({ onSubmit }: ContactFormProps) {
                         </div>
                         <div>
                             <label
-                                className="block text-sm font-medium mb-1"
+                                className="mb-1 block text-sm font-medium"
                                 htmlFor="subject"
                             >
                                 Objet
@@ -82,7 +82,7 @@ export default function ContactForm({ onSubmit }: ContactFormProps) {
                         </div>
                         <div>
                             <label
-                                className="block text-sm font-medium mb-1"
+                                className="mb-1 block text-sm font-medium"
                                 htmlFor="message"
                             >
                                 Votre message
@@ -95,16 +95,16 @@ export default function ContactForm({ onSubmit }: ContactFormProps) {
                             />
                         </div>
                         {success && (
-                            <p className="text-green-500 mt-4">
+                            <p className="mt-4 text-green-500">
                                 your question has been transmited
                             </p>
                         )}
-                        {error && <p className="text-red-500 mt-4">{error}</p>}
+                        {error && <p className="mt-4 text-red-500">{error}</p>}
                         <Button>Envoyer</Button>
                     </form>
                 </div>
                 <div>
-                    <h2 className="text-2xl font-semibold mb-4">
+                    <h2 className="mb-4 text-2xl font-semibold">
                         Avant de nous contacter
                     </h2>
                     <p>

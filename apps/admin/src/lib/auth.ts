@@ -45,6 +45,9 @@ export async function setSession(
         }
     })()
 
+    console.log('create cookie')
+    console.log(session)
+
     const cookieStore = cookiesStore ? cookiesStore : cookies()
     cookieStore.set('session', JSON.stringify(session), {
         path: '/',
@@ -92,8 +95,6 @@ export async function updateSession(
 export async function getSession(
     cookiesStore?: RequestCookies | ResponseCookies
 ): Promise<Session | null> {
-    'use server'
-
     const cookieStore = cookiesStore ? cookiesStore : cookies()
     const sessionString = cookieStore.get('session')?.value
     const jwtString = cookieStore.get('jwt')?.value
@@ -122,14 +123,10 @@ export async function getSession(
 }
 
 export async function getUser(): Promise<User | null> {
-    'use server'
-
     return (await getSession())?.user || null
 }
 
 export async function cookiesGetAll() {
-    'use server'
-
     return cookies().getAll()
 }
 
@@ -139,8 +136,6 @@ export async function refreshToken(
     writeCookieStoreOnSucess?: RequestCookies | ResponseCookies,
     writeCookieStoreOnError?: RequestCookies | ResponseCookies
 ): Promise<Session> {
-    'use server'
-
     return xiorInstance
         .post<any>('/refresh', {}, {
             // withCredentials: true,
@@ -192,8 +187,6 @@ export async function refreshToken(
 }
 
 export async function whoami(): Promise<Session> {
-    'use server'
-
     const jwt = (await getSession())?.jwt
     const whoami = await xiorInstance
         .get('/whoami', {
@@ -220,8 +213,6 @@ export async function login(
     email: string,
     password: string
 ): Promise<Session | null> {
-    'use server'
-
     return xiorInstance
         .post(
             '/login',
@@ -233,6 +224,7 @@ export async function login(
         )
         .then(async (res) => {
             const jwt = res.data
+            console.log(jwt)
             return xiorInstance
                 .get<Session>('/whoami', {
                     withCredentials: true,
@@ -250,13 +242,12 @@ export async function login(
                 })
         })
         .catch((e) => {
+            console.log('e', e)
             return null
         })
 }
 
 export async function logout() {
-    'use server'
-
     const token = (await getSession())?.jwt?.token
 
     return xiorInstance
@@ -283,8 +274,6 @@ export async function logout() {
 }
 
 export async function recreteJwt() {
-    'use server'
-
     return xiorInstance
         .get('/recreate-jwt', {
             // todo

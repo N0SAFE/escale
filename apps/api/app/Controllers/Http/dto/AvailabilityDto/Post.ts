@@ -15,7 +15,6 @@ import { DateTime } from 'luxon'
 import { EntityExist } from '../Decorator/EntityExist'
 import Spa from 'App/Models/Spa'
 import { Custom } from '../Decorator/Custom'
-import { AwaitPromise } from '../Decorator/AwaitPromise'
 
 function checkDateIsAfter (date1: string, args: ValidationArguments) {
   const [relatedPropertyName] = args.constraints
@@ -41,7 +40,7 @@ export class Price {
 export class AvailabilityRessourcePostBodyDto {
   @IsDefined()
   @EntityExist(Spa)
-  public spa: number
+  public spaId: number
 
   @IsDefined()
   @IsISO8601()
@@ -175,9 +174,7 @@ export class AvailabilityRessourcePostDto extends BaseDto {
 
 export class AvailabilityRessourcePostBodyDtoAfter
 implements AsSameProperties<AvailabilityRessourcePostBodyDto> {
-  @Transform(async ({ value }) => await Spa.findOrFail(value))
-  @AwaitPromise
-  public spa: Spa
+  public spaId: number
 
   @Transform(({ value }) => DateTime.fromISO(value))
   public startAt: DateTime

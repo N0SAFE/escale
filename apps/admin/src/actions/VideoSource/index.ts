@@ -6,16 +6,12 @@ import {
 import { xiorInstance } from '@/utils/xiorInstance'
 
 export async function getVideoSources() {
-    'use server'
-
     return xiorInstance.get('/video-sources').then(function ({ data }) {
         return data
     })
 }
 
 export async function getVideoSource(id: number) {
-    'use server'
-
     return xiorInstance
         .get<VideoSource>(`/video-sources/${id}`)
         .then(function ({ data }) {
@@ -24,8 +20,6 @@ export async function getVideoSource(id: number) {
 }
 
 export async function getVideoSourcesByVideoId(videoId: number) {
-    'use server'
-
     return xiorInstance
         .get<VideoSource>(`/videos/${videoId}/sources`)
         .then(function ({ data }) {
@@ -34,8 +28,6 @@ export async function getVideoSourcesByVideoId(videoId: number) {
 }
 
 export async function updateVideoSource(id: number, data: UpdateVideoSource) {
-    'use server'
-
     const transformedData = {
         videoId: data.videoId,
     }
@@ -47,8 +39,6 @@ export async function updateVideoSource(id: number, data: UpdateVideoSource) {
 }
 
 export async function createVideoSource(data: CreateVideoSource) {
-    'use server'
-
     const transformedData = {
         file: data.file,
         videoId: data.videoId,

@@ -2,6 +2,8 @@ import {
   IsDefined,
   IsISO8601,
   IsObject,
+  IsOptional,
+  IsString,
   ValidateNested,
   ValidationArguments,
 } from 'class-validator'
@@ -14,7 +16,6 @@ import { EntityExist } from '../Decorator/EntityExist'
 import { Custom } from '../Decorator/Custom'
 import { DateTime } from 'luxon'
 import Spa from 'App/Models/Spa'
-import { AwaitPromise } from '../Decorator/AwaitPromise'
 
 function checkDateIsAfter (date1: string, args: ValidationArguments) {
   const [relatedPropertyName] = args.constraints
@@ -26,7 +27,7 @@ function checkDateIsAfter (date1: string, args: ValidationArguments) {
 export class ReservationRessourcePostBodyDto {
   @IsDefined()
   @EntityExist(Spa)
-  public spa: number
+  public spaId: number
 
   @IsDefined()
   @IsISO8601()
@@ -39,6 +40,10 @@ export class ReservationRessourcePostBodyDto {
   @IsDefined()
   @IsISO8601()
   public endAt: string
+
+  @IsOptional()
+  @IsString()
+  public notes?: string
 }
 
 export class ReservationRessourcePostQueryDto {}
@@ -90,15 +95,15 @@ export class ReservationRessourcePostDto extends BaseDto {
 
 export class ReservationRessourcePostBodyDtoAfter
 implements AsSameProperties<ReservationRessourcePostBodyDto> {
-  @Transform(async ({ value }) => await Spa.findOrFail(value))
-  @AwaitPromise
-  public spa: Spa
+  public spaId: number
 
   @Transform(({ value }) => DateTime.fromISO(value))
   public startAt: DateTime
 
   @Transform(({ value }) => DateTime.fromISO(value))
   public endAt: DateTime
+
+  public notes?: string
 }
 
 export class ReservationRessourcePostQueryDtoAfter

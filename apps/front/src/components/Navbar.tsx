@@ -9,7 +9,7 @@ export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     return (
         <nav className="md:py-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 justify-center">
                     <div className="flex">
                         <div className="-ml-2 mr-6 flex items-center">
@@ -24,19 +24,19 @@ export default function Navbar() {
                                 L&apos;escale
                             </Link>
                         </div>
-                        <div className="hidden md:flex items-center space-x-1">
+                        <div className="hidden items-center space-x-1 md:flex">
                             <Links className="px-3 py-2" />
                         </div>
                     </div>
                     {/* <div className="flex items-center">
                         <FlagIcon className="h-6 w-6 text-white" />
                     </div> */}
-                    <div className="-mr-2 flex md:hidden items-center">
+                    <div className="-mr-2 flex items-center md:hidden">
                         <Button
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                             aria-controls="mobile-menu"
                             aria-expanded="false"
-                            className="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white hover:bg-[#7a4d35] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                            className="inline-flex items-center justify-center rounded-md p-2 text-white hover:bg-[#7a4d35] hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
                             type="button"
                         >
                             <span className="sr-only">Open main menu</span>
@@ -47,12 +47,12 @@ export default function Navbar() {
                 </div>
             </div>
             <div
-                className={`md:hidden absolute w-screen bg-[#8C6750] ${
+                className={`absolute w-screen bg-[#8C6750] md:hidden ${
                     isMenuOpen ? '' : 'hidden'
                 }`}
                 id="mobile-menu"
             >
-                <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
+                <div className="flex flex-col space-y-1 px-2 pb-3 pt-2 sm:px-3">
                     <Links
                         onClick={() => {
                             setIsMenuOpen(false)
@@ -162,7 +162,7 @@ export function Links({ onClick, className }: LinksProps) {
                 onClick={onClick}
                 aria-current="page"
                 className={cn(
-                    'text-white rounded-md text-sm font-medium',
+                    'rounded-md text-sm font-medium text-white',
                     className
                 )}
                 href="/"
@@ -172,7 +172,7 @@ export function Links({ onClick, className }: LinksProps) {
             <Link
                 onClick={onClick}
                 className={cn(
-                    'text-white rounded-md text-sm font-medium',
+                    'rounded-md text-sm font-medium text-white',
                     className
                 )}
                 href="/reservation"
@@ -182,7 +182,7 @@ export function Links({ onClick, className }: LinksProps) {
             <Link
                 onClick={onClick}
                 className={cn(
-                    'text-white rounded-md text-sm font-medium',
+                    'rounded-md text-sm font-medium text-white',
                     className
                 )}
                 href="/contact"
@@ -192,7 +192,7 @@ export function Links({ onClick, className }: LinksProps) {
             <Link
                 onClick={onClick}
                 className={cn(
-                    'text-white rounded-md text-sm font-medium',
+                    'rounded-md text-sm font-medium text-white',
                     className
                 )}
                 href="/faq"
@@ -202,7 +202,7 @@ export function Links({ onClick, className }: LinksProps) {
             <Link
                 onClick={onClick}
                 className={cn(
-                    'text-white rounded-md text-sm font-medium',
+                    'rounded-md text-sm font-medium text-white',
                     className
                 )}
                 href="/reglement"

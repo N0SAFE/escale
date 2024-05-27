@@ -9,9 +9,9 @@ import { Links } from './Navbar'
 export default function footer() {
     return (
         <footer className="py-10 text-white">
-            <div className="max-w-6xl mx-auto px-6 flex justify-between">
+            <div className="mx-auto flex max-w-6xl justify-between px-6">
                 <div>
-                    <h5 className="font-bold uppercase mb-6">Contact</h5>
+                    <h5 className="mb-6 font-bold uppercase">Contact</h5>
                     <ul className="space-y-4">
                         <li className="flex items-center space-x-2">
                             <MailIcon className="text-red-600" />
@@ -40,8 +40,8 @@ export default function footer() {
                     </ul>
                 </div>
                 <div>
-                    <h5 className="font-bold uppercase mb-6">Navigation</h5>
-                    <ul className="space-y-4 flex flex-col">
+                    <h5 className="mb-6 font-bold uppercase">Navigation</h5>
+                    <ul className="flex flex-col space-y-4">
                         <Links />
                     </ul>
                 </div>

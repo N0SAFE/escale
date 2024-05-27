@@ -13,6 +13,9 @@ export const withHealthCheck: MiddlewareFactory = (next: NextMiddleware) => {
         if (request.nextUrl.pathname.startsWith('/_next')) {
             return res
         }
+        if (request.nextUrl.pathname.startsWith('/api')) {
+            return res
+        }
         if (res) {
             if (process.env.NODE_ENV === 'development') {
                 try {

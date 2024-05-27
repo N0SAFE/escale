@@ -1,6 +1,6 @@
 'use client'
 
-import { Availability, Spa, UpdateAvailability } from '@/types/index'
+import { Availability, UpdateAvailability } from '@/types/model/Availability'
 import React, { useMemo } from 'react'
 import { getSpas } from '../../actions'
 import { useWindowSize } from '@uidotdev/usehooks'
@@ -12,7 +12,7 @@ import {
     getAvailabilities,
     getClosestAvailabilities,
     updateAvailability,
-} from '../actions'
+} from '@/actions/Availability'
 import {
     Sheet,
     SheetContent,
@@ -22,16 +22,36 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet'
 import { Calendar } from '@/components/ui/calendar'
-import AvailabilityEdit from '@/components/atomics/templates/Edit/AvailabillityEdit'
 import { Button } from '@/components/ui/button'
 import Loader from '@/components/atomics/atoms/Loader'
 import { toast } from 'sonner'
 import Combobox from '@/components/atomics/molecules/Combobox'
 import { Select } from '@/components/ui/select'
 import { parseAsInteger, useQueryState } from 'nuqs'
-import { querySpaId } from '../layout'
+import {
+    spaAccessor,
+    querySpaId,
+    DType,
+    availabilitiesAccessor,
+} from '../utils'
+import useTableHooks from '@/hooks/useTableHooks'
+import DeleteDialog from '@/components/atomics/templates/DeleteDialog'
+import EditSheet from '@/components/atomics/templates/EditSheet'
+import EditAvailability from '@/components/atomics/templates/Edit/EditAvailability'
+import Relations from '@/types/model/Availability'
 
 const AvailabilityCalendarView = () => {
+    const {
+        data: spas,
+        isFetched: isSpaFetched,
+        isError,
+    } = useQuery({
+        queryKey: ['spas'],
+        queryFn: async () => {
+            return await spaAccessor()
+        },
+    })
+
     const [selectedMonth, setSelectedMonth] = React.useState<Date>(new Date())
     const [selectedSpaId, setSelectedSpaId] = useQueryState(
         querySpaId,
@@ -43,39 +63,32 @@ const AvailabilityCalendarView = () => {
     const [updatedAvailability, setUpdatedAvailability] =
         React.useState<Availability>()
 
-    const { data: spas, isFetched: isSpaFetched } = useQuery({
-        queryKey: ['spas'],
-        queryFn: async () => {
-            return await getSpas()
-        },
-    })
-
     const selectedSpa = useMemo(() => {
         return spas?.find((spa) => spa.id === selectedSpaId)
     }, [spas, selectedSpaId])
 
-    const availabilityUpdateMutation = useMutation({
+    const availabilityEditMutation = useMutation({
         mutationFn: async ({
             id,
-            availability,
+            updatedAvailability,
         }: {
             id: number
-            availability: Availability
+            updatedAvailability: UpdateAvailability
         }) => {
-            if (!availability) {
+            if (!updatedAvailability) {
                 return
             }
             return await updateAvailability(id, {
-                startAt: availability.startAt,
-                endAt: availability.endAt,
-                spa: availability.spa.id,
-                monPrice: availability.monPrice,
-                tuePrice: availability.tuePrice,
-                wedPrice: availability.wedPrice,
-                thuPrice: availability.thuPrice,
-                friPrice: availability.friPrice,
-                satPrice: availability.satPrice,
-                sunPrice: availability.sunPrice,
+                startAt: updatedAvailability.startAt,
+                endAt: updatedAvailability.endAt,
+                spaId: updatedAvailability.spaId,
+                monPrice: updatedAvailability.monPrice,
+                tuePrice: updatedAvailability.tuePrice,
+                wedPrice: updatedAvailability.wedPrice,
+                thuPrice: updatedAvailability.thuPrice,
+                friPrice: updatedAvailability.friPrice,
+                satPrice: updatedAvailability.satPrice,
+                sunPrice: updatedAvailability.sunPrice,
             })
         },
         onError: (error) => {
@@ -87,15 +100,21 @@ const AvailabilityCalendarView = () => {
         },
     })
     const availabilityDeleteMutation = useMutation({
-        mutationFn: async (id: number) => {
-            return await deleteAvailability(id)
+        mutationFn: async (availabilities: Availability[]) => {
+            await Promise.all(
+                availabilities.map(async (a) => {
+                    await deleteAvailability(a.id)
+                    incrementDeleteContext()
+                })
+            )
         },
         onError: (error) => {
             toast.error('server error')
         },
         onSuccess: async (data) => {
             toast.success('availability deleted')
-            setSheetIsOpen(false)
+            setIsDeleteDialogOpen(false)
+            setIsEditSheetOpen(false)
             await refetch()
         },
     })
@@ -129,8 +148,7 @@ const AvailabilityCalendarView = () => {
         ],
         queryFn: async () =>
             selectedSpa
-                ? await getAvailabilities({
-                      groups: ['availabilities:spa'],
+                ? await availabilitiesAccessor({
                       search: {
                           spa: selectedSpa?.id,
                       },
@@ -156,12 +174,33 @@ const AvailabilityCalendarView = () => {
                 : [],
     })
 
+    const {
+        deleteContext,
+        isCreateDialogOpen,
+        isDeleteDialogOpen,
+        isEditSheetOpen,
+        isViewSheetOpen,
+        selectedToDelete,
+        selectedToEdit,
+        selectedToView,
+        setDeleteContext,
+        setIsCreateDialogOpen,
+        setIsDeleteDialogOpen,
+        setIsEditSheetOpen,
+        setIsViewSheetOpen,
+        triggerToDelete,
+        triggerToEdit,
+        triggerToView,
+        incrementDeleteContext,
+    } = useTableHooks<DType>()
+
     return (
-        <Sheet
-            open={sheetIsOpen}
-            onOpenChange={() => setSheetIsOpen(!sheetIsOpen)}
-        >
-            <div className="w-full py-4 flex justify-center ">
+        // <Sheet
+        //     open={sheetIsOpen}
+        //     onOpenChange={() => setSheetIsOpen(!sheetIsOpen)}
+        // >
+        <>
+            <div className="flex w-full justify-center py-4 ">
                 <Combobox
                     className="col-span-3"
                     items={spas?.map((spa) => ({
@@ -180,7 +219,7 @@ const AvailabilityCalendarView = () => {
                 month={selectedMonth}
                 onMonthChange={setSelectedMonth}
                 mode="range"
-                className="w-full overflow-hidden flex justify-center"
+                className="flex w-full justify-center overflow-hidden"
                 selected={undefined}
                 numberOfMonths={calendarSize}
                 displayedRange={{
@@ -188,10 +227,6 @@ const AvailabilityCalendarView = () => {
                         from: DateTime.fromISO(a.startAt),
                         to: DateTime.fromISO(a.endAt),
                         item: a,
-                        onClick: (availability: Availability) => {
-                            setSelectedAvailability(availability)
-                            setSheetIsOpen(true)
-                        },
                     })),
                     randomColor: [
                         'blue',
@@ -207,15 +242,55 @@ const AvailabilityCalendarView = () => {
                     },
                 }}
                 onDisplayedRangeClick={(displayedAvailabilities) => {
-                    if (displayedAvailabilities.length === 1) {
-                        setSelectedAvailability(displayedAvailabilities[0].item)
-                        setSheetIsOpen(true)
+                    if (displayedAvailabilities.length === 0) {
+                        return
                     }
+                    triggerToEdit(displayedAvailabilities.map((r) => r.item))
                 }}
                 triggerColorChangeOnHover
             />
-            <SheetContent className="sm:max-w-lg md:max-w-xl w-[100vw] flex flex-col justify-between">
-                <div className="overflow-auto scrollbar-none">
+            <EditSheet
+                open={isEditSheetOpen}
+                onOpenChange={setIsEditSheetOpen}
+                items={selectedToEdit ?? []}
+                isLoading={false}
+                label={(item) => `Edit ${item?.id}`}
+            >
+                {(item) => {
+                    return (
+                        <EditAvailability
+                            isUpdating={availabilityEditMutation.isPending}
+                            onEdit={(updatedAvailability) =>
+                                availabilityEditMutation.mutate({
+                                    id: item.id,
+                                    updatedAvailability,
+                                })
+                            }
+                            onDelete={async (reservation: DType) =>
+                                await triggerToDelete([reservation])
+                            }
+                            state={{
+                                spas: spas!,
+                            }}
+                            defaultValue={item}
+                        />
+                    )
+                }}
+            </EditSheet>
+            <DeleteDialog
+                items={selectedToDelete! || []}
+                open={isDeleteDialogOpen}
+                onOpenChange={setIsDeleteDialogOpen}
+                onDelete={async (e, items) => {
+                    await availabilityDeleteMutation.mutateAsync(items!)
+                    setIsEditSheetOpen(false)
+                }}
+                deleteContext={deleteContext}
+                isLoading={availabilityDeleteMutation.isPending}
+                onCancel={(e, items) => setIsDeleteDialogOpen(false)}
+            />
+            {/* <SheetContent className="flex w-[100vw] flex-col justify-between sm:max-w-lg md:max-w-xl">
+                <div className="overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-secondary">
                     <SheetHeader>
                         <SheetTitle>
                             Edit profile {selectedAvailability?.id}
@@ -245,7 +320,7 @@ const AvailabilityCalendarView = () => {
                         }}
                     />
                 </div>
-                <SheetFooter className="flex sm:justify-between gap-4">
+                <SheetFooter className="flex gap-4 sm:justify-between">
                     <Button
                         onClick={() => {
                             availabilityDeleteMutation.mutate(
@@ -256,7 +331,7 @@ const AvailabilityCalendarView = () => {
                     >
                         {availabilityDeleteMutation.isPending ? (
                             <div className="relative">
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                                     <Loader size="4" />
                                 </div>
                                 <span className="invisible">Delete</span>
@@ -276,7 +351,7 @@ const AvailabilityCalendarView = () => {
                     >
                         {availabilityUpdateMutation.isPending ? (
                             <div className="relative">
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                                     <Loader size="4" />
                                 </div>
                                 <span className="invisible">Save change</span>
@@ -286,8 +361,9 @@ const AvailabilityCalendarView = () => {
                         )}
                     </Button>
                 </SheetFooter>
-            </SheetContent>
-        </Sheet>
+            </SheetContent> */}
+        </>
+        // </Sheet>
     )
 }
 

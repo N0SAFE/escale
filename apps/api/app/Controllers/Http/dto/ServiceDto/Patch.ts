@@ -7,6 +7,7 @@ import { SkipTransform } from '../Decorator/SkipTransform'
 import { EntityExist } from '../Decorator/EntityExist'
 import Service from 'App/Models/Service'
 import { AwaitPromise } from '../Decorator/AwaitPromise'
+import Image from 'App/Models/Image'
 
 export class ServiceRessourcePatchBodyDto {
   @IsOptional()
@@ -16,7 +17,7 @@ export class ServiceRessourcePatchBodyDto {
   public description?: string
 
   @IsOptional()
-  @EntityExist(Service, {
+  @EntityExist(Image, {
     nullable: true,
   })
   public image?: number | null

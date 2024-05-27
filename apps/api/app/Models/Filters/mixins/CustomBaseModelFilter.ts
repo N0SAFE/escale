@@ -5,6 +5,7 @@ import { LucidModel, ModelQueryBuilderContract } from '@ioc:Adonis/Lucid/Orm'
 export type OnFunction = (query: ModelQueryBuilderContract<LucidModel, any>, input: any) => void
 
 export class CustomBaseModelFilter extends BaseModelFilter {
+  public $setupPromise: Promise<void>
   protected $befores: OnFunction[] = []
   protected $afters: OnFunction[] = []
   public $loadedRelation: Relation

@@ -18,8 +18,12 @@ import Comment from './Comment'
 import AppBaseModel from './AppBaseModel'
 import Image from './Image'
 import Role from './Role'
+import { Filterable } from '@ioc:Adonis/Addons/LucidFilter'
+import UserFilter from './Filters/UserFilter'
 
-export default class User extends compose(AppBaseModel, SoftDeletes) {
+export default class User extends compose(AppBaseModel, SoftDeletes, Filterable) {
+  public static $filter = () => UserFilter
+
   @column({ isPrimary: true })
   public id: number
 

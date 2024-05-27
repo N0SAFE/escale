@@ -12,9 +12,11 @@ import { BaseDto } from '../BaseDto'
 import { Type } from 'class-transformer'
 
 export class AuthRegisterBodyDto extends BaseDto {
+  @IsDefined()
   @IsEmail()
   public email: string
 
+  @IsDefined()
   @Matches(/.{8,}$/, {
     message: 'password must be at least 8 characters',
   })

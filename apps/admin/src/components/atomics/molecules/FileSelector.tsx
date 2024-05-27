@@ -81,9 +81,9 @@ export default function FileSelector<T extends { id: number }>({
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="h-24 flex justify-center items-center">
+            <div className="flex h-24 items-center justify-center">
                 <div
-                    className="h-8 w-8 cursor-pointer bg-slate-800 rounded-full flex items-center justify-center "
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-slate-800 "
                     onClick={function () {
                         inputRef?.current?.click?.()
                     }}
@@ -91,7 +91,7 @@ export default function FileSelector<T extends { id: number }>({
                     {isUploading ? (
                         <Loader className="h-4 w-4" />
                     ) : (
-                        <Upload className="w-4 h-4" />
+                        <Upload className="h-4 w-4" />
                     )}
                 </div>
                 <Input
@@ -128,12 +128,12 @@ export default function FileSelector<T extends { id: number }>({
                         selectedFile.id
                     )
                 ) : (
-                    <div className="flex items-center justify-center h-full">
+                    <div className="flex h-full items-center justify-center">
                         {renderNull ? (
                             renderNull()
                         ) : (
                             <Image
-                                className="h-full object-none w-full"
+                                className="h-full w-full object-none"
                                 src="/placeholder.svg"
                                 alt="Empty file"
                                 width={400}
@@ -144,19 +144,19 @@ export default function FileSelector<T extends { id: number }>({
                 )}
             </div>
 
-            <Card className="w-full max-h-96 overflow-y-auto">
+            <Card className="max-h-96 w-full overflow-y-auto">
                 <CardContent>
                     <Command
                         value={selectedFile ? `${selectedFile.id}` : undefined}
                     >
-                        <CommandList className="scrollbar-thin scrollbar-thumb-secondary scrollbar-track-transparent">
+                        <CommandList className="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-secondary">
                             <div className="flex flex-col gap-2">
                                 <CommandInput
                                     className="flex flex-col items-center justify-center"
                                     placeholder="search file"
                                 />
                                 <CommandEmpty className="flex flex-col items-center justify-center">
-                                    <Upload className="w-16 h-16" />
+                                    <Upload className="h-16 w-16" />
                                     <div className="text-gray-500">
                                         Select file
                                     </div>
@@ -171,7 +171,7 @@ export default function FileSelector<T extends { id: number }>({
                                                     <Button
                                                         key={file.id}
                                                         className={
-                                                            'w-full max-w-full h-full'
+                                                            'h-full w-full max-w-full'
                                                         }
                                                         variant={'ghost'}
                                                         onClick={() => {

@@ -14,9 +14,11 @@ import { Type } from 'class-transformer'
 export type IsEmail = `${string}@${string}.${string}`
 
 export class AuthLoginBodyDto extends BaseDto {
+  @IsDefined()
   @IsEmail()
   public email: IsEmail
 
+  @IsDefined()
   @IsString()
   public password: string
 

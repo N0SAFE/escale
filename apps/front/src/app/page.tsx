@@ -18,7 +18,7 @@ export default async function Home() {
                 HomeRelations.video,
                 VideoRelations.sources,
                 HomeRelations.image,
-                HomeRelations.commentBackgroundImage
+                HomeRelations.commentBackgroundImage,
             ]
         >
     >('/home', { cache: 'no-store' })
@@ -27,16 +27,16 @@ export default async function Home() {
             <section>
                 <ApiImage
                     path={homeData?.image?.path!}
-                    className="object-cover h-[600px]"
+                    className="h-[600px] object-cover"
                     alt={homeData?.image?.alt!}
                     height={1080}
                     width={1980}
                 />
             </section>
-            <section className="py-24 px-4 text-3xl leading-6 text-center md:p-24">
+            <section className="px-4 py-24 text-center text-3xl leading-6 md:p-24">
                 <p>{homeData?.description}</p>
             </section>
-            <section className="max-w-[60%] my-8">
+            <section className="my-8 max-w-[60%]">
                 <ApiVideo
                     sourcesPath={homeData?.video?.sources?.map((s) => s.path)!}
                     alt={homeData?.video?.alt!}
@@ -55,9 +55,9 @@ export default async function Home() {
                         homeData?.commentBackgroundImage.path!
                     )}')`,
                 }}
-                className="bg-cover bg-no-reapeat bg-center w-full background-color-[#27355DED] backdrop-filter-blur-[30px] relative"
+                className="bg-no-reapeat background-color-[#27355DED] backdrop-filter-blur-[30px] relative w-full bg-cover bg-center"
             >
-                <div className="h-full w-full opacity-75 bg-[#525252ED] absolute"></div>
+                <div className="absolute h-full w-full bg-[#525252ED] opacity-75"></div>
                 <Comment
                     comments={
                         homeData?.homeComments?.map((hc) => {

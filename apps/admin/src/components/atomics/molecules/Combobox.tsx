@@ -23,7 +23,7 @@ import { nextTick } from 'process'
 
 type ComboboxMultipleProps<T> = {
     defaultValue?: T[]
-    value?: T[]
+    value?: { id: number }[]
     onSelect?: (value: T[]) => void
     preview?: (value: T[]) => React.ReactNode
     multiple: true
@@ -31,7 +31,7 @@ type ComboboxMultipleProps<T> = {
 
 type ComboboxSingleProps<T> = {
     defaultValue?: T
-    value?: T
+    value?: { id: number }
     onSelect?: (value: T | undefined) => void
     preview?: (value: T) => React.ReactNode
     multiple?: false
@@ -83,7 +83,19 @@ export default function Combobox<T extends { id: number }>({
             if (value === undefined && !isMounted) {
                 return
             }
-            setVal(value)
+            if (multiple) {
+                setVal(
+                    items
+                        ?.filter((item) =>
+                            value?.some((v) => v.id === item.value.id)
+                        )
+                        ?.map((item) => item.value)
+                )
+            } else {
+                setVal(
+                    items?.find((item) => item.value.id === value?.id)?.value
+                )
+            }
         })
     }, [value, val, isMounted])
 
@@ -138,7 +150,7 @@ export default function Combobox<T extends { id: number }>({
                     )}
                     <CommandGroup>
                         {isLoading ? (
-                            <div className="h-[300px] flex justify-center items-center">
+                            <div className="flex h-[300px] items-center justify-center">
                                 <Loader />
                             </div>
                         ) : (
@@ -219,7 +231,7 @@ export default function Combobox<T extends { id: number }>({
                                                   }}
                                               >
                                                   {onRender?.(item.value) ||
-                                                      item.value.id}
+                                                      `${item.value.id}. ${item.label}`}
                                                   <Check
                                                       className={cn(
                                                           'ml-auto h-4 w-4',

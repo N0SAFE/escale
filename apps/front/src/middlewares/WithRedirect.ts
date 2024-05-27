@@ -24,9 +24,8 @@ const withRedirect: MiddlewareFactory = (next: NextMiddleware) => {
         }
         const redirectMap = ObjectToMap({
             reservation: async () => {
-                const { data } = await xiorInstance.get<ReservationType>(
-                    '/spas'
-                )
+                const { data } =
+                    await xiorInstance.get<ReservationType>('/spas')
                 return `/reservation/${data?.[0]?.id}`
             },
         }) as Map<

@@ -5,9 +5,9 @@ export default class extends BaseSchema {
 
   public async up () {
     this.schema.alterTable(this.tableName, (table) => {
-      table.string('username').unique().notNullable()
+      table.string('username').unique().notNullable().defaultTo('')
       table.integer('avatar_id').unsigned().references('id').inTable('images').onDelete('CASCADE')
-      table.string('address').notNullable()
+      table.string('address')
     })
   }
 

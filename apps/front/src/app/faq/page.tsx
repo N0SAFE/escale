@@ -24,8 +24,8 @@ export default async function Faq() {
             <div className="flex items-center justify-center">
                 <h1 className="text-xl">QUESTIONS FRÉQUENTES</h1>
             </div>
-            <div className="flex items-center justify-center mt-8">
-                <div className="px-4 w-full mx-8 md:mx-0 md:w-[500px] lg:w-[700px] xl:w-[80%]">
+            <div className="mt-8 flex items-center justify-center">
+                <div className="mx-8 w-full px-4 md:mx-0 md:w-[500px] lg:w-[700px] xl:w-[80%]">
                     <Accordion type="single" collapsible className="w-full">
                         {
                             data?.map((faq, index) => (
@@ -38,7 +38,7 @@ export default async function Faq() {
                                     </AccordionTrigger>
                                     <AccordionContent>
                                         {
-                                            <div className="flex flex-col gap-8 mb-8">
+                                            <div className="mb-8 flex flex-col gap-8">
                                                 <Separator />
                                                 <span>{faq.answer}</span>
                                             </div>

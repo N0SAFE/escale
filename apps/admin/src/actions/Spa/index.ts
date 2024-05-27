@@ -1,15 +1,27 @@
-'use server'
-
-import { GroupsFilter, PaginationFilter, SearchFilter } from '@/types/filters'
-import { CreateSpa, Spa, SpaImage, UpdateSpa } from '@/types/index'
+import {
+    GroupsFilter,
+    PaginationFilter,
+    PropertyFilter,
+    SearchFilter,
+} from '@/types/filters'
+import Relations, {
+    Context,
+    CreateSpa,
+    Spa,
+    UpdateSpa,
+} from '@/types/model/Spa'
+import { SpaImage } from '@/types/model/SpaImage'
+import { Pretify } from '@/types/utils'
 import { xiorInstance } from '@/utils/xiorInstance'
 
 export async function getSpas(
-    filter: GroupsFilter & SearchFilter & PaginationFilter = {}
+    filter: Pretify<
+        GroupsFilter & SearchFilter & PropertyFilter & PaginationFilter
+    > = {}
 ) {
-    'use server'
-
-    const { data } = await xiorInstance.get<Spa[]>('/spas', {
+    const { data } = await xiorInstance.get<
+        Spa<Exclude<typeof filter.groups, undefined>>[]
+    >('/spas', {
         params: {
             ...filter.search,
             groups: filter.groups,
@@ -21,22 +33,16 @@ export async function getSpas(
 }
 
 export async function getSpa(id: number) {
-    'use server'
-
     const { data } = await xiorInstance.get<Spa>(`/spas/${id}`)
     return data
 }
 
 export async function getImagesBySpa(id: number) {
-    'use server'
-
     const { data } = await xiorInstance.get<SpaImage[]>(`/spas/${id}/images`)
     return data
 }
 
 export async function createSpa(data: CreateSpa) {
-    'use server'
-
     const transformedData = {
         title: data.title,
         description: data.description,
@@ -53,8 +59,6 @@ export async function createSpa(data: CreateSpa) {
 }
 
 export async function updateSpa(id: number, data?: UpdateSpa) {
-    'use server'
-
     if (!data) {
         return
     }
@@ -74,7 +78,5 @@ export async function updateSpa(id: number, data?: UpdateSpa) {
 }
 
 export async function deleteSpa(id: number) {
-    'use server'
-
     await xiorInstance.delete(`/spas/${id}`)
 }

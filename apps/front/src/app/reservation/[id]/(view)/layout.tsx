@@ -1,31 +1,54 @@
 import { Suspense } from 'react'
 import Loader from '@/components/Loader'
 import { Separator } from '@/components/ui/separator'
+import {
+    dehydrate,
+    HydrationBoundary,
+    QueryClient,
+} from '@tanstack/react-query'
+import { getSpa } from './actions'
 
-export default function layout({ children }: React.PropsWithChildren<{}>) {
+export default async function layout({
+    children,
+    params,
+}: React.PropsWithChildren<{ params: { id: string } }>) {
+    const queryClient = new QueryClient()
+
+    await queryClient.prefetchQuery({
+        queryKey: ['spa', params.id],
+        queryFn: async () => {
+            const { data } = await getSpa(Number(+params.id))
+            return data
+        },
+    })
+
     return (
-        <main className="grow flex flex-col">
-            <section className="bg-[url('/canap.jpg')] bg-center">
-                <div className="p-36 flex text-slate-50 justify-center italic font-bold flex-col items-center">
-                    <div className="w-fit gap-2">
-                        <h1 className="text-7xl font-allura w-fit">
-                            Réservations
-                        </h1>
-                        <Separator className="h-[2px]" />
-                    </div>
-                </div>
-            </section>
-            <section className="grow flex">
-                <Suspense
-                    fallback={
-                        <div className="flex items-center justify-center w-full grow">
-                            <Loader />
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <main className="flex grow flex-col">
+                <section className="bg-[url('/canap.jpg')] bg-center">
+                    <div className="flex flex-col items-center justify-center p-36 font-bold italic text-slate-50">
+                        <div className="w-fit gap-2">
+                            <h1 className="w-fit font-allura text-7xl">
+                                Réservations
+                            </h1>
+                            <Separator className="h-[2px]" />
                         </div>
-                    }
-                >
-                    <div className="w-[-webkit-fill-available]">{children}</div>
-                </Suspense>
-            </section>
-        </main>
+                    </div>
+                </section>
+                <section className="flex grow">
+                    <Suspense
+                        fallback={
+                            <div className="flex w-full grow items-center justify-center">
+                                <Loader />
+                            </div>
+                        }
+                    >
+                        <div className="w-[-webkit-fill-available]">
+                            {children}
+                        </div>
+                    </Suspense>
+                </section>
+            </main>
+        </HydrationBoundary>
     )
 }

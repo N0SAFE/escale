@@ -170,8 +170,8 @@ const generateColor = (color: string) => {
             }
             return `
                 .rdp .custom-day:not([aria-selected]).${position}-day-${color}.${
-                active ? 'active' : 'inactive'
-            } {
+                    active ? 'active' : 'inactive'
+                } {
                     background-color: ${
                         (tailwindColors as any)[color][
                             active
@@ -182,8 +182,8 @@ const generateColor = (color: string) => {
                     ${generateBorderRadius(position)}
                 }
                 .rdp .custom-day:not([aria-selected]).${position}-day-${color}:hover.${
-                active ? 'active' : 'inactive'
-            }.asToHandleOnDayMouseEnter {
+                    active ? 'active' : 'inactive'
+                }.asToHandleOnDayMouseEnter {
                     background-color: ${
                         (tailwindColors as any)[color][
                             active
@@ -193,8 +193,8 @@ const generateColor = (color: string) => {
                     };
                 }
                 .rdp .custom-day:not([aria-selected]).${position}-day-${color}:hover.${
-                active ? 'active' : 'inactive'
-            }:not(.asToHandleOnDayMouseEnter) {
+                    active ? 'active' : 'inactive'
+                }:not(.asToHandleOnDayMouseEnter) {
                     background-color: ${
                         (tailwindColors as any)[color][
                             active
@@ -212,12 +212,12 @@ const generateColor = (color: string) => {
                     ${generatePortion(4, 'after')}
                 `
                         : position === 'end'
-                        ? `
+                          ? `
                     ${generatePortion(2, 'before')}
                     ${generatePortion(3, 'before')}
                     ${generatePortion(4, 'before')}
                 `
-                        : ''
+                          : ''
                 }
             `
         }

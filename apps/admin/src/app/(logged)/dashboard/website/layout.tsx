@@ -31,7 +31,7 @@ export default function Websitelayout({
     return (
         <>
             <Tabs
-                className="w-full flex justify-center pb-2"
+                className="flex w-full justify-center pb-2"
                 value={selectedTab || 'calendar'}
             >
                 <TabsList className="w-fit">
@@ -46,7 +46,7 @@ export default function Websitelayout({
             </Tabs>
             <Suspense
                 fallback={
-                    <div className="w-full h-full flex justify-center items-center">
+                    <div className="flex h-full w-full items-center justify-center">
                         <Loader />
                     </div>
                 }

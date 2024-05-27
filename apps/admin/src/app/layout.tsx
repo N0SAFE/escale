@@ -1,14 +1,12 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import { isLogin } from '@/lib/auth'
-import axios from 'axios'
 import ClientStartup from '@/components/atomics/atoms/ClientStartup'
-import { redirect } from 'next/navigation'
 import { Toaster } from '@/components/ui/sonner'
 import ReactQueryProviders from '@/utils/ReactQueryProviders'
 import { Suspense } from 'react'
 import Loader from '@/components/atomics/atoms/Loader'
+import { cn } from '@/lib/utils'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -25,11 +23,11 @@ export default async function RootLayout({
     return (
         <html lang="en" className="dark">
             <ClientStartup />
-            <body className={inter.className}>
+            <body className={cn(inter.className, 'h-screen w-screen')}>
                 <ReactQueryProviders>
                     <Suspense
                         fallback={
-                            <div className="w-screen h-screen flex items-center justify-center">
+                            <div className="flex h-screen w-screen items-center justify-center">
                                 <Loader />
                             </div>
                         }

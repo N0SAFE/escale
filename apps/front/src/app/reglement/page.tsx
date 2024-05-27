@@ -17,8 +17,8 @@ export default async function Reglement() {
             <div className="flex items-center justify-center">
                 <h1 className="text-xl">RÈGLEMENT INTÉRIEUR</h1>
             </div>
-            <div className="flex items-center justify-center mt-8">
-                <div className="md:px-4 md:max-w-[80%] lg:max-w-[60%] w-full">
+            <div className="mt-8 flex items-center justify-center">
+                <div className="w-full md:max-w-[80%] md:px-4 lg:max-w-[60%]">
                     <List items={data?.map((ruleObj) => ruleObj.rule)!} />
                 </div>
             </div>

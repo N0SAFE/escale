@@ -41,16 +41,16 @@ export default function ServiceEdit() {
 
     if (!isFetched) {
         return (
-            <div className="w-full h-full flex items-center justify-center">
+            <div className="flex h-full w-full items-center justify-center">
                 <Loader />
             </div>
         )
     }
 
     return (
-        <div className="flex flex-col gap-16 min-h-full justify-between">
-            <div className="flex gap-4 lg:gap-16 w-full">
-                <div className="flex flex-col w-full">
+        <div className="flex min-h-full flex-col justify-between gap-16">
+            <div className="flex w-full gap-4 lg:gap-16">
+                <div className="flex w-full flex-col">
                     <Label htmlFor="name">name</Label>
                     <Input
                         defaultValue={image?.file?.name}
@@ -62,7 +62,7 @@ export default function ServiceEdit() {
                         }
                     />
                 </div>
-                <div className="flex flex-col w-full">
+                <div className="flex w-full flex-col">
                     <Label htmlFor="alt">alt</Label>
                     <Input
                         defaultValue={image?.alt}

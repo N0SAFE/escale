@@ -16,17 +16,17 @@ type RelationCases = [
     {
         key: 'comment'
         value: IdedEntity<Comment>
-    }
+    },
 ]
 
 type RelationKeyCases = [
     [Relations.home, 'home'],
-    [Relations.comment, 'comment']
+    [Relations.comment, 'comment'],
 ]
 
 type RelationValueCases = [
     [Relations.home, IdedEntity<Home> | undefined],
-    [Relations.comment, IdedEntity<Comment>]
+    [Relations.comment, IdedEntity<Comment>],
 ]
 
 export type HomeComment<R extends string[] = []> = Pretify<
@@ -37,7 +37,7 @@ export type HomeComment<R extends string[] = []> = Pretify<
             [K in [
                 ...R,
                 Relations.comment,
-                Relations.home
+                Relations.home,
             ][number] as TypeSwitch<K, RelationKeyCases>]: TypeSwitch<
                 K,
                 RelationValueCases

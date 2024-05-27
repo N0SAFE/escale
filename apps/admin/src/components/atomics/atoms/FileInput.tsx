@@ -24,7 +24,7 @@ export default function FileInput({
             {...props}
             variant="ghost"
             className={cn(
-                'border-2 border-dashed border-gray-200 rounded-lg p-6 flex items-center justify-center hover:bg-slate-200 w-fit gap-2',
+                'flex w-fit items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-200 p-6 hover:bg-slate-200',
                 className
             )}
             onClick={(e) => {
@@ -32,14 +32,14 @@ export default function FileInput({
                 onClick && onClick(e)
             }}
         >
-            <FileIcon className="w-6 h-6" />
-            <span className="text-sm text-gray-500 text-ellipsis overflow-hidden">
+            <FileIcon className="h-6 w-6" />
+            <span className="overflow-hidden text-ellipsis text-sm text-gray-500">
                 {files?.length
                     ? files.length > 1
                         ? files.length + 'file selected'
                         : files[0] instanceof File
-                        ? files[0].name
-                        : files[0]
+                          ? files[0].name
+                          : files[0]
                     : 'Drag and drop your files here'}
             </span>
             <input

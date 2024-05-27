@@ -20,9 +20,6 @@ const removePrefix = (value: string, prefix: string) =>
 const withAuth: MiddlewareFactory = (next: NextMiddleware) => {
     return async (request: NextRequest, _next: NextFetchEvent) => {
         const res = (await next(request, _next)) as NextResponse
-        if (request.nextUrl.pathname.startsWith('/_next')) {
-            return res
-        }
         if (!(await isLogin({ cookieStore: request.cookies }))) {
             const redirectUrl = new URL('/login', request.url)
             if (request.nextUrl.pathname !== '/') {

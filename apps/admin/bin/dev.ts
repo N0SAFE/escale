@@ -9,7 +9,7 @@ if (!process.env.PORT) {
     throw new Error('PORT environment variable is required')
 }
 
-spawn(`next dev -p ${process.env.PORT}`, {
+spawn(`next dev -p ${process.env.PORT} --turbo`, {
     shell: true,
     stdio: 'inherit',
 })

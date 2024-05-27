@@ -10,7 +10,7 @@ type ListProps = {
 export function List({ items }: ListProps) {
     return (
         <div className="mx-auto p-6">
-            <ul className="list-none pl-5 space-y-2">
+            <ul className="list-none space-y-2 pl-5">
                 {items.map((item, key) => (
                     <li key={key}>- {item}</li>
                 ))}

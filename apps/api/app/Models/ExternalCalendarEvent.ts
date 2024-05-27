@@ -2,8 +2,13 @@ import { DateTime } from 'luxon'
 import { BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import ExternalCalendar from './ExternalCalendar'
 import AppBaseModel from './AppBaseModel'
+import { Filterable } from '@ioc:Adonis/Addons/LucidFilter'
+import { compose } from '@ioc:Adonis/Core/Helpers'
+import ExternalCalendarEventFilter from './Filters/ExternalCalendarEventFilter'
 
-export default class ExternalCalendarEvent extends AppBaseModel {
+export default class ExternalCalendarEvent extends compose(AppBaseModel, Filterable) {
+  public static $filter = () => ExternalCalendarEventFilter
+
   @column({ isPrimary: true })
   public id: number
 

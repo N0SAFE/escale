@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
 export const Route = {
-    name: 'Loggeddashboardwebsiterules',
+    name: 'LoggedDashboardWebsiteRules',
     params: z.object({}),
 }

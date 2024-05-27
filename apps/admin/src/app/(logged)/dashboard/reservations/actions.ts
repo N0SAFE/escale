@@ -1,79 +1,55 @@
-'use server'
-
 import {
     DatesFilter,
     GroupsFilter,
     SearchFilter,
     OrderFilter,
+    PropertyFilter,
 } from '@/types/filters'
 import {
     CreateReservation,
-    ExternalBlockedCalendarEvent,
-    ExternalReservedCalendarEvent,
     Reservation,
-    Unavailability,
     UpdateReservation,
-} from '@/types/index'
+} from '@/types/model/Reservation'
 import { xiorInstance } from '@/utils/xiorInstance'
+import { ExternalCalendarEvents } from '@/types/model/ExternalCalendarEvents'
 
-export async function getUnreservableData(
-    spa: number,
-    from: string,
-    to: string
+export async function getCalendarEvents(
+    calendarId: number,
+    { from, to }: { from: string; to: string },
+    filter: GroupsFilter & PropertyFilter & SearchFilter & DatesFilter = {}
 ) {
-    'use server'
-
-    const { data } = await xiorInstance.get<{
-        reservations: Reservation[]
-        blockedEvents?: ExternalBlockedCalendarEvent[]
-        reservedEvents?: ExternalReservedCalendarEvent[]
-        unavailabilities?: {
-            availabilityPastLimit: string
-            availabilityFutureLimit: string
-            data: Unavailability[]
+    const { data } = await xiorInstance.get<ExternalCalendarEvents[]>(
+        `/external-calendars/${calendarId}/events`,
+        {
+            params: {
+                startAt: from,
+                endAt: to,
+                groups: filter.groups,
+                ...filter.search,
+                ...filter.dates,
+                ...filter.property,
+            },
+            cache: 'no-store',
         }
-    }>('/reservations/unreservable', {
-        params: {
-            spa,
-            from,
-            to,
-        },
-    })
-    return data
-}
-
-export async function getExternalBlockedCalendarEvent(id: number) {
-    'use server'
-
-    const { data } = await xiorInstance.get<ExternalBlockedCalendarEvent[]>(
-        `/external-calendars/${id}/events/blocked`
     )
     return data
 }
 
-export async function getExternalReservedCalendarEvent(id: number) {
-    'use server'
-
-    const { data } = await xiorInstance.get<ExternalReservedCalendarEvent[]>(
-        `/external-calendars/${id}/events/reserved`
-    )
-    return data
-}
-
-export async function getReservations(
-    filter: GroupsFilter & SearchFilter & DatesFilter = {},
-    signal?: AbortSignal
+export async function getReservations<R extends string[]>(
+    filter: GroupsFilter & SearchFilter & DatesFilter = {}
 ) {
-    'use server'
-
-    const { data } = await xiorInstance.get<Reservation[]>('/reservations', {
+    console.log('before xior reservations request')
+    const req = xiorInstance.get<Reservation<R>[]>('/reservations', {
         params: {
             groups: filter.groups,
             ...filter.search,
             ...filter.dates,
         },
-        signal,
+        cache: 'no-store',
     })
+    console.log(req)
+    console.log(await req)
+    const { data } = await req
     return data
 }
 
@@ -83,8 +59,6 @@ export async function getClosestReservations(
         SearchFilter &
         OrderFilter & { avoidIds?: number[] } = {}
 ) {
-    'use server'
-
     const [upResponse, downResponse] = await Promise.all([
         xiorInstance.get<Reservation[]>('/reservations', {
             params: {
@@ -101,6 +75,7 @@ export async function getClosestReservations(
                 },
                 notInIds: filter.avoidIds,
             },
+            cache: 'no-store',
         }),
         xiorInstance.get<Reservation[]>('/reservations', {
             params: {
@@ -113,6 +88,7 @@ export async function getClosestReservations(
                 limit: 1,
                 notInIds: filter.avoidIds,
             },
+            cache: 'no-store',
         }),
     ])
     return {
@@ -131,8 +107,6 @@ export async function getClosestUnreservable(
         includeUnavailabilities?: boolean
     }
 ) {
-    'use server'
-
     const { data } = await xiorInstance.get<{
         past?: string
         future?: string
@@ -140,41 +114,41 @@ export async function getClosestUnreservable(
         params: {
             spa,
             date,
-            avoidIds,
+            avoidIds: avoidIds || [],
             ...includes,
         },
+        cache: 'no-store',
     })
 
     return data
 }
 
 export async function getReservation(id: number) {
-    'use server'
-
-    const { data } = await xiorInstance.get<Reservation>(`/reservations/${id}`)
+    const { data } = await xiorInstance.get<Reservation>(
+        `/reservations/${id}`,
+        { cache: 'no-store' }
+    )
     return data
 }
 
 export async function createReservation(data: CreateReservation) {
-    'use server'
-
-    await xiorInstance.post<CreateReservation>('/reservations', data)
+    await xiorInstance.post<CreateReservation>('/reservations', data, {
+        cache: 'no-store',
+    })
 }
 
 export async function updateReservation(id: number, data?: UpdateReservation) {
-    'use server'
-
     if (!data) {
         return
     }
     const transformedData = {
         ...data,
     }
-    await xiorInstance.patch(`/reservations/${id}`, transformedData)
+    await xiorInstance.patch(`/reservations/${id}`, transformedData, {
+        cache: 'no-store',
+    })
 }
 
 export async function deleteReservation(id: number) {
-    'use server'
-
-    await xiorInstance.delete(`/reservations/${id}`)
+    await xiorInstance.delete(`/reservations/${id}`, { cache: 'no-store' })
 }
