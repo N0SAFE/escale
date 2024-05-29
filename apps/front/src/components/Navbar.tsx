@@ -4,13 +4,19 @@ import React, { useState } from 'react'
 import { Button } from './ui/button'
 import { cn } from '@/lib/utils'
 import { sendFlowers } from '@/fonts/index'
+import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     return (
         <nav className="md:py-16">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="flex h-16 justify-center">
+                <div className="flex h-16 justify-between md:justify-center">
+                    <button className="invisible p-2  md:hidden">
+                        <span className="sr-only">Open main menu</span>
+                        <MenuIcon className="block h-6 w-6" />
+                        <XIcon className="hidden h-6 w-6" />
+                    </button>
                     <div className="flex">
                         <div className="-ml-2 mr-6 flex items-center">
                             <Link
@@ -32,7 +38,34 @@ export default function Navbar() {
                         <FlagIcon className="h-6 w-6 text-white" />
                     </div> */}
                     <div className="-mr-2 flex items-center md:hidden">
-                        <Button
+                        <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+                            <SheetTrigger asChild>
+                                <button
+                                    className="p-2"
+                                    onClick={() => setIsMenuOpen(true)}
+                                >
+                                    <span className="sr-only">
+                                        Open main menu
+                                    </span>
+                                    <MenuIcon className="block h-6 w-6" />
+                                    <XIcon className="hidden h-6 w-6" />
+                                </button>
+                            </SheetTrigger>
+                            <SheetContent
+                                className="w-64 bg-white p-4 shadow-lg dark:bg-gray-800"
+                                side="right"
+                            >
+                                <nav className="flex flex-col space-y-2">
+                                    <Links
+                                        onClick={() => {
+                                            setIsMenuOpen(false)
+                                        }}
+                                        className="px-3 py-2"
+                                    />
+                                </nav>
+                            </SheetContent>
+                        </Sheet>
+                        {/* <Button
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                             aria-controls="mobile-menu"
                             aria-expanded="false"
@@ -42,23 +75,8 @@ export default function Navbar() {
                             <span className="sr-only">Open main menu</span>
                             <MenuIcon className="block h-6 w-6" />
                             <XIcon className="hidden h-6 w-6" />
-                        </Button>
+                        </Button> */}
                     </div>
-                </div>
-            </div>
-            <div
-                className={`absolute w-screen bg-[#8C6750] md:hidden ${
-                    isMenuOpen ? '' : 'hidden'
-                }`}
-                id="mobile-menu"
-            >
-                <div className="flex flex-col space-y-1 px-2 pb-3 pt-2 sm:px-3">
-                    <Links
-                        onClick={() => {
-                            setIsMenuOpen(false)
-                        }}
-                        className="px-3 py-2"
-                    />
                 </div>
             </div>
         </nav>
