@@ -17,7 +17,7 @@ import * as fs from 'fs'
 import Logger from '@ioc:Adonis/Core/Logger'
 
 export default class IndexSeeder extends BaseSeeder {
-  private async runSeeder (Seeders: typeof BaseSeeder | (typeof BaseSeeder)[]) {
+  private async runSeeder(Seeders: typeof BaseSeeder | (typeof BaseSeeder)[]) {
     if (!Array.isArray(Seeders)) {
       Seeders = [Seeders]
     }
@@ -40,7 +40,7 @@ export default class IndexSeeder extends BaseSeeder {
     }
   }
 
-  public async clearDrive () {
+  public async clearDrive() {
     Logger.info('Clearing drive')
     Object.values(drive.disks).forEach((disk) => {
       try {
@@ -52,7 +52,7 @@ export default class IndexSeeder extends BaseSeeder {
     })
   }
 
-  public async run () {
+  public async run() {
     await this.clearDrive()
     await this.runSeeder([
       User,

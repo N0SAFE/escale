@@ -29,11 +29,11 @@ export class ImageRessourcePutDto extends BaseDto {
   @Type(() => ImageRessourcePutFilesDto)
   public _images: ImageRessourcePutFilesDto
 
-  public get after () {
+  public get after() {
     return new ImageRessourcePutDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({ body: request.body(), query: request.qs(), _images: request.allFiles() })
   }
 }
@@ -41,14 +41,15 @@ export class ImageRessourcePutDto extends BaseDto {
 export class ImageRessourcePutBodyDtoAfter implements AsSameProperties<ImageRessourcePutBodyDto> {}
 
 export class ImageRessourcePutQueryDtoAfter
-implements AsSameProperties<ImageRessourcePutQueryDto> {}
+  implements AsSameProperties<ImageRessourcePutQueryDto> {}
 
 export class ImageRessourcePutFilesDtoAfter
-implements AsSameProperties<ImageRessourcePutFilesDto> {}
+  implements AsSameProperties<ImageRessourcePutFilesDto> {}
 
 export class ImageRessourcePutDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<ImageRessourcePutDto, 'after'>> {
+  implements AsSameProperties<Omit<ImageRessourcePutDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

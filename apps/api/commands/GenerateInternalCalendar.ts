@@ -35,7 +35,7 @@ export default class GenerateInternalCalendar extends BaseCommand {
     stayAlive: false,
   }
 
-  public async run () {
+  public async run() {
     const spas = await Spa.query().preload('internalCalendar').exec()
     await Promise.all(
       spas.map(async (spa) => {

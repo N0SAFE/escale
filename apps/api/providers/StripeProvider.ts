@@ -24,9 +24,9 @@ import Env from '@ioc:Adonis/Core/Env'
 export default class StripeProvider {
   private stripe: Stripe
   private webhooks: Stripe.WebhookEndpoint[] = []
-  constructor (protected app: ApplicationContract) {}
+  constructor(protected app: ApplicationContract) {}
 
-  public register () {
+  public register() {
     const { stripeConfig } = this.app.config.get('stripe')
     this.stripe = new Stripe(stripeConfig.secretKey)
     this.app.container.singleton('Stripe', () => {
@@ -34,15 +34,15 @@ export default class StripeProvider {
     })
   }
 
-  public async boot () {
+  public async boot() {
     // All bindings are ready, feel free to use them
   }
 
-  public async ready () {
+  public async ready() {
     const webhooks = this.webhooks
     const self = this
     const stripe = this.stripe
-    function t () {
+    function t() {
       self.removeWebhooks(stripe, webhooks)
       process.off('SIGINT', t)
       // process.off('SIGQUIT', t)
@@ -58,18 +58,18 @@ export default class StripeProvider {
     }
   }
 
-  public async shutdown () {
+  public async shutdown() {
     this.removeWebhooks(this.stripe, this.webhooks)
   }
 
-  private async removeWebhooks (stripe: Stripe, webhooks: Stripe.WebhookEndpoint[]) {
+  private async removeWebhooks(stripe: Stripe, webhooks: Stripe.WebhookEndpoint[]) {
     webhooks.forEach((endpoint) => {
       this.app.logger.info('removing webhook', endpoint.id)
       stripe.webhookEndpoints.del(endpoint.id)
     })
   }
 
-  private async createWebhooks (stripe: Stripe) {
+  private async createWebhooks(stripe: Stripe) {
     ;(await stripe.webhookEndpoints.list()).data.forEach(async (webhook) => {
       if (webhook.url === Env.get('APP_URL') + '/webhook/stripe') {
         this.app.logger.info('removing webhook', webhook.id)
@@ -88,7 +88,7 @@ export default class StripeProvider {
     this.webhooks.push(wehbook)
     const webhooks = this.webhooks
     const self = this
-    function t () {
+    function t() {
       self.removeWebhooks(stripe, webhooks)
       process.off('SIGINT', t)
       // process.off('SIGQUIT', t)

@@ -32,7 +32,7 @@ export default class SpaImage extends AppBaseModel {
   public order: number
 
   @beforeFetch()
-  public static async preloadImage (query) {
+  public static async preloadImage(query) {
     query.orderBy('order', 'asc').preload('image')
   }
 }

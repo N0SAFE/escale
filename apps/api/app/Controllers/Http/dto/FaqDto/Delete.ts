@@ -49,11 +49,11 @@ export class FaqRessourceDeleteDto extends BaseDto {
   @Type(() => FaqRessourceDeleteFilesDto)
   public files: FaqRessourceDeleteFilesDto
 
-  public get after () {
+  public get after() {
     return new FaqRessourceDeleteDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -64,13 +64,14 @@ export class FaqRessourceDeleteDto extends BaseDto {
 }
 
 export class FaqRessourceDeleteBodyDtoAfter
-implements AsSameProperties<FaqRessourceDeleteBodyDto> {}
+  implements AsSameProperties<FaqRessourceDeleteBodyDto> {}
 
 export class FaqRessourceDeleteQueryDtoAfter
-implements AsSameProperties<FaqRessourceDeleteQueryDto> {}
+  implements AsSameProperties<FaqRessourceDeleteQueryDto> {}
 
 export class FaqRessourceDeleteParamsDtoAfter
-implements AsSameProperties<FaqRessourceDeleteParamsDto> {
+  implements AsSameProperties<FaqRessourceDeleteParamsDto>
+{
   @Transform(({ value }) => Faq.findOrFail(value))
   @AwaitPromise
   public id: Faq
@@ -78,12 +79,13 @@ implements AsSameProperties<FaqRessourceDeleteParamsDto> {
 
 @Exclude()
 export class FaqRessourceDeleteFilesDtoAfter
-implements AsSameProperties<FaqRessourceDeleteFilesDto> {}
+  implements AsSameProperties<FaqRessourceDeleteFilesDto> {}
 
 @SkipTransform([['files', FaqRessourceDeleteFilesDtoAfter]])
 export class FaqRessourceDeleteDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<FaqRessourceDeleteDto, 'after'>> {
+  implements AsSameProperties<Omit<FaqRessourceDeleteDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

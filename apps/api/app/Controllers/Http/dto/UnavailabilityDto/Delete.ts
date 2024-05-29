@@ -40,11 +40,11 @@ export class UnavailabilityRessourceDeleteDto extends BaseDto {
   @Type(() => UnavailabilityRessourceDeleteFilesDto)
   public files: UnavailabilityRessourceDeleteFilesDto
 
-  public get after () {
+  public get after() {
     return new UnavailabilityRessourceDeleteDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -55,22 +55,23 @@ export class UnavailabilityRessourceDeleteDto extends BaseDto {
 }
 
 export class UnavailabilityRessourceDeleteBodyDtoAfter
-implements AsSameProperties<UnavailabilityRessourceDeleteBodyDto> {}
+  implements AsSameProperties<UnavailabilityRessourceDeleteBodyDto> {}
 
 export class UnavailabilityRessourceDeleteQueryDtoAfter
-implements AsSameProperties<UnavailabilityRessourceDeleteQueryDto> {}
+  implements AsSameProperties<UnavailabilityRessourceDeleteQueryDto> {}
 
 export class UnavailabilityRessourceDeleteParamsDtoAfter
-implements AsSameProperties<UnavailabilityRessourceDeleteParamsDto> {}
+  implements AsSameProperties<UnavailabilityRessourceDeleteParamsDto> {}
 
 @Exclude()
 export class UnavailabilityRessourceDeleteFilesDtoAfter
-implements AsSameProperties<UnavailabilityRessourceDeleteFilesDto> {}
+  implements AsSameProperties<UnavailabilityRessourceDeleteFilesDto> {}
 
 @SkipTransform([['files', UnavailabilityRessourceDeleteFilesDtoAfter]])
 export class UnavailabilityRessourceDeleteDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<UnavailabilityRessourceDeleteDto, 'after'>> {
+  implements AsSameProperties<Omit<UnavailabilityRessourceDeleteDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

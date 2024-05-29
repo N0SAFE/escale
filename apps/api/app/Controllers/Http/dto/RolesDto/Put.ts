@@ -40,11 +40,11 @@ export class RolesRessourcePutDto extends BaseDto {
   @Type(() => RolesRessourcePutFilesDto)
   public files: RolesRessourcePutFilesDto
 
-  public get after () {
+  public get after() {
     return new RolesRessourcePutDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -57,19 +57,20 @@ export class RolesRessourcePutDto extends BaseDto {
 export class RolesRessourcePutBodyDtoAfter implements AsSameProperties<RolesRessourcePutBodyDto> {}
 
 export class RolesRessourcePutQueryDtoAfter
-implements AsSameProperties<RolesRessourcePutQueryDto> {}
+  implements AsSameProperties<RolesRessourcePutQueryDto> {}
 
 export class RolesRessourcePutParamsDtoAfter
-implements AsSameProperties<RolesRessourcePutParamsDto> {}
+  implements AsSameProperties<RolesRessourcePutParamsDto> {}
 
 @Exclude()
 export class RolesRessourcePutFilesDtoAfter
-implements AsSameProperties<RolesRessourcePutFilesDto> {}
+  implements AsSameProperties<RolesRessourcePutFilesDto> {}
 
 @SkipTransform([['files', RolesRessourcePutFilesDtoAfter]])
 export class RolesRessourcePutDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<RolesRessourcePutDto, 'after'>> {
+  implements AsSameProperties<Omit<RolesRessourcePutDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

@@ -51,7 +51,7 @@ export default class Home extends AppBaseModel {
 
   @beforeFetch()
   @beforeFind()
-  public static preload (query) {
+  public static preload(query) {
     query
       .preload('commentBackgroundImage')
       .preload('image')

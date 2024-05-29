@@ -5,7 +5,7 @@ import ExternalCalendarEvent from 'App/Models/ExternalCalendarEvent'
 import { ExternalCalendarEventsRessourceGetCollectionDto } from './dto/ExternalCalendarEventsDto/GetCollection'
 
 export default class ExternalCalendarEventsController {
-  public async index ({ response, request }: HttpContextContract) {
+  public async index({ response, request }: HttpContextContract) {
     const dto = ExternalCalendarEventsRessourceGetCollectionDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -23,7 +23,7 @@ export default class ExternalCalendarEventsController {
     return response.ok(await ExternalCalendarEventsQuery.exec())
   }
 
-  public async getBlockedDates ({ request, response }: HttpContextContract) {
+  public async getBlockedDates({ request, response }: HttpContextContract) {
     const dto = ExternalCalendarEventsRessourceBlockedDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -42,7 +42,7 @@ export default class ExternalCalendarEventsController {
     return response.ok(blockedEvents)
   }
 
-  public async getReservedDates ({ request, response }: HttpContextContract) {
+  public async getReservedDates({ request, response }: HttpContextContract) {
     const dto = ExternalCalendarEventsRessourceReservedDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {

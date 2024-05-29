@@ -17,7 +17,7 @@ export const strategy = {
 
 type Properties = string | [string, (typeof strategy)[keyof typeof strategy]]
 
-function searchProperty (
+function searchProperty(
   properties: Properties[] | undefined,
   key: string,
   query: ModelQueryBuilderContract<LucidModel>
@@ -40,13 +40,13 @@ function searchProperty (
 }
 
 // searchFilter is actually broken and will work when fixed and after find how to apply nested logic to the main
-export default function SearchFilter<T extends NormalizeConstructor<typeof CustomBaseModelFilter>> (
+export default function SearchFilter<T extends NormalizeConstructor<typeof CustomBaseModelFilter>>(
   properties?: Properties[]
 ) {
-  return function searchFilterMixin (Base: T) {
+  return function searchFilterMixin(Base: T) {
     return class SearchFilterMixin extends Base {
       public $loadedRelation: Relation
-      constructor (...args: any[]) {
+      constructor(...args: any[]) {
         super(...args)
 
         this.addAfter((query, input) => {

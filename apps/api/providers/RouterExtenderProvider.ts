@@ -20,13 +20,13 @@ import type { ApplicationContract } from '@ioc:Adonis/Core/Application'
 |
 */
 export default class RouterExtenderProvider {
-  constructor (protected app: ApplicationContract) {}
+  constructor(protected app: ApplicationContract) {}
 
-  public register () {
+  public register() {
     // Register your own bindings
   }
 
-  public async boot () {
+  public async boot() {
     // All bindings are ready, feel free to use them
 
     const Route = this.app.container.use('Adonis/Core/Route')
@@ -46,11 +46,11 @@ export default class RouterExtenderProvider {
     })
   }
 
-  public async ready () {
+  public async ready() {
     // App is ready
   }
 
-  public async shutdown () {
+  public async shutdown() {
     // Cleanup, since app is going down
   }
 }

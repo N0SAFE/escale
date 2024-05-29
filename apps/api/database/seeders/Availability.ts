@@ -5,7 +5,7 @@ import Spa from 'App/Models/Spa'
 import { DateTime } from 'luxon'
 
 export default class AvailabilitySeeder extends BaseSeeder {
-  public async run () {
+  public async run() {
     const availabilities: Availability[] = []
     const startDate = DateTime.utc().minus({ days: 4 }).startOf('day')
     const endDate = startDate.plus({ days: 34 })

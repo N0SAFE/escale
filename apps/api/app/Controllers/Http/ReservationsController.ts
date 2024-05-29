@@ -18,12 +18,12 @@ import { DateTime } from 'luxon'
 
 @inject()
 export default class ReservationsController {
-  constructor (
+  constructor(
     protected reservationService: ReservationService,
     protected availabilityService: AvailabilityService
   ) {}
 
-  public async index ({ request, response }: HttpContextContract) {
+  public async index({ request, response }: HttpContextContract) {
     const dto = ReservationRessourceGetCollectionDto.fromRequest(request)
 
     const error = await dto.validate()
@@ -48,9 +48,9 @@ export default class ReservationsController {
     return response.ok(await reservationQuery.exec())
   }
 
-  public async create ({}: HttpContextContract) {}
+  public async create({}: HttpContextContract) {}
 
-  public async store ({ request, response }: HttpContextContract) {
+  public async store({ request, response }: HttpContextContract) {
     const dto = ReservationRessourcePostDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -79,7 +79,7 @@ export default class ReservationsController {
     return response.ok(reservation)
   }
 
-  public async show ({ request, response }: HttpContextContract) {
+  public async show({ request, response }: HttpContextContract) {
     const dto = ReservationRessourceGetDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -90,9 +90,9 @@ export default class ReservationsController {
     return response.ok(params.id)
   }
 
-  public async edit ({}: HttpContextContract) {}
+  public async edit({}: HttpContextContract) {}
 
-  public async update ({ request, response }: HttpContextContract) {
+  public async update({ request, response }: HttpContextContract) {
     const dto = ReservationRessourcePatchDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -125,7 +125,7 @@ export default class ReservationsController {
     return response.ok(reservation)
   }
 
-  public async destroy ({ request, response }: HttpContextContract) {
+  public async destroy({ request, response }: HttpContextContract) {
     const dto = ReservationRessourceDeleteDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -140,7 +140,7 @@ export default class ReservationsController {
     return response.ok({ message: 'Reservation deleted' })
   }
 
-  public async availableDates ({ request, response }: HttpContextContract) {
+  public async availableDates({ request, response }: HttpContextContract) {
     const dto = new ReservationsRessourceAvailableDatesDto({
       body: request.body(),
       query: request.qs(),
@@ -184,7 +184,7 @@ export default class ReservationsController {
     })
   }
 
-  public async price ({ request, response }: HttpContextContract) {
+  public async price({ request, response }: HttpContextContract) {
     const dto = ReservationRessourcePriceDto.fromRequest(request)
 
     const error = await dto.validate()
@@ -211,7 +211,7 @@ export default class ReservationsController {
     })
   }
 
-  public async getReservableDates ({ request, response }: HttpContextContract) {
+  public async getReservableDates({ request, response }: HttpContextContract) {
     const dto = ReservationRessourceReservableDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -241,7 +241,7 @@ export default class ReservationsController {
     )
   }
 
-  public async getUnreservable ({ request, response }: HttpContextContract) {
+  public async getUnreservable({ request, response }: HttpContextContract) {
     const dto = ReservationRessourceUnreservableDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -334,7 +334,7 @@ export default class ReservationsController {
     })
   }
 
-  public async getClosestUnreservableDates ({ request, response }: HttpContextContract) {
+  public async getClosestUnreservableDates({ request, response }: HttpContextContract) {
     const dto = ReservationRessourceClosestUnreservableDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -437,7 +437,7 @@ export default class ReservationsController {
         .first()
     }
 
-    function getClosestDate (...dates: (DateTime | undefined)[]) {
+    function getClosestDate(...dates: (DateTime | undefined)[]) {
       return dates.reduce<DateTime | undefined>((prev, current) => {
         if (!prev) {
           return current

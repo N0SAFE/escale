@@ -20,16 +20,16 @@ export class TagRessourceDeleteDto extends BaseDto {
   @Type(() => TagRessourceDeleteQueryDto)
   public query: TagRessourceDeleteQueryDto
 
-  public get after () {
+  public get after() {
     return new TagRessourceDeleteDtoAfter(this)
   }
 }
 
 export class TagRessourceDeleteBodyDtoAfter
-implements AsSameProperties<TagRessourceDeleteBodyDto> {}
+  implements AsSameProperties<TagRessourceDeleteBodyDto> {}
 
 export class TagRessourceDeleteQueryDtoAfter
-implements AsSameProperties<TagRessourceDeleteQueryDto> {}
+  implements AsSameProperties<TagRessourceDeleteQueryDto> {}
 
 export class TagRessourceDeleteDtoAfter extends BaseDto {
   @IsDefined()

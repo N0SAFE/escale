@@ -20,7 +20,7 @@ export class TagRessourcePatchDto extends BaseDto {
   @Type(() => TagRessourcePatchQueryDto)
   public query: TagRessourcePatchQueryDto
 
-  public get after () {
+  public get after() {
     return new TagRessourcePatchDtoAfter(this)
   }
 }
@@ -28,7 +28,7 @@ export class TagRessourcePatchDto extends BaseDto {
 export class TagRessourcePatchBodyDtoAfter implements AsSameProperties<TagRessourcePatchBodyDto> {}
 
 export class TagRessourcePatchQueryDtoAfter
-implements AsSameProperties<TagRessourcePatchQueryDto> {}
+  implements AsSameProperties<TagRessourcePatchQueryDto> {}
 
 export class TagRessourcePatchDtoAfter extends BaseDto {
   @IsDefined()

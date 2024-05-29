@@ -5,7 +5,7 @@ import AuthLoginDto from './dto/AuthDto/Login'
 import AuthRegisterDto from './dto/AuthDto/Register'
 
 export default class AuthController {
-  public async login ({ request, auth, response }: HttpContextContract) {
+  public async login({ request, auth, response }: HttpContextContract) {
     const dto = new AuthLoginDto({ body: request.body() })
     const error = await dto.validate()
     if (error.length > 0) {
@@ -55,7 +55,7 @@ export default class AuthController {
     }
   }
 
-  public async logout ({ auth, response }: HttpContextContract) {
+  public async logout({ auth, response }: HttpContextContract) {
     response.clearCookie('access_token')
     response.clearCookie('refresh_token')
     if (!auth.use('jwt').user) {
@@ -69,7 +69,7 @@ export default class AuthController {
     return response.ok({ message: 'logged out', success: true })
   }
 
-  public async register ({ auth, request, response }: HttpContextContract) {
+  public async register({ auth, request, response }: HttpContextContract) {
     const dto = new AuthRegisterDto({ body: request.body() })
     const error = await dto.validate()
     if (error.length > 0) {
@@ -110,7 +110,7 @@ export default class AuthController {
     return response.created({ ...jwt.toJSON(), success: true })
   }
 
-  public async refresh ({ auth, request, response }: HttpContextContract) {
+  public async refresh({ auth, request, response }: HttpContextContract) {
     const refreshToken = request.cookie('refresh_token') || request.header('refresh_token')
     if (!refreshToken) {
       return response.unauthorized({ message: 'no refresh token provided', success: false })
@@ -135,7 +135,7 @@ export default class AuthController {
     }
   }
 
-  public async whoami ({ auth, response }: HttpContextContract) {
+  public async whoami({ auth, response }: HttpContextContract) {
     try {
       return response.ok({
         user: auth.use('jwt').user,

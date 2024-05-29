@@ -3,13 +3,13 @@ import Home from 'App/Models/Home'
 import { HomeRessourcePatchDto } from './dto/HomeDto/Patch'
 
 export default class HomeController {
-  public async index ({}: HttpContextContract) {
+  public async index({}: HttpContextContract) {
     return await Home.query().firstOrFail()
   }
 
-  public async edit ({}: HttpContextContract) {}
+  public async edit({}: HttpContextContract) {}
 
-  public async update ({ response, request }: HttpContextContract) {
+  public async update({ response, request }: HttpContextContract) {
     const dto = await HomeRessourcePatchDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {

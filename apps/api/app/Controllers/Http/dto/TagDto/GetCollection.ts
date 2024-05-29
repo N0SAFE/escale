@@ -20,16 +20,16 @@ export class TagRessourceGetCollectionDto extends BaseDto {
   @Type(() => TagRessourceGetCollectionQueryDto)
   public query: TagRessourceGetCollectionQueryDto
 
-  public get after () {
+  public get after() {
     return new TagRessourceGetCollectionDtoAfter(this)
   }
 }
 
 export class TagRessourceGetCollectionBodyDtoAfter
-implements AsSameProperties<TagRessourceGetCollectionBodyDto> {}
+  implements AsSameProperties<TagRessourceGetCollectionBodyDto> {}
 
 export class TagRessourceGetCollectionQueryDtoAfter
-implements AsSameProperties<TagRessourceGetCollectionQueryDto> {}
+  implements AsSameProperties<TagRessourceGetCollectionQueryDto> {}
 
 export class TagRessourceGetCollectionDtoAfter extends BaseDto {
   @IsDefined()

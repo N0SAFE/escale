@@ -25,7 +25,7 @@ export default class Video extends compose(AppBaseModel, Filterable) {
   public sources: HasMany<typeof VideoSource>
 
   @computed()
-  public get paths () {
+  public get paths() {
     if (!this.sources) {
       return undefined
     }
@@ -35,7 +35,7 @@ export default class Video extends compose(AppBaseModel, Filterable) {
   }
 
   @computed()
-  public get serverFileNames () {
+  public get serverFileNames() {
     if (!this.sources) {
       return undefined
     }
@@ -46,7 +46,7 @@ export default class Video extends compose(AppBaseModel, Filterable) {
 
   @beforeFind()
   @beforeFetch()
-  public static async preloadFile (query) {
+  public static async preloadFile(query) {
     query.preloadChain('sources')
   }
 }

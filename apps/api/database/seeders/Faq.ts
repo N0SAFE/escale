@@ -2,7 +2,7 @@ import BaseSeeder from '@ioc:Adonis/Lucid/Seeder'
 import Faq from 'App/Models/Faq'
 
 export default class FaqSeeder extends BaseSeeder {
-  public async run () {
+  public async run() {
     await Faq.createMany([
       {
         question: 'Is it accessible ?',
@@ -11,12 +11,12 @@ export default class FaqSeeder extends BaseSeeder {
       },
       {
         question: 'Is it styled?',
-        answer: 'Yes. It comes with default styles that matches the other components\' aesthetic.',
+        answer: "Yes. It comes with default styles that matches the other components' aesthetic.",
         rank: 2,
       },
       {
         question: 'Is it animated?',
-        answer: 'Yes. It\'s animated by default, but you can disable it if you prefer.',
+        answer: "Yes. It's animated by default, but you can disable it if you prefer.",
         rank: 3,
       },
     ])

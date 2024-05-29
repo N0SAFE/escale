@@ -14,16 +14,16 @@ import { SpaRessourceDeleteDto } from './dto/SpaDto/Delete'
 import { SpaRessourceRestoreDto } from './dto/SpaDto/Restore'
 
 export default class SpasController {
-  public async index ({ response, request }: HttpContextContract) {
+  public async index({ response, request }: HttpContextContract) {
     const spasQuery = Spa.filter(request.qs())
     spasQuery.preload('externalCalendar')
 
     return response.ok(await spasQuery.exec())
   }
 
-  public async create ({}: HttpContextContract) {}
+  public async create({}: HttpContextContract) {}
 
-  public async store ({ request, response }: HttpContextContract) {
+  public async store({ request, response }: HttpContextContract) {
     const dto = SpaRessourcePostDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -51,7 +51,7 @@ export default class SpasController {
     return response.ok(spa)
   }
 
-  public async show ({ response, request }: HttpContextContract) {
+  public async show({ response, request }: HttpContextContract) {
     const dto = SpaRessourceGetDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -68,9 +68,9 @@ export default class SpasController {
     return response.ok(spa)
   }
 
-  public async edit ({}: HttpContextContract) {}
+  public async edit({}: HttpContextContract) {}
 
-  public async update ({ request, response }: HttpContextContract) {
+  public async update({ request, response }: HttpContextContract) {
     const dto = SpaRessourcePatchDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -103,7 +103,7 @@ export default class SpasController {
     }
   }
 
-  public async destroy ({ response, request }: HttpContextContract) {
+  public async destroy({ response, request }: HttpContextContract) {
     const dto = SpaRessourceDeleteDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -118,7 +118,7 @@ export default class SpasController {
     return response.ok({ message: 'Spa deleted' })
   }
 
-  public async restore ({ response, request }: HttpContextContract) {
+  public async restore({ response, request }: HttpContextContract) {
     const dto = SpaRessourceRestoreDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -133,11 +133,11 @@ export default class SpasController {
     return response.ok({ message: 'Spa restored' })
   }
 
-  public async getImages ({ request }: HttpContextContract) {
+  public async getImages({ request }: HttpContextContract) {
     return await SpaImage.query().where('spa_id', request.params().spa).preload('image')
   }
 
-  public async postImages ({ request, response }: HttpContextContract) {
+  public async postImages({ request, response }: HttpContextContract) {
     const dto = SpaImageRessourcePostDto.fromRequest(request)
 
     const error = await dto.validate()
@@ -172,7 +172,7 @@ export default class SpasController {
     return response.ok(spa.spaImages)
   }
 
-  public async sortImages ({ request, response }: HttpContextContract) {
+  public async sortImages({ request, response }: HttpContextContract) {
     const dto = SpaImageRessourceSortDto.fromRequest(request)
 
     const error = await dto.validate()
@@ -199,7 +199,7 @@ export default class SpasController {
     return response.ok(spaImages)
   }
 
-  public async deleteImage ({ request, response }: HttpContextContract) {
+  public async deleteImage({ request, response }: HttpContextContract) {
     const dto = SpaImageRessourceDeleteDto.fromRequest(request)
 
     const error = await dto.validate()

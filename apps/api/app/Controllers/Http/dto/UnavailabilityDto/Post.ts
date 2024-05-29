@@ -40,11 +40,11 @@ export class UnavailabilityRessourcePostDto extends BaseDto {
   @Type(() => UnavailabilityRessourcePostFilesDto)
   public files: UnavailabilityRessourcePostFilesDto
 
-  public get after () {
+  public get after() {
     return new UnavailabilityRessourcePostDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -55,22 +55,23 @@ export class UnavailabilityRessourcePostDto extends BaseDto {
 }
 
 export class UnavailabilityRessourcePostBodyDtoAfter
-implements AsSameProperties<UnavailabilityRessourcePostBodyDto> {}
+  implements AsSameProperties<UnavailabilityRessourcePostBodyDto> {}
 
 export class UnavailabilityRessourcePostQueryDtoAfter
-implements AsSameProperties<UnavailabilityRessourcePostQueryDto> {}
+  implements AsSameProperties<UnavailabilityRessourcePostQueryDto> {}
 
 export class UnavailabilityRessourcePostParamsDtoAfter
-implements AsSameProperties<UnavailabilityRessourcePostParamsDto> {}
+  implements AsSameProperties<UnavailabilityRessourcePostParamsDto> {}
 
 @Exclude()
 export class UnavailabilityRessourcePostFilesDtoAfter
-implements AsSameProperties<UnavailabilityRessourcePostFilesDto> {}
+  implements AsSameProperties<UnavailabilityRessourcePostFilesDto> {}
 
 @SkipTransform([['files', UnavailabilityRessourcePostFilesDtoAfter]])
 export class UnavailabilityRessourcePostDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<UnavailabilityRessourcePostDto, 'after'>> {
+  implements AsSameProperties<Omit<UnavailabilityRessourcePostDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

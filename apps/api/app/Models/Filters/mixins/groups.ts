@@ -8,11 +8,11 @@ import { Exception } from '@adonisjs/core/build/standalone'
 // todo in the model you can define a $defaultGroups that will be used in addition to the groups given in the filter
 export default function groupsFilterMixin<
   T extends NormalizeConstructor<typeof CustomBaseModelFilter>
-> (Base: T) {
+>(Base: T) {
   return class GroupsFilterMixin extends Base {
     public $loadedRelation: Relation
 
-    constructor (...args: any[]) {
+    constructor(...args: any[]) {
       super(...args)
       if (!this.$afters || !this.$befores) {
         throw new Exception(

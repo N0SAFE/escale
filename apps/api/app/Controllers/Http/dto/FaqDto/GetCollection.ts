@@ -40,11 +40,11 @@ export class FaqRessourceGetCollectionDto extends BaseDto {
   @Type(() => FaqRessourceGetCollectionFilesDto)
   public files: FaqRessourceGetCollectionFilesDto
 
-  public get after () {
+  public get after() {
     return new FaqRessourceGetCollectionDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -55,22 +55,23 @@ export class FaqRessourceGetCollectionDto extends BaseDto {
 }
 
 export class FaqRessourceGetCollectionBodyDtoAfter
-implements AsSameProperties<FaqRessourceGetCollectionBodyDto> {}
+  implements AsSameProperties<FaqRessourceGetCollectionBodyDto> {}
 
 export class FaqRessourceGetCollectionQueryDtoAfter
-implements AsSameProperties<FaqRessourceGetCollectionQueryDto> {}
+  implements AsSameProperties<FaqRessourceGetCollectionQueryDto> {}
 
 export class FaqRessourceGetCollectionParamsDtoAfter
-implements AsSameProperties<FaqRessourceGetCollectionParamsDto> {}
+  implements AsSameProperties<FaqRessourceGetCollectionParamsDto> {}
 
 @Exclude()
 export class FaqRessourceGetCollectionFilesDtoAfter
-implements AsSameProperties<FaqRessourceGetCollectionFilesDto> {}
+  implements AsSameProperties<FaqRessourceGetCollectionFilesDto> {}
 
 @SkipTransform([['files', FaqRessourceGetCollectionFilesDtoAfter]])
 export class FaqRessourceGetCollectionDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<FaqRessourceGetCollectionDto, 'after'>> {
+  implements AsSameProperties<Omit<FaqRessourceGetCollectionDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

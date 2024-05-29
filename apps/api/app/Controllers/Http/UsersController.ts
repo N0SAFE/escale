@@ -8,7 +8,7 @@ import { UsersRessourceGetCollectionDto } from './dto/UsersDto/GetCollection'
 import { UsersRessourcePostDto } from './dto/UsersDto/Post'
 
 export default class UsersController {
-  public async index ({ request, response }: HttpContextContract) {
+  public async index({ request, response }: HttpContextContract) {
     const dto = UsersRessourceGetCollectionDto.fromRequest(request)
     const error = await dto.validate()
 
@@ -41,9 +41,9 @@ export default class UsersController {
     // }) @flag server-side-pagination
   }
 
-  public async create ({}: HttpContextContract) {}
+  public async create({}: HttpContextContract) {}
 
-  public async store ({ request, response }: HttpContextContract) {
+  public async store({ request, response }: HttpContextContract) {
     const dto = UsersRessourcePostDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -54,7 +54,7 @@ export default class UsersController {
     return response.ok(await User.create(body))
   }
 
-  public async show ({ request, response }: HttpContextContract) {
+  public async show({ request, response }: HttpContextContract) {
     const dto = UsersRessourceGetDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -67,9 +67,9 @@ export default class UsersController {
     return id
   }
 
-  public async edit ({}: HttpContextContract) {}
+  public async edit({}: HttpContextContract) {}
 
-  public async update ({ request, response, auth, params }: HttpContextContract) {
+  public async update({ request, response, auth, params }: HttpContextContract) {
     const adminRole = await Role.query().where('label', 'admin').firstOrFail()
     const connectedUser = auth.use('jwt').user as User
 
@@ -97,7 +97,7 @@ export default class UsersController {
     return response.ok(user)
   }
 
-  public async destroy ({ request, response }: HttpContextContract) {
+  public async destroy({ request, response }: HttpContextContract) {
     const dto = UsersRessourceDeleteDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {

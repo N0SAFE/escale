@@ -56,11 +56,11 @@ export class ServiceRessourcePostDto extends BaseDto {
   @Type(() => ServiceRessourcePostFilesDto)
   public files: ServiceRessourcePostFilesDto
 
-  public get after () {
+  public get after() {
     return new ServiceRessourcePostDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -71,7 +71,8 @@ export class ServiceRessourcePostDto extends BaseDto {
 }
 
 export class ServiceRessourcePostBodyDtoAfter
-implements AsSameProperties<ServiceRessourcePostBodyDto> {
+  implements AsSameProperties<ServiceRessourcePostBodyDto>
+{
   public label: string
   public description: string
 
@@ -81,19 +82,20 @@ implements AsSameProperties<ServiceRessourcePostBodyDto> {
 }
 
 export class ServiceRessourcePostQueryDtoAfter
-implements AsSameProperties<ServiceRessourcePostQueryDto> {}
+  implements AsSameProperties<ServiceRessourcePostQueryDto> {}
 
 export class ServiceRessourcePostParamsDtoAfter
-implements AsSameProperties<ServiceRessourcePostParamsDto> {}
+  implements AsSameProperties<ServiceRessourcePostParamsDto> {}
 
 @Exclude()
 export class ServiceRessourcePostFilesDtoAfter
-implements AsSameProperties<ServiceRessourcePostFilesDto> {}
+  implements AsSameProperties<ServiceRessourcePostFilesDto> {}
 
 @SkipTransform([['files', ServiceRessourcePostFilesDtoAfter]])
 export class ServiceRessourcePostDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<ServiceRessourcePostDto, 'after'>> {
+  implements AsSameProperties<Omit<ServiceRessourcePostDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

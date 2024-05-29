@@ -49,11 +49,11 @@ export class ImageRessourceDeleteDto extends BaseDto {
   @Type(() => ImageRessourceDeleteFilesDto)
   public files: ImageRessourceDeleteFilesDto
 
-  public get after () {
+  public get after() {
     return new ImageRessourceDeleteDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -64,13 +64,14 @@ export class ImageRessourceDeleteDto extends BaseDto {
 }
 
 export class ImageRessourceDeleteBodyDtoAfter
-implements AsSameProperties<ImageRessourceDeleteBodyDto> {}
+  implements AsSameProperties<ImageRessourceDeleteBodyDto> {}
 
 export class ImageRessourceDeleteQueryDtoAfter
-implements AsSameProperties<ImageRessourceDeleteQueryDto> {}
+  implements AsSameProperties<ImageRessourceDeleteQueryDto> {}
 
 export class ImageRessourceDeleteParamsDtoAfter
-implements AsSameProperties<ImageRessourceDeleteParamsDto> {
+  implements AsSameProperties<ImageRessourceDeleteParamsDto>
+{
   @Transform(({ value }) => Image.findOrFail(value))
   @AwaitPromise
   public id: Image
@@ -78,12 +79,13 @@ implements AsSameProperties<ImageRessourceDeleteParamsDto> {
 
 @Exclude()
 export class ImageRessourceDeleteFilesDtoAfter
-implements AsSameProperties<ImageRessourceDeleteFilesDto> {}
+  implements AsSameProperties<ImageRessourceDeleteFilesDto> {}
 
 @SkipTransform([['files', ImageRessourceDeleteFilesDtoAfter]])
 export class ImageRessourceDeleteDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<ImageRessourceDeleteDto, 'after'>> {
+  implements AsSameProperties<Omit<ImageRessourceDeleteDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

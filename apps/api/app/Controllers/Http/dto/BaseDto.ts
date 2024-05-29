@@ -13,7 +13,7 @@ export class BaseDto {
     type: new (...args: any[]) => any | undefined
   }[]
   public customTransform: Promise<this>
-  constructor (args, disableCustomTransform = false) {
+  constructor(args, disableCustomTransform = false) {
     // to do add a generic type that is the this
     /**
      * assign all args to this but only if they are defined
@@ -54,7 +54,7 @@ export class BaseDto {
     return transform
   }
 
-  public static removeProperties<T> (
+  public static removeProperties<T>(
     props: {
       key: any
       type: new (...args: any[]) => any | undefined
@@ -69,7 +69,7 @@ export class BaseDto {
     })
   }
 
-  public static resetProperties<T> (
+  public static resetProperties<T>(
     values: any[],
     props: {
       key: any
@@ -89,12 +89,12 @@ export class BaseDto {
     })
   }
 
-  public async validate () {
+  public async validate() {
     const newInstance = this.transform()
     return await validate(newInstance, { whitelist: true, forbidUnknownValues: false })
   }
 
-  public transform (options?: ClassTransformOptions) {
+  public transform(options?: ClassTransformOptions) {
     const skipTransform = this.skipTransform
     const skipedProperties: any[] = []
     BaseDto.removeProperties(skipTransform, this, (_, __, value) => skipedProperties.push(value))
@@ -104,7 +104,7 @@ export class BaseDto {
     return newInstance
   }
 
-  public duplicate () {
+  public duplicate() {
     const skipTransform = this.skipTransform
     const skipedProperties: any[] = []
     BaseDto.removeProperties(skipTransform, this, (_, __, value) => skipedProperties.push(value))
@@ -114,7 +114,7 @@ export class BaseDto {
     return newInstance
   }
 
-  public async handleCustomTransform (duplicate): Promise<this> {
+  public async handleCustomTransform(duplicate): Promise<this> {
     const classValidatorMetadataStorage = getMetadataStorage()
     const rec = (target): Promise<any> => {
       if (!target) {

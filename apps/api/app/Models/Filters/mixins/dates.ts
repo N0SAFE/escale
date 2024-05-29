@@ -11,12 +11,12 @@ export const strategy = {
 
 type Properties = (string | [string, (typeof strategy)[keyof typeof strategy]])[]
 
-export default function DatesFilter<T extends NormalizeConstructor<typeof CustomBaseModelFilter>> (
+export default function DatesFilter<T extends NormalizeConstructor<typeof CustomBaseModelFilter>>(
   properties?: Properties
 ) {
-  return function datesFilterMixin (Base: T) {
+  return function datesFilterMixin(Base: T) {
     return class DatesFilterMixin extends Base {
-      constructor (...args: any[]) {
+      constructor(...args: any[]) {
         super(...args)
         const [query, input] = args as [
           ModelQueryBuilderContract<LucidModel, any>,

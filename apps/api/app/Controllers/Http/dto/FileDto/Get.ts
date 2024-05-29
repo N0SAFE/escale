@@ -20,7 +20,7 @@ export class FileRessourceGetDto extends BaseDto {
   @Type(() => FileRessourceGetQueryDto)
   public query: FileRessourceGetQueryDto
 
-  public get after () {
+  public get after() {
     return new FileRessourceGetDtoAfter(this)
   }
 }

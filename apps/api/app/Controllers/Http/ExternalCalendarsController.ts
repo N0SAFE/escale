@@ -3,15 +3,15 @@ import ExternalCalendar from 'App/Models/ExternalCalendar'
 import { ExternalCalendarRessourceGetDto } from './dto/ExternalCalendarDto/Get'
 
 export default class ExternalCalendarsController {
-  public async index ({ response }: HttpContextContract) {
+  public async index({ response }: HttpContextContract) {
     return response.ok(await ExternalCalendar.all())
   }
 
-  public async create ({}: HttpContextContract) {}
+  public async create({}: HttpContextContract) {}
 
-  public async store ({}: HttpContextContract) {}
+  public async store({}: HttpContextContract) {}
 
-  public async show ({ request, response }: HttpContextContract) {
+  public async show({ request, response }: HttpContextContract) {
     const dto = ExternalCalendarRessourceGetDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -22,9 +22,9 @@ export default class ExternalCalendarsController {
     return response.ok(params.id)
   }
 
-  public async edit ({}: HttpContextContract) {}
+  public async edit({}: HttpContextContract) {}
 
-  public async update ({}: HttpContextContract) {}
+  public async update({}: HttpContextContract) {}
 
-  public async destroy ({}: HttpContextContract) {}
+  public async destroy({}: HttpContextContract) {}
 }

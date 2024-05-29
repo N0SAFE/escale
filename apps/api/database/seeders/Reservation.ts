@@ -3,7 +3,7 @@ import Availability from 'App/Models/Availability'
 import Reservation from 'App/Models/Reservation'
 
 export default class ReservationSeeder extends BaseSeeder {
-  public async run () {
+  public async run() {
     const availabilities = await Availability.query().preload('spa').exec()
     const numberOfReservationsTryPerAvailability = 50
     const maxSizeOfReservations = 5

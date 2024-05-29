@@ -40,11 +40,11 @@ export class RolesRessourcePatchDto extends BaseDto {
   @Type(() => RolesRessourcePatchFilesDto)
   public files: RolesRessourcePatchFilesDto
 
-  public get after () {
+  public get after() {
     return new RolesRessourcePatchDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -55,22 +55,23 @@ export class RolesRessourcePatchDto extends BaseDto {
 }
 
 export class RolesRessourcePatchBodyDtoAfter
-implements AsSameProperties<RolesRessourcePatchBodyDto> {}
+  implements AsSameProperties<RolesRessourcePatchBodyDto> {}
 
 export class RolesRessourcePatchQueryDtoAfter
-implements AsSameProperties<RolesRessourcePatchQueryDto> {}
+  implements AsSameProperties<RolesRessourcePatchQueryDto> {}
 
 export class RolesRessourcePatchParamsDtoAfter
-implements AsSameProperties<RolesRessourcePatchParamsDto> {}
+  implements AsSameProperties<RolesRessourcePatchParamsDto> {}
 
 @Exclude()
 export class RolesRessourcePatchFilesDtoAfter
-implements AsSameProperties<RolesRessourcePatchFilesDto> {}
+  implements AsSameProperties<RolesRessourcePatchFilesDto> {}
 
 @SkipTransform([['files', RolesRessourcePatchFilesDtoAfter]])
 export class RolesRessourcePatchDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<RolesRessourcePatchDto, 'after'>> {
+  implements AsSameProperties<Omit<RolesRessourcePatchDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

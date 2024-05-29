@@ -100,7 +100,7 @@ export default class Availability extends compose(AppBaseModel, Filterable) {
 
   @beforeFind()
   @beforeFetch()
-  public static async fetchPrice (query) {
+  public static async fetchPrice(query) {
     query
       .preload('monPrice')
       .preload('tuePrice')
@@ -112,7 +112,7 @@ export default class Availability extends compose(AppBaseModel, Filterable) {
   }
 
   @beforeCreate()
-  public static async changeUnavailabilities (availability: Availability) {
+  public static async changeUnavailabilities(availability: Availability) {
     const availabilityRepository = new AvaialbilityRepository()
     const date = availability.startAt.toSQLDate()!
     // get the unavailability where the date is between the start and end
@@ -162,7 +162,7 @@ export default class Availability extends compose(AppBaseModel, Filterable) {
   }
 
   @beforeDelete()
-  public static async changeUnavailabilitiesOnDelete (availability: Availability) {
+  public static async changeUnavailabilitiesOnDelete(availability: Availability) {
     const availabilityRepository = new AvaialbilityRepository()
     const previousAvailability = await availabilityRepository.getClosestAvailabilityBefore(
       availability.startAt.toSQLDate()!,
@@ -225,7 +225,7 @@ export default class Availability extends compose(AppBaseModel, Filterable) {
   }
 
   @beforeUpdate()
-  public static async changeUnavailabilitiesOnUpdate (availability: Availability) {
+  public static async changeUnavailabilitiesOnUpdate(availability: Availability) {
     const availabilityRepository = new AvaialbilityRepository()
     const previousAvailability = await availabilityRepository.getClosestAvailabilityBefore(
       availability.startAt.toSQLDate()!,

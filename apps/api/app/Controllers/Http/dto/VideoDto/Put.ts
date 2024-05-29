@@ -40,11 +40,11 @@ export class VideoRessourcePutDto extends BaseDto {
   @Type(() => VideoRessourcePutFilesDto)
   public files: VideoRessourcePutFilesDto
 
-  public get after () {
+  public get after() {
     return new VideoRessourcePutDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -57,19 +57,20 @@ export class VideoRessourcePutDto extends BaseDto {
 export class VideoRessourcePutBodyDtoAfter implements AsSameProperties<VideoRessourcePutBodyDto> {}
 
 export class VideoRessourcePutQueryDtoAfter
-implements AsSameProperties<VideoRessourcePutQueryDto> {}
+  implements AsSameProperties<VideoRessourcePutQueryDto> {}
 
 export class VideoRessourcePutParamsDtoAfter
-implements AsSameProperties<VideoRessourcePutParamsDto> {}
+  implements AsSameProperties<VideoRessourcePutParamsDto> {}
 
 @Exclude()
 export class VideoRessourcePutFilesDtoAfter
-implements AsSameProperties<VideoRessourcePutFilesDto> {}
+  implements AsSameProperties<VideoRessourcePutFilesDto> {}
 
 @SkipTransform([['files', VideoRessourcePutFilesDtoAfter]])
 export class VideoRessourcePutDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<VideoRessourcePutDto, 'after'>> {
+  implements AsSameProperties<Omit<VideoRessourcePutDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

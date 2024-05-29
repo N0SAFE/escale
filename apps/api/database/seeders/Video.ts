@@ -6,7 +6,7 @@ import * as fs from 'fs'
 import Drive from '@ioc:Adonis/Core/Drive'
 
 export default class VideoSeeder extends BaseSeeder {
-  public async run () {
+  public async run() {
     await Promise.all(
       spaVideosData.map(async (video) => {
         const videoInstance = await Video.create({

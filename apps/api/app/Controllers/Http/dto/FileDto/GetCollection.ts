@@ -20,16 +20,16 @@ export class FileRessourceGetCollectionDto extends BaseDto {
   @Type(() => FileRessourceGetCollectionQueryDto)
   public query: FileRessourceGetCollectionQueryDto
 
-  public get after () {
+  public get after() {
     return new FileRessourceGetCollectionDtoAfter(this)
   }
 }
 
 export class FileRessourceGetCollectionBodyDtoAfter
-implements AsSameProperties<FileRessourceGetCollectionBodyDto> {}
+  implements AsSameProperties<FileRessourceGetCollectionBodyDto> {}
 
 export class FileRessourceGetCollectionQueryDtoAfter
-implements AsSameProperties<FileRessourceGetCollectionQueryDto> {}
+  implements AsSameProperties<FileRessourceGetCollectionQueryDto> {}
 
 export class FileRessourceGetCollectionDtoAfter extends BaseDto {
   @IsDefined()

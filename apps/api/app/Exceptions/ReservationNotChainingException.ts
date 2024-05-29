@@ -13,7 +13,7 @@ import { Exception } from '@adonisjs/core/build/standalone'
 |
 */
 export default class ReservationNotChainingException extends Exception {
-  constructor () {
+  constructor() {
     super('This reservation is not chaining', 400, 'E_RESERVATION_NOT_CHAINING')
   }
 }

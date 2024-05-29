@@ -9,7 +9,7 @@ import { faker } from '@faker-js/faker'
 import Drive from '@ioc:Adonis/Core/Drive'
 
 export default class HomeSeeder extends BaseSeeder {
-  public async run () {
+  public async run() {
     const video = await Video.query().where('alt', 'like', 'video lescale.mp4').firstOrFail()
     const image = await Image.query().where('alt', 'like', 'main page image').firstOrFail()
 

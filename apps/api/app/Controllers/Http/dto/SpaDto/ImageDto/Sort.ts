@@ -65,11 +65,11 @@ export class SpaImageRessourceSortDto extends BaseDto {
   @Type(() => SpaImageRessourceSortFilesDto)
   public files: SpaImageRessourceSortFilesDto
 
-  public get after () {
+  public get after() {
     return new SpaImageRessourceSortDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -80,15 +80,17 @@ export class SpaImageRessourceSortDto extends BaseDto {
 }
 
 export class SpaImageRessourceSortBodyDtoAfter
-implements AsSameProperties<SpaImageRessourceSortBodyDto> {
+  implements AsSameProperties<SpaImageRessourceSortBodyDto>
+{
   public sorted: SortedImage[]
 }
 
 export class SpaImageRessourceSortQueryDtoAfter
-implements AsSameProperties<SpaImageRessourceSortQueryDto> {}
+  implements AsSameProperties<SpaImageRessourceSortQueryDto> {}
 
 export class SpaImageRessourceSortParamsDtoAfter
-implements AsSameProperties<SpaImageRessourceSortParamsDto> {
+  implements AsSameProperties<SpaImageRessourceSortParamsDto>
+{
   @Transform(async ({ value }) => await Spa.findOrFail(value))
   @AwaitPromise
   public spa: Spa
@@ -96,12 +98,13 @@ implements AsSameProperties<SpaImageRessourceSortParamsDto> {
 
 @Exclude()
 export class SpaImageRessourceSortFilesDtoAfter
-implements AsSameProperties<SpaImageRessourceSortFilesDto> {}
+  implements AsSameProperties<SpaImageRessourceSortFilesDto> {}
 
 @SkipTransform([['files', SpaImageRessourceSortFilesDtoAfter]])
 export class SpaImageRessourceSortDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<SpaImageRessourceSortDto, 'after'>> {
+  implements AsSameProperties<Omit<SpaImageRessourceSortDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

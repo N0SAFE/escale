@@ -8,12 +8,12 @@ type Options = {
 
 @ValidatorConstraint()
 export class CustomConstraint {
-  public validate (_: any, args: ValidationArguments) {
+  public validate(_: any, args: ValidationArguments) {
     return args.constraints[1].function(_, args)
   }
 }
 
-export function Custom (properties: string | symbol | (string | symbol)[], options: Options) {
+export function Custom(properties: string | symbol | (string | symbol)[], options: Options) {
   return function (object: Object, propertyName: string) {
     registerDecorator({
       name: 'related',

@@ -79,11 +79,11 @@ export class SpaRessourcePostDto extends BaseDto {
   @Type(() => SpaRessourcePostFilesDto)
   public files: SpaRessourcePostFilesDto
 
-  public get after () {
+  public get after() {
     return new SpaRessourcePostDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -105,7 +105,7 @@ export class SpaRessourcePostBodyDtoAfter implements AsSameProperties<SpaRessour
 export class SpaRessourcePostQueryDtoAfter implements AsSameProperties<SpaRessourcePostQueryDto> {}
 
 export class SpaRessourcePostParamsDtoAfter
-implements AsSameProperties<SpaRessourcePostParamsDto> {}
+  implements AsSameProperties<SpaRessourcePostParamsDto> {}
 
 @Exclude()
 export class SpaRessourcePostFilesDtoAfter implements AsSameProperties<SpaRessourcePostFilesDto> {}
@@ -113,7 +113,8 @@ export class SpaRessourcePostFilesDtoAfter implements AsSameProperties<SpaRessou
 @SkipTransform([['files', SpaRessourcePostFilesDtoAfter]])
 export class SpaRessourcePostDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<SpaRessourcePostDto, 'after'>> {
+  implements AsSameProperties<Omit<SpaRessourcePostDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

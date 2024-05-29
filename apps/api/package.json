@@ -97,7 +97,6 @@
     "@types/ical": "^0.8.3",
     "@types/proxy-addr": "^2.0.0",
     "@types/source-map-support": "^0.5.6",
-    "@typescript-eslint/eslint-plugin": "^7.11.0",
     "adonis-preset-ts": "^2.1.0",
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^8.8.0",

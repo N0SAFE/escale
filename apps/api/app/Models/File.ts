@@ -26,7 +26,7 @@ export default class File extends AppBaseModel {
   public size: number
 
   @beforeCreate()
-  public static createUuid (file: File) {
+  public static createUuid(file: File) {
     file.uuid = uuid()
   }
 }

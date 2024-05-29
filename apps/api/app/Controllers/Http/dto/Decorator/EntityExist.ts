@@ -12,7 +12,7 @@ type CustomOptionsConstraint = {
 
 @ValidatorConstraint({ async: true })
 export class EntityExistConstraint {
-  public async validate (value: number, args: ValidationArguments) {
+  public async validate(value: number, args: ValidationArguments) {
     const [relatedModel, options] = args.constraints as [typeof BaseModel, CustomOptionsConstraint]
     if (options.nullable && value === null) {
       return true
@@ -25,7 +25,7 @@ export class EntityExistConstraint {
   }
 }
 
-export function EntityExist (model: typeof BaseModel, options?: CustomOptions) {
+export function EntityExist(model: typeof BaseModel, options?: CustomOptions) {
   return function (object: Object, propertyName: string) {
     registerDecorator({
       name: 'entityExist',

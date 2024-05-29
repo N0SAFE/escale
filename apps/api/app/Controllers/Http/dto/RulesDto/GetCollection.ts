@@ -20,16 +20,16 @@ export class RulesRessourceGetCollectionDto extends BaseDto {
   @Type(() => RulesRessourceGetCollectionQueryDto)
   public query: RulesRessourceGetCollectionQueryDto
 
-  public get after () {
+  public get after() {
     return new RulesRessourceGetCollectionDtoAfter(this)
   }
 }
 
 export class RulesRessourceGetCollectionBodyDtoAfter
-implements AsSameProperties<RulesRessourceGetCollectionBodyDto> {}
+  implements AsSameProperties<RulesRessourceGetCollectionBodyDto> {}
 
 export class RulesRessourceGetCollectionQueryDtoAfter
-implements AsSameProperties<RulesRessourceGetCollectionQueryDto> {}
+  implements AsSameProperties<RulesRessourceGetCollectionQueryDto> {}
 
 export class RulesRessourceGetCollectionDtoAfter extends BaseDto {
   @IsDefined()

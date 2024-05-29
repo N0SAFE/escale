@@ -42,7 +42,7 @@ export default class User extends compose(AppBaseModel, SoftDeletes, Filterable)
   public updatedAt: DateTime
 
   @beforeSave()
-  public static async hashPassword (user: User) {
+  public static async hashPassword(user: User) {
     if (user.$dirty.password) {
       user.password = await Hash.make(user.password)
     }
@@ -76,7 +76,7 @@ export default class User extends compose(AppBaseModel, SoftDeletes, Filterable)
 
   @beforeFetch()
   @beforeFind()
-  public static async preload (query) {
+  public static async preload(query) {
     if (query.hasAggregates) {
       return
     }

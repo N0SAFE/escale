@@ -40,7 +40,7 @@ export default class Image extends compose(AppBaseModel, Filterable) {
   public file: BelongsTo<typeof File>
 
   @computed()
-  public get path () {
+  public get path() {
     if (!this.file) {
       return undefined
     }
@@ -48,12 +48,12 @@ export default class Image extends compose(AppBaseModel, Filterable) {
   }
 
   @computed()
-  public get directory () {
+  public get directory() {
     return 'images'
   }
 
   @computed()
-  public get serverFileName () {
+  public get serverFileName() {
     if (!this.file) {
       return undefined
     }
@@ -62,12 +62,12 @@ export default class Image extends compose(AppBaseModel, Filterable) {
 
   @beforeFind()
   @beforeFetch()
-  public static async preloadFile (query) {
+  public static async preloadFile(query) {
     query.preloadChain('file')
   }
 
   @afterDelete()
-  public static async deleteFile (image: Image) {
+  public static async deleteFile(image: Image) {
     if (image.file) {
       await image.file.delete()
     }

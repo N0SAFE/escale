@@ -13,7 +13,7 @@ type Metadatas<T> = Map<keyof T, Handler[]> & {
   [customMetadataConsumerSymbol]: () => Promise<void>
 }
 
-export function defineMetadata<T extends {}, K extends keyof T> (
+export function defineMetadata<T extends {}, K extends keyof T>(
   target: T,
   key: K,
   handler: Handler

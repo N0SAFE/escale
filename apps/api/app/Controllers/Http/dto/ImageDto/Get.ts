@@ -49,11 +49,11 @@ export class ImageRessourceGetDto extends BaseDto {
   @Type(() => ImageRessourceGetFilesDto)
   public files: ImageRessourceGetFilesDto
 
-  public get after () {
+  public get after() {
     return new ImageRessourceGetDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -66,10 +66,11 @@ export class ImageRessourceGetDto extends BaseDto {
 export class ImageRessourceGetBodyDtoAfter implements AsSameProperties<ImageRessourceGetBodyDto> {}
 
 export class ImageRessourceGetQueryDtoAfter
-implements AsSameProperties<ImageRessourceGetQueryDto> {}
+  implements AsSameProperties<ImageRessourceGetQueryDto> {}
 
 export class ImageRessourceGetParamsDtoAfter
-implements AsSameProperties<ImageRessourceGetParamsDto> {
+  implements AsSameProperties<ImageRessourceGetParamsDto>
+{
   @Transform(({ value }) => Image.findOrFail(value))
   @AwaitPromise
   public id: Image
@@ -77,12 +78,13 @@ implements AsSameProperties<ImageRessourceGetParamsDto> {
 
 @Exclude()
 export class ImageRessourceGetFilesDtoAfter
-implements AsSameProperties<ImageRessourceGetFilesDto> {}
+  implements AsSameProperties<ImageRessourceGetFilesDto> {}
 
 @SkipTransform([['files', ImageRessourceGetFilesDtoAfter]])
 export class ImageRessourceGetDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<ImageRessourceGetDto, 'after'>> {
+  implements AsSameProperties<Omit<ImageRessourceGetDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

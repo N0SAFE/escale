@@ -9,7 +9,7 @@ import InternalCalendar from 'App/Models/InternalCalendar'
 
 export default class GenerateInternalCalendar extends BaseTask {
   private escaleIcalService: EscaleIcalService = new EscaleIcalService()
-  public static get schedule () {
+  public static get schedule() {
     // Use CronTimeV2 generator:
     return CronTimeV2.everyHourAt(0)
     // or just use return cron-style string (simple cron editor: crontab.guru)
@@ -18,11 +18,11 @@ export default class GenerateInternalCalendar extends BaseTask {
    * Set enable use .lock file for block run retry task
    * Lock file save to `build/tmp/adonis5-scheduler/locks/your-class-name`
    */
-  public static get useLock () {
+  public static get useLock() {
     return true
   }
 
-  public async handle () {
+  public async handle() {
     const spas = await Spa.query().preload('internalCalendar').exec()
     await Promise.all(
       spas.map(async (spa) => {

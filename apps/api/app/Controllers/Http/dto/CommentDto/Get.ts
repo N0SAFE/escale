@@ -20,16 +20,16 @@ export class CommentRessourceGetDto extends BaseDto {
   @Type(() => CommentRessourceGetQueryDto)
   public query: CommentRessourceGetQueryDto
 
-  public get after () {
+  public get after() {
     return new CommentRessourceGetDtoAfter(this)
   }
 }
 
 export class CommentRessourceGetBodyDtoAfter
-implements AsSameProperties<CommentRessourceGetBodyDto> {}
+  implements AsSameProperties<CommentRessourceGetBodyDto> {}
 
 export class CommentRessourceGetQueryDtoAfter
-implements AsSameProperties<CommentRessourceGetQueryDto> {}
+  implements AsSameProperties<CommentRessourceGetQueryDto> {}
 
 export class CommentRessourceGetDtoAfter extends BaseDto {
   @IsDefined()

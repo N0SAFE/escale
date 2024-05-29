@@ -7,7 +7,7 @@ export class ReservationsRessourcePutBodyDto extends BaseDto {}
 export class ReservationsRessourcePutQueryDto extends BaseDto {}
 
 export class ReservationsRessourcePutDto extends BaseDto {
-  constructor (args: any) {
+  constructor(args: any) {
     super(args)
     if (!args) {
       return
@@ -23,11 +23,11 @@ export class ReservationsRessourcePutDto extends BaseDto {
   @Type(() => ReservationsRessourcePutBodyDto)
   private _body: ReservationsRessourcePutBodyDto = {} as ReservationsRessourcePutBodyDto
 
-  public get body (): ReservationsRessourcePutBodyDto {
+  public get body(): ReservationsRessourcePutBodyDto {
     return this._body || new ReservationsRessourcePutBodyDto({})
   }
 
-  public set body (value: ReservationsRessourcePutBodyDto | undefined) {
+  public set body(value: ReservationsRessourcePutBodyDto | undefined) {
     this._body = new ReservationsRessourcePutBodyDto(value || {})
   }
 
@@ -37,11 +37,11 @@ export class ReservationsRessourcePutDto extends BaseDto {
   @Type(() => ReservationsRessourcePutQueryDto)
   private _query: ReservationsRessourcePutQueryDto = {} as ReservationsRessourcePutQueryDto
 
-  public get query (): ReservationsRessourcePutQueryDto {
+  public get query(): ReservationsRessourcePutQueryDto {
     return this._query || new ReservationsRessourcePutQueryDto({})
   }
 
-  public set query (value: ReservationsRessourcePutQueryDto | undefined) {
+  public set query(value: ReservationsRessourcePutQueryDto | undefined) {
     this._query = new ReservationsRessourcePutQueryDto(value || {})
   }
 }

@@ -20,17 +20,17 @@ export class AvailabilityRessourceGetDto extends BaseDto {
   @Type(() => AvailabilityRessourceGetQueryDto)
   public query: AvailabilityRessourceGetQueryDto
 
-  public get after () {
+  public get after() {
     const dto = new AvailabilityRessourceGetDtoAfter(this)
     return dto.transform({ groups: ['after'] })
   }
 }
 
 export class AvailabilityRessourceGetBodyDtoAfter
-implements AsSameProperties<AvailabilityRessourceGetBodyDto> {}
+  implements AsSameProperties<AvailabilityRessourceGetBodyDto> {}
 
 export class AvailabilityRessourceGetQueryDtoAfter
-implements AsSameProperties<AvailabilityRessourceGetQueryDto> {}
+  implements AsSameProperties<AvailabilityRessourceGetQueryDto> {}
 
 export class AvailabilityRessourceGetDtoAfter extends BaseDto {
   @IsDefined()

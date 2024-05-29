@@ -20,17 +20,17 @@ export class SpaRessourceGetCollectionDto extends BaseDto {
   @Type(() => SpaRessourceGetCollectionQueryDto)
   public query: SpaRessourceGetCollectionQueryDto
 
-  public get after () {
+  public get after() {
     const dto = new SpaRessourceGetCollectionDtoAfter(this)
     return dto.transform({ groups: ['after'] })
   }
 }
 
 export class SpaRessourceGetCollectionBodyDtoAfter
-implements AsSameProperties<SpaRessourceGetCollectionBodyDto> {}
+  implements AsSameProperties<SpaRessourceGetCollectionBodyDto> {}
 
 export class SpaRessourceGetCollectionQueryDtoAfter
-implements AsSameProperties<SpaRessourceGetCollectionQueryDto> {}
+  implements AsSameProperties<SpaRessourceGetCollectionQueryDto> {}
 
 export class SpaRessourceGetCollectionDtoAfter extends BaseDto {
   @IsDefined()

@@ -16,7 +16,7 @@ type Property = {
 
 @ValidatorConstraint()
 export class ValidateFileConstraint implements ValidatorConstraintInterface {
-  private getSize (size: number | Size) {
+  private getSize(size: number | Size) {
     if (typeof size === 'number') {
       return size
     }
@@ -37,7 +37,7 @@ export class ValidateFileConstraint implements ValidatorConstraintInterface {
         throw new Error('invalid size')
     }
   }
-  public async validate (file: MultipartFileContract, args: ValidationArguments) {
+  public async validate(file: MultipartFileContract, args: ValidationArguments) {
     const [property] = args.constraints as [Property]
     if (property.extnames && (!file.extname || !property.extnames.includes(file.extname))) {
       return false
@@ -52,7 +52,7 @@ export class ValidateFileConstraint implements ValidatorConstraintInterface {
   }
 }
 
-export function ValidateFile (property: Property, options?: { each?: boolean }) {
+export function ValidateFile(property: Property, options?: { each?: boolean }) {
   return function (object: Object, propertyName: string) {
     registerDecorator({
       name: 'validateFile',

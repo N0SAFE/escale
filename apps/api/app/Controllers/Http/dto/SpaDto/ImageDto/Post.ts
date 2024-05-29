@@ -62,11 +62,11 @@ export class SpaImageRessourcePostDto extends BaseDto {
   @Type(() => SpaImageRessourcePostFilesDto)
   public files: SpaImageRessourcePostFilesDto
 
-  public get after () {
+  public get after() {
     return new SpaImageRessourcePostDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -77,13 +77,14 @@ export class SpaImageRessourcePostDto extends BaseDto {
 }
 
 export class SpaImageRessourcePostBodyDtoAfter
-implements AsSameProperties<SpaImageRessourcePostBodyDto> {}
+  implements AsSameProperties<SpaImageRessourcePostBodyDto> {}
 
 export class SpaImageRessourcePostQueryDtoAfter
-implements AsSameProperties<SpaImageRessourcePostQueryDto> {}
+  implements AsSameProperties<SpaImageRessourcePostQueryDto> {}
 
 export class SpaImageRessourcePostParamsDtoAfter
-implements AsSameProperties<SpaImageRessourcePostParamsDto> {
+  implements AsSameProperties<SpaImageRessourcePostParamsDto>
+{
   @Transform(async ({ value }) => await Spa.findOrFail(value))
   @AwaitPromise
   public spa: Spa
@@ -91,14 +92,16 @@ implements AsSameProperties<SpaImageRessourcePostParamsDto> {
 
 @Exclude()
 export class SpaImageRessourcePostFilesDtoAfter
-implements AsSameProperties<SpaImageRessourcePostFilesDto> {
+  implements AsSameProperties<SpaImageRessourcePostFilesDto>
+{
   public images: MultipartFileContract[]
 }
 
 @SkipTransform([['files', SpaImageRessourcePostFilesDtoAfter]])
 export class SpaImageRessourcePostDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<SpaImageRessourcePostDto, 'after'>> {
+  implements AsSameProperties<Omit<SpaImageRessourcePostDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

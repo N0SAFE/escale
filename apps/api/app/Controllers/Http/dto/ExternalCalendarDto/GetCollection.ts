@@ -40,11 +40,11 @@ export class ExternalCalendarRessourceGetCollectionDto extends BaseDto {
   @Type(() => ExternalCalendarRessourceGetCollectionFilesDto)
   public files: ExternalCalendarRessourceGetCollectionFilesDto
 
-  public get after () {
+  public get after() {
     return new ExternalCalendarRessourceGetCollectionDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -55,22 +55,23 @@ export class ExternalCalendarRessourceGetCollectionDto extends BaseDto {
 }
 
 export class ExternalCalendarRessourceGetCollectionBodyDtoAfter
-implements AsSameProperties<ExternalCalendarRessourceGetCollectionBodyDto> {}
+  implements AsSameProperties<ExternalCalendarRessourceGetCollectionBodyDto> {}
 
 export class ExternalCalendarRessourceGetCollectionQueryDtoAfter
-implements AsSameProperties<ExternalCalendarRessourceGetCollectionQueryDto> {}
+  implements AsSameProperties<ExternalCalendarRessourceGetCollectionQueryDto> {}
 
 export class ExternalCalendarRessourceGetCollectionParamsDtoAfter
-implements AsSameProperties<ExternalCalendarRessourceGetCollectionParamsDto> {}
+  implements AsSameProperties<ExternalCalendarRessourceGetCollectionParamsDto> {}
 
 @Exclude()
 export class ExternalCalendarRessourceGetCollectionFilesDtoAfter
-implements AsSameProperties<ExternalCalendarRessourceGetCollectionFilesDto> {}
+  implements AsSameProperties<ExternalCalendarRessourceGetCollectionFilesDto> {}
 
 @SkipTransform([['files', ExternalCalendarRessourceGetCollectionFilesDtoAfter]])
 export class ExternalCalendarRessourceGetCollectionDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<ExternalCalendarRessourceGetCollectionDto, 'after'>> {
+  implements AsSameProperties<Omit<ExternalCalendarRessourceGetCollectionDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

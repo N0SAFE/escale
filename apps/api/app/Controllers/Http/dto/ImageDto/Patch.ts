@@ -64,11 +64,11 @@ export class ImageRessourcePatchDto extends BaseDto {
   @Type(() => ImageRessourcePatchFilesDto)
   public files: ImageRessourcePatchFilesDto
 
-  public get after () {
+  public get after() {
     return new ImageRessourcePatchDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -79,16 +79,18 @@ export class ImageRessourcePatchDto extends BaseDto {
 }
 
 export class ImageRessourcePatchBodyDtoAfter
-implements AsSameProperties<ImageRessourcePatchBodyDto> {
+  implements AsSameProperties<ImageRessourcePatchBodyDto>
+{
   public name: string
   public alt: string
 }
 
 export class ImageRessourcePatchQueryDtoAfter
-implements AsSameProperties<ImageRessourcePatchQueryDto> {}
+  implements AsSameProperties<ImageRessourcePatchQueryDto> {}
 
 export class ImageRessourcePatchParamsDtoAfter
-implements AsSameProperties<ImageRessourcePatchParamsDto> {
+  implements AsSameProperties<ImageRessourcePatchParamsDto>
+{
   @Transform(({ value }) => Image.findOrFail(value))
   @AwaitPromise
   public id: Image
@@ -96,12 +98,13 @@ implements AsSameProperties<ImageRessourcePatchParamsDto> {
 
 @Exclude()
 export class ImageRessourcePatchFilesDtoAfter
-implements AsSameProperties<ImageRessourcePatchFilesDto> {}
+  implements AsSameProperties<ImageRessourcePatchFilesDto> {}
 
 @SkipTransform([['files', ImageRessourcePatchFilesDtoAfter]])
 export class ImageRessourcePatchDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<ImageRessourcePatchDto, 'after'>> {
+  implements AsSameProperties<Omit<ImageRessourcePatchDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

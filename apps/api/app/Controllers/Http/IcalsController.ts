@@ -5,8 +5,8 @@ import axios from 'axios'
 
 @inject()
 export default class IcalsController {
-  constructor (private icalService: IcalService, private airbnbIcalService: AirbnbIcalService) {}
-  public async parse ({ response }: HttpContextContract) {
+  constructor(private icalService: IcalService, private airbnbIcalService: AirbnbIcalService) {}
+  public async parse({ response }: HttpContextContract) {
     const { data } = await axios.get(
       'https://www.airbnb.com/calendar/ical/1080153087993682153.ics?s=f74db1de5d2746db904dd4d2c9710475&locale=fr'
     )

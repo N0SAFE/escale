@@ -6,7 +6,7 @@ import File from 'App/Models/File'
 import Drive from '@ioc:Adonis/Core/Drive'
 import Role from 'App/Models/Role'
 
-function pickRandomByWeight<T> (
+function pickRandomByWeight<T>(
   items: {
     data: T
     weight: number
@@ -41,7 +41,7 @@ const rolesWeights = [
 ]
 
 export default class UserSeeder extends BaseSeeder {
-  public async run () {
+  public async run() {
     const rolesObject = await Role.query()
     const rolesDict = rolesObject.reduce((acc, role) => {
       acc[role.label] = role

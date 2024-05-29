@@ -33,13 +33,14 @@ export class ContactRessourcePostDto extends BaseDto {
   @Type(() => ContactRessourcePostQueryDto)
   public query: ContactRessourcePostQueryDto
 
-  public get after () {
+  public get after() {
     return new ContactRessourcePostDtoAfter(this)
   }
 }
 
 export class ContactRessourcePostBodyDtoAfter
-implements AsSameProperties<ContactRessourcePostBodyDto> {
+  implements AsSameProperties<ContactRessourcePostBodyDto>
+{
   public name: string
   public email: string
   public subject: string
@@ -47,7 +48,7 @@ implements AsSameProperties<ContactRessourcePostBodyDto> {
 }
 
 export class ContactRessourcePostQueryDtoAfter
-implements AsSameProperties<ContactRessourcePostQueryDto> {}
+  implements AsSameProperties<ContactRessourcePostQueryDto> {}
 
 export class ContactRessourcePostDtoAfter extends BaseDto {
   @IsDefined()

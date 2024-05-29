@@ -9,7 +9,7 @@ export default class ReservationRepository extends AppBaseRepository {
    * @param date
    * @returns
    */
-  public async getClosestAvailabilityBefore (date: string, spa: number) {
+  public async getClosestAvailabilityBefore(date: string, spa: number) {
     return this.model
       .query()
       .where('end_at', '<', date)
@@ -25,7 +25,7 @@ export default class ReservationRepository extends AppBaseRepository {
    * @param date
    * @returns
    */
-  public async getClosestAvailabilityAfter (date: string, spa: number) {
+  public async getClosestAvailabilityAfter(date: string, spa: number) {
     return this.model
       .query()
       .where('start_at', '>', date)

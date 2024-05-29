@@ -90,7 +90,7 @@ export default class Spa extends compose(AppBaseModel, Filterable, SoftDeletes) 
 
   @beforeFind()
   @beforeFetch()
-  public static async preloadImages (query) {
+  public static async preloadImages(query) {
     query.preload('spaImages')
   }
 }

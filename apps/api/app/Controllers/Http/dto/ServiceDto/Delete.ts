@@ -49,11 +49,11 @@ export class ServiceRessourceDeleteDto extends BaseDto {
   @Type(() => ServiceRessourceDeleteFilesDto)
   public files: ServiceRessourceDeleteFilesDto
 
-  public get after () {
+  public get after() {
     return new ServiceRessourceDeleteDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -64,13 +64,14 @@ export class ServiceRessourceDeleteDto extends BaseDto {
 }
 
 export class ServiceRessourceDeleteBodyDtoAfter
-implements AsSameProperties<ServiceRessourceDeleteBodyDto> {}
+  implements AsSameProperties<ServiceRessourceDeleteBodyDto> {}
 
 export class ServiceRessourceDeleteQueryDtoAfter
-implements AsSameProperties<ServiceRessourceDeleteQueryDto> {}
+  implements AsSameProperties<ServiceRessourceDeleteQueryDto> {}
 
 export class ServiceRessourceDeleteParamsDtoAfter
-implements AsSameProperties<ServiceRessourceDeleteParamsDto> {
+  implements AsSameProperties<ServiceRessourceDeleteParamsDto>
+{
   @Transform(({ value }) => Service.findOrFail(value))
   @AwaitPromise
   public id: Service
@@ -78,12 +79,13 @@ implements AsSameProperties<ServiceRessourceDeleteParamsDto> {
 
 @Exclude()
 export class ServiceRessourceDeleteFilesDtoAfter
-implements AsSameProperties<ServiceRessourceDeleteFilesDto> {}
+  implements AsSameProperties<ServiceRessourceDeleteFilesDto> {}
 
 @SkipTransform([['files', ServiceRessourceDeleteFilesDtoAfter]])
 export class ServiceRessourceDeleteDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<ServiceRessourceDeleteDto, 'after'>> {
+  implements AsSameProperties<Omit<ServiceRessourceDeleteDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

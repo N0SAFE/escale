@@ -5,7 +5,7 @@ import { faker } from '@faker-js/faker'
 import Spas from 'App/Models/Spa'
 
 export default class CommentSeeder extends BaseSeeder {
-  public async run () {
+  public async run() {
     await Comment.create({
       text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptate.',
       userId: 1,

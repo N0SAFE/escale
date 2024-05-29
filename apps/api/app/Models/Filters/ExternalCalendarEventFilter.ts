@@ -19,11 +19,11 @@ export default class ExternalCalendarEventFilter extends compose(
     groups?: string[]
   }
 
-  public id (value: number): void {
+  public id(value: number): void {
     this.$query.where('id', value)
   }
 
-  public ids (value: number[]) {
+  public ids(value: number[]) {
     this.$query.whereIn('id', value)
   }
 }

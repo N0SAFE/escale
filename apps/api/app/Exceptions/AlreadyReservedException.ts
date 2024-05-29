@@ -13,7 +13,7 @@ import { Exception } from '@adonisjs/core/build/standalone'
 |
 */
 export default class AlreadyReservedException extends Exception {
-  constructor () {
+  constructor() {
     super('This date is already reserved', 400, 'E_ALREADY_RESERVED')
   }
 }

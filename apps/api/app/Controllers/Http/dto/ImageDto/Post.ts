@@ -48,11 +48,11 @@ export class ImageRessourcePostDto extends BaseDto {
   @Type(() => ImageRessourcePostFileDto)
   public files: ImageRessourcePostFileDto
 
-  public get after () {
+  public get after() {
     return new ImageRessourcePostDtoAfter(this, true)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({ body: request.body(), query: request.qs(), files: request.allFiles() })
   }
 }
@@ -63,7 +63,7 @@ export class ImageRessourcePostBodyDtoAfter implements AsSameProperties<ImageRes
 }
 
 export class ImageRessourcePostQueryDtoAfter
-implements AsSameProperties<ImageRessourcePostQueryDto> {}
+  implements AsSameProperties<ImageRessourcePostQueryDto> {}
 
 export class ImageRessourcePostFileDtoAfter implements AsSameProperties<ImageRessourcePostFileDto> {
   public image: MultipartFileContract
@@ -72,7 +72,8 @@ export class ImageRessourcePostFileDtoAfter implements AsSameProperties<ImageRes
 @SkipTransform(['files'])
 export class ImageRessourcePostDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<ImageRessourcePostDto, 'after'>> {
+  implements AsSameProperties<Omit<ImageRessourcePostDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

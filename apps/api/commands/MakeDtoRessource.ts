@@ -67,7 +67,7 @@ export default class MakeDtoRessource extends BaseCommand {
 
   public httpMethodList: string[] = ['Delete', 'Get', 'GetCollection', 'Patch', 'Post', 'Put']
 
-  public fileTemplate (method) {
+  public fileTemplate(method) {
     const temp = this.name
       .split('\\')
       .join('/')
@@ -79,35 +79,35 @@ export default class MakeDtoRessource extends BaseCommand {
     return fileTemplate(dtoName, method, dirDeep)
   }
 
-  public indexTemplate () {
+  public indexTemplate() {
     return indexTemplate()
   }
 
-  public baseDtoTemplate () {
+  public baseDtoTemplate() {
     return baseDtoTemplate()
   }
 
-  public awaitPromiseDecoratorTemplate () {
+  public awaitPromiseDecoratorTemplate() {
     return awaitPromiseDecoratorTemplate()
   }
 
-  public entityExistDecoratorTemplate () {
+  public entityExistDecoratorTemplate() {
     return entityExistDecoratorTemplate()
   }
 
-  public propertyExistDecoratorTemplate () {
+  public propertyExistDecoratorTemplate() {
     return propertyExistDecoratorTemplate()
   }
 
-  public validateFileDecoratorTemplate () {
+  public validateFileDecoratorTemplate() {
     return validateFileDecoratorTemplate()
   }
 
-  public AsSamePropertiesTypeTemplate () {
+  public AsSamePropertiesTypeTemplate() {
     return AsSamePropertiesTypeTemplate()
   }
 
-  public async run () {
+  public async run() {
     const appRoot = this.application.appRoot
     const dtoDir = resolve(appRoot, this.location, 'dto')
     const relativeDtoDir = resolve(this.location!, 'dto')
@@ -319,7 +319,7 @@ export default class MakeDtoRessource extends BaseCommand {
   }
 }
 
-export function awaitPromiseDecoratorTemplate () {
+export function awaitPromiseDecoratorTemplate() {
   return `import { defineMetadata } from '../index'
 
 export function AwaitPromise<T extends {}, K extends keyof T> (target: T, propertyKey: K) {
@@ -331,7 +331,7 @@ export function AwaitPromise<T extends {}, K extends keyof T> (target: T, proper
 `
 }
 
-export function entityExistDecoratorTemplate () {
+export function entityExistDecoratorTemplate() {
   return `import { registerDecorator, ValidatorConstraint, ValidationArguments } from 'class-validator'
 import { BaseModel } from '@ioc:Adonis/Lucid/Orm'
 
@@ -381,7 +381,7 @@ export function EntityExist (model: typeof BaseModel, options?: CustomOptions) {
 `
 }
 
-export function propertyExistDecoratorTemplate () {
+export function propertyExistDecoratorTemplate() {
   return `import { registerDecorator, ValidatorConstraint, ValidationArguments } from 'class-validator'
 
 @ValidatorConstraint()
@@ -418,7 +418,7 @@ export function PropertyExist (properties: string | symbol | (string | symbol)[]
 `
 }
 
-export function validateFileDecoratorTemplate () {
+export function validateFileDecoratorTemplate() {
   return `import {
   registerDecorator,
   ValidatorConstraint,
@@ -494,14 +494,14 @@ export function ValidateFile (property: Property, options?: { each?: boolean }) 
 `
 }
 
-export function AsSamePropertiesTypeTemplate () {
+export function AsSamePropertiesTypeTemplate() {
   return `export type AsSameProperties<T> = {
   [key in keyof T]: any
 }
 `
 }
 
-export function indexTemplate () {
+export function indexTemplate() {
   return `type Promisable<T> = T | Promise<T>
 
 type Handler = <T extends {}, K extends keyof T, V extends T[K] = T[K]>(
@@ -556,7 +556,7 @@ export function defineMetadata<T extends {}, K extends keyof T> (
 `
 }
 
-export function baseDtoTemplate () {
+export function baseDtoTemplate() {
   return `import { ClassTransformOptions, instanceToInstance } from 'class-transformer'
 import { validate } from 'class-validator'
 
@@ -633,13 +633,13 @@ export class BaseDto {
 `
 }
 
-export function createString (length: number, fn: (i: number) => string) {
+export function createString(length: number, fn: (i: number) => string) {
   return Array.apply(null, Array(length))
     .map((_, i) => fn(i))
     .join('')
 }
 
-export function fileTemplate (name, method, dirDeep) {
+export function fileTemplate(name, method, dirDeep) {
   return `import { IsDefined, IsObject, ValidateNested } from 'class-validator'
 import { Exclude, Type } from 'class-transformer'
 import { AsSameProperties } from '${createString(dirDeep, () => '../')}type/AsSameProperties'

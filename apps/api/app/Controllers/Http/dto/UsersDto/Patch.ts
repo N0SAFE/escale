@@ -49,11 +49,11 @@ export class UsersRessourcePatchDto extends BaseDto {
   @Type(() => UsersRessourcePatchFilesDto)
   public files: UsersRessourcePatchFilesDto
 
-  public get after () {
+  public get after() {
     return new UsersRessourcePatchDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -64,25 +64,27 @@ export class UsersRessourcePatchDto extends BaseDto {
 }
 
 export class UsersRessourcePatchBodyDtoAfter
-implements AsSameProperties<UsersRessourcePatchBodyDto> {
+  implements AsSameProperties<UsersRessourcePatchBodyDto>
+{
   public email?: string
   public password?: string
 }
 
 export class UsersRessourcePatchQueryDtoAfter
-implements AsSameProperties<UsersRessourcePatchQueryDto> {}
+  implements AsSameProperties<UsersRessourcePatchQueryDto> {}
 
 export class UsersRessourcePatchParamsDtoAfter
-implements AsSameProperties<UsersRessourcePatchParamsDto> {}
+  implements AsSameProperties<UsersRessourcePatchParamsDto> {}
 
 @Exclude()
 export class UsersRessourcePatchFilesDtoAfter
-implements AsSameProperties<UsersRessourcePatchFilesDto> {}
+  implements AsSameProperties<UsersRessourcePatchFilesDto> {}
 
 @SkipTransform([['files', UsersRessourcePatchFilesDtoAfter]])
 export class UsersRessourcePatchDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<UsersRessourcePatchDto, 'after'>> {
+  implements AsSameProperties<Omit<UsersRessourcePatchDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

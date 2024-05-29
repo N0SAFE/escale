@@ -40,11 +40,11 @@ export class ExternalCalendarRessourcePatchDto extends BaseDto {
   @Type(() => ExternalCalendarRessourcePatchFilesDto)
   public files: ExternalCalendarRessourcePatchFilesDto
 
-  public get after () {
+  public get after() {
     return new ExternalCalendarRessourcePatchDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -55,22 +55,23 @@ export class ExternalCalendarRessourcePatchDto extends BaseDto {
 }
 
 export class ExternalCalendarRessourcePatchBodyDtoAfter
-implements AsSameProperties<ExternalCalendarRessourcePatchBodyDto> {}
+  implements AsSameProperties<ExternalCalendarRessourcePatchBodyDto> {}
 
 export class ExternalCalendarRessourcePatchQueryDtoAfter
-implements AsSameProperties<ExternalCalendarRessourcePatchQueryDto> {}
+  implements AsSameProperties<ExternalCalendarRessourcePatchQueryDto> {}
 
 export class ExternalCalendarRessourcePatchParamsDtoAfter
-implements AsSameProperties<ExternalCalendarRessourcePatchParamsDto> {}
+  implements AsSameProperties<ExternalCalendarRessourcePatchParamsDto> {}
 
 @Exclude()
 export class ExternalCalendarRessourcePatchFilesDtoAfter
-implements AsSameProperties<ExternalCalendarRessourcePatchFilesDto> {}
+  implements AsSameProperties<ExternalCalendarRessourcePatchFilesDto> {}
 
 @SkipTransform([['files', ExternalCalendarRessourcePatchFilesDtoAfter]])
 export class ExternalCalendarRessourcePatchDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<ExternalCalendarRessourcePatchDto, 'after'>> {
+  implements AsSameProperties<Omit<ExternalCalendarRessourcePatchDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

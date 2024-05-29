@@ -20,16 +20,16 @@ export class CommentRessourcePutDto extends BaseDto {
   @Type(() => CommentRessourcePutQueryDto)
   public query: CommentRessourcePutQueryDto
 
-  public get after () {
+  public get after() {
     return new CommentRessourcePutDtoAfter(this)
   }
 }
 
 export class CommentRessourcePutBodyDtoAfter
-implements AsSameProperties<CommentRessourcePutBodyDto> {}
+  implements AsSameProperties<CommentRessourcePutBodyDto> {}
 
 export class CommentRessourcePutQueryDtoAfter
-implements AsSameProperties<CommentRessourcePutQueryDto> {}
+  implements AsSameProperties<CommentRessourcePutQueryDto> {}
 
 export class CommentRessourcePutDtoAfter extends BaseDto {
   @IsDefined()

@@ -62,11 +62,11 @@ export class UsersRessourcePostDto extends BaseDto {
   @Type(() => UsersRessourcePostFilesDto)
   public files: UsersRessourcePostFilesDto
 
-  public get after () {
+  public get after() {
     return new UsersRessourcePostDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -82,19 +82,20 @@ export class UsersRessourcePostBodyDtoAfter implements AsSameProperties<UsersRes
 }
 
 export class UsersRessourcePostQueryDtoAfter
-implements AsSameProperties<UsersRessourcePostQueryDto> {}
+  implements AsSameProperties<UsersRessourcePostQueryDto> {}
 
 export class UsersRessourcePostParamsDtoAfter
-implements AsSameProperties<UsersRessourcePostParamsDto> {}
+  implements AsSameProperties<UsersRessourcePostParamsDto> {}
 
 @Exclude()
 export class UsersRessourcePostFilesDtoAfter
-implements AsSameProperties<UsersRessourcePostFilesDto> {}
+  implements AsSameProperties<UsersRessourcePostFilesDto> {}
 
 @SkipTransform([['files', UsersRessourcePostFilesDtoAfter]])
 export class UsersRessourcePostDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<UsersRessourcePostDto, 'after'>> {
+  implements AsSameProperties<Omit<UsersRessourcePostDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

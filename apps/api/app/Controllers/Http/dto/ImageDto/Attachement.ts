@@ -34,29 +34,31 @@ export class ImageRessourceAttachementDto extends BaseDto {
   @Type(() => ImageRessourceAttachementFilesDto)
   public _images: ImageRessourceAttachementFilesDto
 
-  public get after () {
+  public get after() {
     return new ImageRessourceAttachementDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({ body: request.body(), query: request.qs(), _images: request.allFiles() })
   }
 }
 
 export class ImageRessourceAttachementBodyDtoAfter
-implements AsSameProperties<ImageRessourceAttachementBodyDto> {}
+  implements AsSameProperties<ImageRessourceAttachementBodyDto> {}
 
 export class ImageRessourceAttachementQueryDtoAfter
-implements AsSameProperties<ImageRessourceAttachementQueryDto> {
+  implements AsSameProperties<ImageRessourceAttachementQueryDto>
+{
   public id: number
 }
 
 export class ImageRessourceAttachementFilesDtoAfter
-implements AsSameProperties<ImageRessourceAttachementFilesDto> {}
+  implements AsSameProperties<ImageRessourceAttachementFilesDto> {}
 
 export class ImageRessourceAttachementDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<ImageRessourceAttachementDto, 'after'>> {
+  implements AsSameProperties<Omit<ImageRessourceAttachementDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

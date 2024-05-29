@@ -10,9 +10,9 @@ import AppBaseService from './AppBaseService'
 
 @inject()
 export default class ReservationService implements AppBaseService {
-  constructor (private dateTimeService: DateTimeService) {}
+  constructor(private dateTimeService: DateTimeService) {}
 
-  public async getReservationsBetweenDate (
+  public async getReservationsBetweenDate(
     startAt: DateTime,
     endAt: DateTime,
     spa?: Spa
@@ -27,7 +27,7 @@ export default class ReservationService implements AppBaseService {
     }
   }
 
-  public async getAvailabilitiesBetweenDate (
+  public async getAvailabilitiesBetweenDate(
     startAt: DateTime,
     endAt: DateTime,
     spa?: Spa
@@ -42,11 +42,11 @@ export default class ReservationService implements AppBaseService {
     }
   }
 
-  private getFirst<T> (items: T[]): T | undefined {
+  private getFirst<T>(items: T[]): T | undefined {
     return items?.[0]
   }
 
-  public async datesIsAvailable (
+  public async datesIsAvailable(
     startAt: DateTime,
     endAt: DateTime,
     spa: Spa
@@ -85,7 +85,7 @@ export default class ReservationService implements AppBaseService {
   // if the endDate is the same as the startDate, it will calculate the price for a night
   // if the endDate is the day after the startDate, it will calculate the price for a night also
   // else it will calculate the price for a diff between the endDate and the startDate in days minus 1
-  public async calculatePrice (spa: Spa, startAt: DateTime, endAt: DateTime) {
+  public async calculatePrice(spa: Spa, startAt: DateTime, endAt: DateTime) {
     const availabilities = await this.datesIsAvailable(startAt, endAt, spa)
 
     if (endAt.diff(startAt, 'days').days >= 1) {

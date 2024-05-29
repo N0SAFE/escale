@@ -17,7 +17,7 @@ import { Custom } from '../Decorator/Custom'
 import { DateTime } from 'luxon'
 import Spa from 'App/Models/Spa'
 
-function checkDateIsAfter (date1: string, args: ValidationArguments) {
+function checkDateIsAfter(date1: string, args: ValidationArguments) {
   const [relatedPropertyName] = args.constraints
   const self = args.object
   const date2 = self[relatedPropertyName]
@@ -79,11 +79,11 @@ export class ReservationRessourcePostDto extends BaseDto {
   @Type(() => ReservationRessourcePostFilesDto)
   public files: ReservationRessourcePostFilesDto
 
-  public get after () {
+  public get after() {
     return new ReservationRessourcePostDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -94,7 +94,8 @@ export class ReservationRessourcePostDto extends BaseDto {
 }
 
 export class ReservationRessourcePostBodyDtoAfter
-implements AsSameProperties<ReservationRessourcePostBodyDto> {
+  implements AsSameProperties<ReservationRessourcePostBodyDto>
+{
   public spaId: number
 
   @Transform(({ value }) => DateTime.fromISO(value))
@@ -107,19 +108,20 @@ implements AsSameProperties<ReservationRessourcePostBodyDto> {
 }
 
 export class ReservationRessourcePostQueryDtoAfter
-implements AsSameProperties<ReservationRessourcePostQueryDto> {}
+  implements AsSameProperties<ReservationRessourcePostQueryDto> {}
 
 export class ReservationRessourcePostParamsDtoAfter
-implements AsSameProperties<ReservationRessourcePostParamsDto> {}
+  implements AsSameProperties<ReservationRessourcePostParamsDto> {}
 
 @Exclude()
 export class ReservationRessourcePostFilesDtoAfter
-implements AsSameProperties<ReservationRessourcePostFilesDto> {}
+  implements AsSameProperties<ReservationRessourcePostFilesDto> {}
 
 @SkipTransform([['files', ReservationRessourcePostFilesDtoAfter]])
 export class ReservationRessourcePostDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<ReservationRessourcePostDto, 'after'>> {
+  implements AsSameProperties<Omit<ReservationRessourcePostDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

@@ -22,23 +22,23 @@ export default class AvailabilityFilter extends compose(
     groups?: string[]
   }
 
-  public id (value: number): void {
+  public id(value: number): void {
     this.$query.where('id', value)
   }
 
-  public ids (value: number[]) {
+  public ids(value: number[]) {
     this.$query.whereIn('id', value)
   }
 
-  public spa (value: number) {
+  public spa(value: number) {
     this.$query.where('spa_id', value)
   }
 
-  public spas (value: number[]): void {
+  public spas(value: number[]): void {
     this.$query.whereIn('spa_id', value)
   }
 
-  public notInIds (ids: number[]): void {
+  public notInIds(ids: number[]): void {
     this.$query.whereNotIn('id', ids)
   }
 }

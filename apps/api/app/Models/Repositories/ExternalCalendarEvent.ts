@@ -7,11 +7,11 @@ import ExternalCalendarEvent from '../ExternalCalendarEvent'
 export default class AirbnbCalendarEventRepository extends AppBaseRepository {
   protected model = ExternalCalendarEvent
 
-  public async deleteEvents (ids: number[]) {
+  public async deleteEvents(ids: number[]) {
     await this.model.query().whereIn('id', ids).delete()
   }
 
-  public async createEvents (
+  public async createEvents(
     externalCalendar: ExternalCalendar,
     {
       blockedVevents,
@@ -43,7 +43,7 @@ export default class AirbnbCalendarEventRepository extends AppBaseRepository {
     await this.model.createMany([...blockedEvents, ...reservedEvents])
   }
 
-  public getEvents (
+  public getEvents(
     externalCalendarId: number,
     filter?: {
       startAt?: string

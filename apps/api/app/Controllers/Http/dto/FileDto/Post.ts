@@ -20,7 +20,7 @@ export class FileRessourcePostDto extends BaseDto {
   @Type(() => FileRessourcePostQueryDto)
   public query: FileRessourcePostQueryDto
 
-  public get after () {
+  public get after() {
     return new FileRessourcePostDtoAfter(this)
   }
 }
@@ -28,7 +28,7 @@ export class FileRessourcePostDto extends BaseDto {
 export class FileRessourcePostBodyDtoAfter implements AsSameProperties<FileRessourcePostBodyDto> {}
 
 export class FileRessourcePostQueryDtoAfter
-implements AsSameProperties<FileRessourcePostQueryDto> {}
+  implements AsSameProperties<FileRessourcePostQueryDto> {}
 
 export class FileRessourcePostDtoAfter extends BaseDto {
   @IsDefined()

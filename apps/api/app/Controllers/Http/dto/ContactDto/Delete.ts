@@ -20,16 +20,16 @@ export class ContactRessourceDeleteDto extends BaseDto {
   @Type(() => ContactRessourceDeleteQueryDto)
   public query: ContactRessourceDeleteQueryDto
 
-  public get after () {
+  public get after() {
     return new ContactRessourceDeleteDtoAfter(this)
   }
 }
 
 export class ContactRessourceDeleteBodyDtoAfter
-implements AsSameProperties<ContactRessourceDeleteBodyDto> {}
+  implements AsSameProperties<ContactRessourceDeleteBodyDto> {}
 
 export class ContactRessourceDeleteQueryDtoAfter
-implements AsSameProperties<ContactRessourceDeleteQueryDto> {}
+  implements AsSameProperties<ContactRessourceDeleteQueryDto> {}
 
 export class ContactRessourceDeleteDtoAfter extends BaseDto {
   @IsDefined()

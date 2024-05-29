@@ -20,7 +20,7 @@ export class SpaRessourcePutDto extends BaseDto {
   @Type(() => SpaRessourcePutQueryDto)
   public query: SpaRessourcePutQueryDto
 
-  public get after () {
+  public get after() {
     const dto = new SpaRessourcePutDtoAfter(this)
     return dto.transform({ groups: ['after'] })
   }

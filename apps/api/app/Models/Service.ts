@@ -41,7 +41,7 @@ export default class Service extends AppBaseModel {
 
   @beforeFind()
   @beforeFetch()
-  public static async preloadImage (query) {
+  public static async preloadImage(query) {
     query.preload('image')
   }
 }

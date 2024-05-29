@@ -7,13 +7,13 @@ import { ImageRessourcePatchDto } from './dto/ImageDto/Patch'
 import { ImageRessourceDeleteDto } from './dto/ImageDto/Delete'
 
 export default class ImagesController {
-  public async index ({ request }: HttpContextContract) {
+  public async index({ request }: HttpContextContract) {
     return Image.filter(request.qs()).exec()
   }
 
-  public async create ({}: HttpContextContract) {}
+  public async create({}: HttpContextContract) {}
 
-  public async store ({ request, response }: HttpContextContract) {
+  public async store({ request, response }: HttpContextContract) {
     const dto = ImageRessourcePostDto.fromRequest(request)
 
     const error = await dto.validate()
@@ -38,7 +38,7 @@ export default class ImagesController {
     return response.ok(image)
   }
 
-  public async show ({ request, response }: HttpContextContract) {
+  public async show({ request, response }: HttpContextContract) {
     const dto = ImageRessourceGetDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -49,9 +49,9 @@ export default class ImagesController {
     return response.ok(params.id)
   }
 
-  public async edit ({}: HttpContextContract) {}
+  public async edit({}: HttpContextContract) {}
 
-  public async update ({ request, response }: HttpContextContract) {
+  public async update({ request, response }: HttpContextContract) {
     const dto = ImageRessourcePatchDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -67,7 +67,7 @@ export default class ImagesController {
     return response.ok(image)
   }
 
-  public async destroy ({ request, response }: HttpContextContract) {
+  public async destroy({ request, response }: HttpContextContract) {
     const dto = ImageRessourceDeleteDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {

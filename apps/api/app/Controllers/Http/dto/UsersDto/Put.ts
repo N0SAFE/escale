@@ -40,11 +40,11 @@ export class UsersRessourcePutDto extends BaseDto {
   @Type(() => UsersRessourcePutFilesDto)
   public files: UsersRessourcePutFilesDto
 
-  public get after () {
+  public get after() {
     return new UsersRessourcePutDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -57,19 +57,20 @@ export class UsersRessourcePutDto extends BaseDto {
 export class UsersRessourcePutBodyDtoAfter implements AsSameProperties<UsersRessourcePutBodyDto> {}
 
 export class UsersRessourcePutQueryDtoAfter
-implements AsSameProperties<UsersRessourcePutQueryDto> {}
+  implements AsSameProperties<UsersRessourcePutQueryDto> {}
 
 export class UsersRessourcePutParamsDtoAfter
-implements AsSameProperties<UsersRessourcePutParamsDto> {}
+  implements AsSameProperties<UsersRessourcePutParamsDto> {}
 
 @Exclude()
 export class UsersRessourcePutFilesDtoAfter
-implements AsSameProperties<UsersRessourcePutFilesDto> {}
+  implements AsSameProperties<UsersRessourcePutFilesDto> {}
 
 @SkipTransform([['files', UsersRessourcePutFilesDtoAfter]])
 export class UsersRessourcePutDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<UsersRessourcePutDto, 'after'>> {
+  implements AsSameProperties<Omit<UsersRessourcePutDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

@@ -50,11 +50,11 @@ export class UsersRessourceGetCollectionDto extends BaseDto {
   @Type(() => UsersRessourceGetCollectionFilesDto)
   public files: UsersRessourceGetCollectionFilesDto
 
-  public get after () {
+  public get after() {
     return new UsersRessourceGetCollectionDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -65,25 +65,27 @@ export class UsersRessourceGetCollectionDto extends BaseDto {
 }
 
 export class UsersRessourceGetCollectionBodyDtoAfter
-implements AsSameProperties<UsersRessourceGetCollectionBodyDto> {}
+  implements AsSameProperties<UsersRessourceGetCollectionBodyDto> {}
 
 export class UsersRessourceGetCollectionQueryDtoAfter
-implements AsSameProperties<UsersRessourceGetCollectionQueryDto> {
+  implements AsSameProperties<UsersRessourceGetCollectionQueryDto>
+{
   public page?: number
   public limit?: number
 }
 
 export class UsersRessourceGetCollectionParamsDtoAfter
-implements AsSameProperties<UsersRessourceGetCollectionParamsDto> {}
+  implements AsSameProperties<UsersRessourceGetCollectionParamsDto> {}
 
 @Exclude()
 export class UsersRessourceGetCollectionFilesDtoAfter
-implements AsSameProperties<UsersRessourceGetCollectionFilesDto> {}
+  implements AsSameProperties<UsersRessourceGetCollectionFilesDto> {}
 
 @SkipTransform([['files', UsersRessourceGetCollectionFilesDtoAfter]])
 export class UsersRessourceGetCollectionDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<UsersRessourceGetCollectionDto, 'after'>> {
+  implements AsSameProperties<Omit<UsersRessourceGetCollectionDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

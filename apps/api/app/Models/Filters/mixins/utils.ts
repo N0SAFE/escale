@@ -5,11 +5,11 @@ import {
   RelationQueryBuilderContract,
 } from '@ioc:Adonis/Lucid/Orm'
 
-export function filterHasUseCustomFilter (filter: any) {
+export function filterHasUseCustomFilter(filter: any) {
   return !!filter.$loadedRelation
 }
 
-export function preloadQuery (
+export function preloadQuery(
   relation: Relation,
   query: ModelQueryBuilderContract<LucidModel>,
   paths: string[],
@@ -88,7 +88,7 @@ export type Relation = {
   }
 }
 
-export function preloadFromGroups (groups: string[], query: ModelQueryBuilderContract<LucidModel>) {
+export function preloadFromGroups(groups: string[], query: ModelQueryBuilderContract<LucidModel>) {
   const map = new Map<string, string[]>()
   groups.forEach((group) => {
     const [from, to] = group.split(':')
@@ -202,7 +202,7 @@ export function preloadFromGroups (groups: string[], query: ModelQueryBuilderCon
     })
   }
 
-  function launchPreload () {
+  function launchPreload() {
     if (fields) {
       fields.forEach((field) => {
         query.preloadChain(field as any, (queryRelation) => {
@@ -221,7 +221,7 @@ export function preloadFromGroups (groups: string[], query: ModelQueryBuilderCon
   }
 }
 
-export function isFilterUseGroups (filter: any) {
+export function isFilterUseGroups(filter: any) {
   return !!filter.$loadedRelation
 }
 
@@ -230,8 +230,8 @@ export type RecursiveValue =
   | string[]
   | true
   | {
-    [key: string]: RecursiveValue
-  }
+      [key: string]: RecursiveValue
+    }
 
 export type RelationPath = {
   path?: string[]
@@ -240,7 +240,7 @@ export type RelationPath = {
 }
 
 // i want to return [{path: ['path', 'to', 'field'], values: ['value1', 'value2']}]
-export function nestedRelationToArray (
+export function nestedRelationToArray(
   relation: RecursiveValue,
   query: ModelQueryBuilderContract<LucidModel>
 ): RelationPath[] {
@@ -318,7 +318,7 @@ export function nestedRelationToArray (
   })
 }
 
-export function relationPathExists (model: LucidModel, relationPath: string[], property?: string) {
+export function relationPathExists(model: LucidModel, relationPath: string[], property?: string) {
   let currentModel = model
   for (const relation of relationPath) {
     if (!currentModel.$getRelation(relation)) {
@@ -334,7 +334,7 @@ export function relationPathExists (model: LucidModel, relationPath: string[], p
   return true
 }
 
-export function hasStatement (query: ModelQueryBuilderContract<LucidModel>, column: string) {
+export function hasStatement(query: ModelQueryBuilderContract<LucidModel>, column: string) {
   return query.knexQuery['_statements'].some((statement) => {
     return statement.value === column
   })

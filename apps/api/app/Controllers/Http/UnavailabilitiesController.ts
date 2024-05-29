@@ -3,7 +3,7 @@ import { UnavailabilityRessourceGetCollectionDto } from './dto/UnavailabilityDto
 import Unavailability from 'App/Models/Unavailability'
 
 export default class UnavailabilitiesController {
-  public async index ({ request, response }: HttpContextContract) {
+  public async index({ request, response }: HttpContextContract) {
     const dto = UnavailabilityRessourceGetCollectionDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -20,15 +20,15 @@ export default class UnavailabilitiesController {
     return response.ok(await unavailabilityQuery.exec())
   }
 
-  public async create ({}: HttpContextContract) {}
+  public async create({}: HttpContextContract) {}
 
-  public async store ({}: HttpContextContract) {}
+  public async store({}: HttpContextContract) {}
 
-  public async show ({}: HttpContextContract) {}
+  public async show({}: HttpContextContract) {}
 
-  public async edit ({}: HttpContextContract) {}
+  public async edit({}: HttpContextContract) {}
 
-  public async update ({}: HttpContextContract) {}
+  public async update({}: HttpContextContract) {}
 
-  public async destroy ({}: HttpContextContract) {}
+  public async destroy({}: HttpContextContract) {}
 }

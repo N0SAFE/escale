@@ -9,7 +9,7 @@ import { inject } from '@adonisjs/core/build/standalone'
 
 @inject()
 export default class AvailabilitiesController {
-  public async index ({ response, request }: HttpContextContract) {
+  public async index({ response, request }: HttpContextContract) {
     const dto = AvailabilityRessourceGetCollectionDto.fromRequest(request)
 
     const error = await dto.validate()
@@ -56,9 +56,9 @@ export default class AvailabilitiesController {
     // return response.ok(reservations)
   }
 
-  public async create ({}: HttpContextContract) {}
+  public async create({}: HttpContextContract) {}
 
-  public async store ({ request, response }: HttpContextContract) {
+  public async store({ request, response }: HttpContextContract) {
     const dto = AvailabilityRessourcePostDto.fromRequest(request)
 
     const error = await dto.validate()
@@ -137,11 +137,11 @@ export default class AvailabilitiesController {
     return response.created(availability)
   }
 
-  public async show ({}: HttpContextContract) {}
+  public async show({}: HttpContextContract) {}
 
-  public async edit ({}: HttpContextContract) {}
+  public async edit({}: HttpContextContract) {}
 
-  public async update ({ request, response }: HttpContextContract) {
+  public async update({ request, response }: HttpContextContract) {
     const dto = AvailabilityRessourcePatchDto.fromRequest(request)
 
     const error = await dto.validate()
@@ -240,7 +240,7 @@ export default class AvailabilitiesController {
     return response.ok(availability)
   }
 
-  public async destroy ({ request, response }: HttpContextContract) {
+  public async destroy({ request, response }: HttpContextContract) {
     const dto = AvailabilityRessourceDeleteDto.fromRequest(request)
 
     const error = await dto.validate()

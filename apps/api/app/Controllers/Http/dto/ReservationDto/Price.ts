@@ -16,7 +16,7 @@ import { DateTime } from 'luxon'
 import { AwaitPromise } from '../Decorator/AwaitPromise'
 import { Custom } from '../Decorator/Custom'
 
-function checkDateIsAfter (date1: string, args: ValidationArguments) {
+function checkDateIsAfter(date1: string, args: ValidationArguments) {
   const [relatedPropertyName] = args.constraints
   const self = args.object
   const date2 = self[relatedPropertyName]
@@ -74,11 +74,11 @@ export class ReservationRessourcePriceDto extends BaseDto {
   @Type(() => ReservationRessourcePriceFilesDto)
   public files: ReservationRessourcePriceFilesDto
 
-  public get after () {
+  public get after() {
     return new ReservationRessourcePriceDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -89,10 +89,11 @@ export class ReservationRessourcePriceDto extends BaseDto {
 }
 
 export class ReservationRessourcePriceBodyDtoAfter
-implements AsSameProperties<ReservationRessourcePriceBodyDto> {}
+  implements AsSameProperties<ReservationRessourcePriceBodyDto> {}
 
 export class ReservationRessourcePriceQueryDtoAfter
-implements AsSameProperties<ReservationRessourcePriceQueryDto> {
+  implements AsSameProperties<ReservationRessourcePriceQueryDto>
+{
   @Transform(({ value }) => DateTime.fromISO(value))
   public startAt: DateTime
 
@@ -105,16 +106,17 @@ implements AsSameProperties<ReservationRessourcePriceQueryDto> {
 }
 
 export class ReservationRessourcePriceParamsDtoAfter
-implements AsSameProperties<ReservationRessourcePriceParamsDto> {}
+  implements AsSameProperties<ReservationRessourcePriceParamsDto> {}
 
 @Exclude()
 export class ReservationRessourcePriceFilesDtoAfter
-implements AsSameProperties<ReservationRessourcePriceFilesDto> {}
+  implements AsSameProperties<ReservationRessourcePriceFilesDto> {}
 
 @SkipTransform([['files', ReservationRessourcePriceFilesDtoAfter]])
 export class ReservationRessourcePriceDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<ReservationRessourcePriceDto, 'after'>> {
+  implements AsSameProperties<Omit<ReservationRessourcePriceDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

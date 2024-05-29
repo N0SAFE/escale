@@ -20,7 +20,7 @@ export class TagRessourcePostDto extends BaseDto {
   @Type(() => TagRessourcePostQueryDto)
   public query: TagRessourcePostQueryDto
 
-  public get after () {
+  public get after() {
     return new TagRessourcePostDtoAfter(this)
   }
 }

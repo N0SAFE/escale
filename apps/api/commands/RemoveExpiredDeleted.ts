@@ -27,7 +27,7 @@ export default class RemoveExpiredDeleted extends BaseCommand {
     stayAlive: false,
   }
 
-  public async run () {
+  public async run() {
     this.logger.info('Hello world!')
     // ! this function as to delete all the users that have been deleted for more than the User.maxTimeSoftDelete
     // ! (same for all the models if  soft delete)

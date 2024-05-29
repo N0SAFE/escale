@@ -55,11 +55,11 @@ export class FaqRessourcePatchDto extends BaseDto {
   @Type(() => FaqRessourcePatchFilesDto)
   public files: FaqRessourcePatchFilesDto
 
-  public get after () {
+  public get after() {
     return new FaqRessourcePatchDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -83,7 +83,8 @@ export class FaqRessourcePatchQueryDtoAfter implements AsSameProperties<FaqResso
 }
 
 export class FaqRessourcePatchParamsDtoAfter
-implements AsSameProperties<FaqRessourcePatchParamsDto> {
+  implements AsSameProperties<FaqRessourcePatchParamsDto>
+{
   @Transform(({ value }) => Faq.findOrFail(value))
   @AwaitPromise
   public id: Faq
@@ -91,12 +92,13 @@ implements AsSameProperties<FaqRessourcePatchParamsDto> {
 
 @Exclude()
 export class FaqRessourcePatchFilesDtoAfter
-implements AsSameProperties<FaqRessourcePatchFilesDto> {}
+  implements AsSameProperties<FaqRessourcePatchFilesDto> {}
 
 @SkipTransform([['files', FaqRessourcePatchFilesDtoAfter]])
 export class FaqRessourcePatchDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<FaqRessourcePatchDto, 'after'>> {
+  implements AsSameProperties<Omit<FaqRessourcePatchDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

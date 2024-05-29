@@ -6,9 +6,9 @@ import { CheckoutSessionRessourceReservationDto } from './dto/CheckoutSessionDto
 
 @inject()
 export default class CheckoutSessionsController {
-  constructor (protected reservationService: ReservationService) {}
+  constructor(protected reservationService: ReservationService) {}
 
-  public async spa ({ request, response }: HttpContextContract) {
+  public async spa({ request, response }: HttpContextContract) {
     const dto = CheckoutSessionRessourceReservationDto.fromRequest(request)
 
     const error = await dto.validate()
@@ -58,7 +58,7 @@ export default class CheckoutSessionsController {
     }
   }
 
-  public async journeySpa ({ response }: HttpContextContract) {
+  public async journeySpa({ response }: HttpContextContract) {
     return response.badRequest({ message: 'not implemented' })
     // const dto = new CheckoutSessionRessourceJourneySpaDto({
     //   body: request.body(),

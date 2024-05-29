@@ -49,11 +49,11 @@ export class SpaRessourceRestoreDto extends BaseDto {
   @Type(() => SpaRessourceRestoreFilesDto)
   public files: SpaRessourceRestoreFilesDto
 
-  public get after () {
+  public get after() {
     return new SpaRessourceRestoreDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -64,13 +64,14 @@ export class SpaRessourceRestoreDto extends BaseDto {
 }
 
 export class SpaRessourceRestoreBodyDtoAfter
-implements AsSameProperties<SpaRessourceRestoreBodyDto> {}
+  implements AsSameProperties<SpaRessourceRestoreBodyDto> {}
 
 export class SpaRessourceRestoreQueryDtoAfter
-implements AsSameProperties<SpaRessourceRestoreQueryDto> {}
+  implements AsSameProperties<SpaRessourceRestoreQueryDto> {}
 
 export class SpaRessourceRestoreParamsDtoAfter
-implements AsSameProperties<SpaRessourceRestoreParamsDto> {
+  implements AsSameProperties<SpaRessourceRestoreParamsDto>
+{
   @Transform(({ value }) => Spa.findOrFail(value))
   @AwaitPromise
   public id: Spa
@@ -78,12 +79,13 @@ implements AsSameProperties<SpaRessourceRestoreParamsDto> {
 
 @Exclude()
 export class SpaRessourceRestoreFilesDtoAfter
-implements AsSameProperties<SpaRessourceRestoreFilesDto> {}
+  implements AsSameProperties<SpaRessourceRestoreFilesDto> {}
 
 @SkipTransform([['files', SpaRessourceRestoreFilesDtoAfter]])
 export class SpaRessourceRestoreDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<SpaRessourceRestoreDto, 'after'>> {
+  implements AsSameProperties<Omit<SpaRessourceRestoreDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

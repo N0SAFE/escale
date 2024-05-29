@@ -22,12 +22,12 @@ export default class Faq extends AppBaseModel {
   public rank: number
 
   @beforeFetch()
-  public static orderFaqByRank (query) {
+  public static orderFaqByRank(query) {
     query.orderBy('rank', 'asc')
   }
 
   @beforeCreate()
-  public static async setRank (faq: Faq) {
+  public static async setRank(faq: Faq) {
     if (faq.rank) {
       return
     }

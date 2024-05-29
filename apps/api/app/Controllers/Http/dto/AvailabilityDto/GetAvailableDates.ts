@@ -18,7 +18,7 @@ import { EntityExist } from '../Decorator/EntityExist'
 import Spa from 'App/Models/Spa'
 import { AwaitPromise } from '../Decorator/AwaitPromise'
 
-function checkDateIsAfter (date1: string, args: ValidationArguments) {
+function checkDateIsAfter(date1: string, args: ValidationArguments) {
   const [relatedPropertyName] = args.constraints
   const self = args.object
   const date2 = self[relatedPropertyName]
@@ -27,7 +27,7 @@ function checkDateIsAfter (date1: string, args: ValidationArguments) {
   return dateTime1.toMillis() <= dateTime2.toMillis()
 }
 
-function checkDateHasLessThan150DayDifference (date1: string, args: ValidationArguments) {
+function checkDateHasLessThan150DayDifference(date1: string, args: ValidationArguments) {
   const [relatedPropertyName] = args.constraints
   const self = args.object
   const date2 = self[relatedPropertyName]
@@ -102,11 +102,11 @@ export class AvailabilityRessourceGetAvailableDatesDto extends BaseDto {
   @Type(() => AvailabilityRessourceGetAvailableDatesFilesDto)
   public files: AvailabilityRessourceGetAvailableDatesFilesDto
 
-  public get after () {
+  public get after() {
     return new AvailabilityRessourceGetAvailableDatesDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -117,10 +117,11 @@ export class AvailabilityRessourceGetAvailableDatesDto extends BaseDto {
 }
 
 export class AvailabilityRessourceGetAvailableDatesBodyDtoAfter
-implements AsSameProperties<AvailabilityRessourceGetAvailableDatesBodyDto> {}
+  implements AsSameProperties<AvailabilityRessourceGetAvailableDatesBodyDto> {}
 
 export class AvailabilityRessourceGetAvailableDatesQueryDtoAfter
-implements AsSameProperties<AvailabilityRessourceGetAvailableDatesQueryDto> {
+  implements AsSameProperties<AvailabilityRessourceGetAvailableDatesQueryDto>
+{
   @Transform(async ({ value }) => await Spa.findOrFail(value))
   @AwaitPromise
   public spa: Spa
@@ -136,16 +137,17 @@ implements AsSameProperties<AvailabilityRessourceGetAvailableDatesQueryDto> {
 }
 
 export class AvailabilityRessourceGetAvailableDatesParamsDtoAfter
-implements AsSameProperties<AvailabilityRessourceGetAvailableDatesParamsDto> {}
+  implements AsSameProperties<AvailabilityRessourceGetAvailableDatesParamsDto> {}
 
 @Exclude()
 export class AvailabilityRessourceGetAvailableDatesFilesDtoAfter
-implements AsSameProperties<AvailabilityRessourceGetAvailableDatesFilesDto> {}
+  implements AsSameProperties<AvailabilityRessourceGetAvailableDatesFilesDto> {}
 
 @SkipTransform([['files', AvailabilityRessourceGetAvailableDatesFilesDtoAfter]])
 export class AvailabilityRessourceGetAvailableDatesDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<AvailabilityRessourceGetAvailableDatesDto, 'after'>> {
+  implements AsSameProperties<Omit<AvailabilityRessourceGetAvailableDatesDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

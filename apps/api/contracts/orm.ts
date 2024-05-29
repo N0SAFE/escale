@@ -60,7 +60,7 @@ declare module '@ioc:Adonis/Lucid/Orm' {
 
   interface ModelQueryBuilderContract<Model extends LucidModel, Result = InstanceType<Model>>
     extends ChainableContract,
-    ExcutableQueryBuilderContract<Result[]> {
+      ExcutableQueryBuilderContract<Result[]> {
     preloadChain: PreloadChain<InstanceType<Model>, this>
     ifPreloaded: IfPreloaded<InstanceType<Model>, this>
     whenPreloadedChain: WhenPreloaded<InstanceType<Model>, this>

@@ -20,16 +20,16 @@ export class RulesRessourceDeleteDto extends BaseDto {
   @Type(() => RulesRessourceDeleteQueryDto)
   public query: RulesRessourceDeleteQueryDto
 
-  public get after () {
+  public get after() {
     return new RulesRessourceDeleteDtoAfter(this)
   }
 }
 
 export class RulesRessourceDeleteBodyDtoAfter
-implements AsSameProperties<RulesRessourceDeleteBodyDto> {}
+  implements AsSameProperties<RulesRessourceDeleteBodyDto> {}
 
 export class RulesRessourceDeleteQueryDtoAfter
-implements AsSameProperties<RulesRessourceDeleteQueryDto> {}
+  implements AsSameProperties<RulesRessourceDeleteQueryDto> {}
 
 export class RulesRessourceDeleteDtoAfter extends BaseDto {
   @IsDefined()

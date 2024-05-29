@@ -16,12 +16,12 @@ export default class InternalCalendar extends AppBaseModel {
   public updatedAt: DateTime
 
   @computed()
-  public get directory () {
+  public get directory() {
     return 'calendars'
   }
 
   @computed()
-  public get path () {
+  public get path() {
     return `${this.directory}/${this.uuid}.ics`
   }
 
@@ -35,12 +35,12 @@ export default class InternalCalendar extends AppBaseModel {
   public spaId: number
 
   @beforeCreate()
-  public static generateUuid (internalCalendar: InternalCalendar) {
+  public static generateUuid(internalCalendar: InternalCalendar) {
     internalCalendar.uuid = uuid()
   }
 
   @beforeDelete()
-  public static async deleteCalendar (internalCalendar: InternalCalendar) {
+  public static async deleteCalendar(internalCalendar: InternalCalendar) {
     try {
       await Drive.delete(internalCalendar.path)
     } catch {}

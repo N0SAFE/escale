@@ -2,14 +2,14 @@ import { registerDecorator, ValidatorConstraint, ValidationArguments } from 'cla
 
 @ValidatorConstraint()
 export class PropertyExistConstraint {
-  public validate (_: any, args: ValidationArguments) {
+  public validate(_: any, args: ValidationArguments) {
     const [relatedProperty] = args.constraints
     const self = args.object
     return !!self[relatedProperty]
   }
 }
 
-export function PropertyExist (
+export function PropertyExist(
   properties: string | symbol | (string | symbol)[],
   options?: { each: boolean }
 ) {

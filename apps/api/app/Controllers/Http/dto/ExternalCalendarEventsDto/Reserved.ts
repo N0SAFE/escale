@@ -49,11 +49,11 @@ export class ExternalCalendarEventsRessourceReservedDto extends BaseDto {
   @Type(() => ExternalCalendarEventsRessourceReservedFilesDto)
   public files: ExternalCalendarEventsRessourceReservedFilesDto
 
-  public get after () {
+  public get after() {
     return new ExternalCalendarEventsRessourceReservedDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -64,13 +64,14 @@ export class ExternalCalendarEventsRessourceReservedDto extends BaseDto {
 }
 
 export class ExternalCalendarEventsRessourceReservedBodyDtoAfter
-implements AsSameProperties<ExternalCalendarEventsRessourceReservedBodyDto> {}
+  implements AsSameProperties<ExternalCalendarEventsRessourceReservedBodyDto> {}
 
 export class ExternalCalendarEventsRessourceReservedQueryDtoAfter
-implements AsSameProperties<ExternalCalendarEventsRessourceReservedQueryDto> {}
+  implements AsSameProperties<ExternalCalendarEventsRessourceReservedQueryDto> {}
 
 export class ExternalCalendarEventsRessourceReservedParamsDtoAfter
-implements AsSameProperties<ExternalCalendarEventsRessourceReservedParamsDto> {
+  implements AsSameProperties<ExternalCalendarEventsRessourceReservedParamsDto>
+{
   @Transform(({ value }) => ExternalCalendar.findOrFail(value))
   @AwaitPromise
   public externalCalendar: ExternalCalendar
@@ -78,12 +79,13 @@ implements AsSameProperties<ExternalCalendarEventsRessourceReservedParamsDto> {
 
 @Exclude()
 export class ExternalCalendarEventsRessourceReservedFilesDtoAfter
-implements AsSameProperties<ExternalCalendarEventsRessourceReservedFilesDto> {}
+  implements AsSameProperties<ExternalCalendarEventsRessourceReservedFilesDto> {}
 
 @SkipTransform([['files', ExternalCalendarEventsRessourceReservedFilesDtoAfter]])
 export class ExternalCalendarEventsRessourceReservedDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<ExternalCalendarEventsRessourceReservedDto, 'after'>> {
+  implements AsSameProperties<Omit<ExternalCalendarEventsRessourceReservedDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

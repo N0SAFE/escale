@@ -40,11 +40,11 @@ export class RolesRessourceDeleteDto extends BaseDto {
   @Type(() => RolesRessourceDeleteFilesDto)
   public files: RolesRessourceDeleteFilesDto
 
-  public get after () {
+  public get after() {
     return new RolesRessourceDeleteDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -55,22 +55,23 @@ export class RolesRessourceDeleteDto extends BaseDto {
 }
 
 export class RolesRessourceDeleteBodyDtoAfter
-implements AsSameProperties<RolesRessourceDeleteBodyDto> {}
+  implements AsSameProperties<RolesRessourceDeleteBodyDto> {}
 
 export class RolesRessourceDeleteQueryDtoAfter
-implements AsSameProperties<RolesRessourceDeleteQueryDto> {}
+  implements AsSameProperties<RolesRessourceDeleteQueryDto> {}
 
 export class RolesRessourceDeleteParamsDtoAfter
-implements AsSameProperties<RolesRessourceDeleteParamsDto> {}
+  implements AsSameProperties<RolesRessourceDeleteParamsDto> {}
 
 @Exclude()
 export class RolesRessourceDeleteFilesDtoAfter
-implements AsSameProperties<RolesRessourceDeleteFilesDto> {}
+  implements AsSameProperties<RolesRessourceDeleteFilesDto> {}
 
 @SkipTransform([['files', RolesRessourceDeleteFilesDtoAfter]])
 export class RolesRessourceDeleteDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<RolesRessourceDeleteDto, 'after'>> {
+  implements AsSameProperties<Omit<RolesRessourceDeleteDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

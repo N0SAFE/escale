@@ -11,7 +11,7 @@ import { Custom } from '../Decorator/Custom'
 import { DateTime } from 'luxon'
 import { EntityExist } from '../Decorator/EntityExist'
 
-function checkDateIsAfter (date1: string, args: ValidationArguments) {
+function checkDateIsAfter(date1: string, args: ValidationArguments) {
   const [relatedPropertyName] = args.constraints
   const self = args.object
   const date2 = self[relatedPropertyName]
@@ -72,11 +72,11 @@ export class CheckoutSessionRessourceReservationDto extends BaseDto {
   @Type(() => CheckoutSessionRessourceReservationFilesDto)
   public files: CheckoutSessionRessourceReservationFilesDto
 
-  public get after () {
+  public get after() {
     return new CheckoutSessionRessourceReservationDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -87,7 +87,8 @@ export class CheckoutSessionRessourceReservationDto extends BaseDto {
 }
 
 export class CheckoutSessionRessourceReservationBodyDtoAfter
-implements AsSameProperties<CheckoutSessionRessourceReservationBodyDto> {
+  implements AsSameProperties<CheckoutSessionRessourceReservationBodyDto>
+{
   @Transform(({ value }) => Spa.findOrFail(value))
   @AwaitPromise
   public spa: Spa
@@ -109,19 +110,20 @@ implements AsSameProperties<CheckoutSessionRessourceReservationBodyDto> {
 }
 
 export class CheckoutSessionRessourceReservationQueryDtoAfter
-implements AsSameProperties<CheckoutSessionRessourceReservationQueryDto> {}
+  implements AsSameProperties<CheckoutSessionRessourceReservationQueryDto> {}
 
 export class CheckoutSessionRessourceReservationParamsDtoAfter
-implements AsSameProperties<CheckoutSessionRessourceReservationParamsDto> {}
+  implements AsSameProperties<CheckoutSessionRessourceReservationParamsDto> {}
 
 @Exclude()
 export class CheckoutSessionRessourceReservationFilesDtoAfter
-implements AsSameProperties<CheckoutSessionRessourceReservationFilesDto> {}
+  implements AsSameProperties<CheckoutSessionRessourceReservationFilesDto> {}
 
 @SkipTransform([['files', CheckoutSessionRessourceReservationFilesDtoAfter]])
 export class CheckoutSessionRessourceReservationDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<CheckoutSessionRessourceReservationDto, 'after'>> {
+  implements AsSameProperties<Omit<CheckoutSessionRessourceReservationDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

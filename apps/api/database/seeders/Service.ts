@@ -7,7 +7,7 @@ import Drive from '@ioc:Adonis/Core/Drive'
 import fs from 'fs'
 
 export default class ServiceSeeder extends BaseSeeder {
-  public async run () {
+  public async run() {
     const services = await Service.createMany([
       {
         label: 'Checkin/Checkout autonome',

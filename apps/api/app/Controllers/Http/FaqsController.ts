@@ -5,11 +5,11 @@ import { FaqRessourcePatchDto } from './dto/FaqDto/Patch'
 import { FaqRessourcePostDto } from './dto/FaqDto/Post'
 
 export default class FaqsController {
-  public async index ({}: HttpContextContract) {
+  public async index({}: HttpContextContract) {
     return await Faq.query().exec()
   }
 
-  public async store ({ request, response }: HttpContextContract) {
+  public async store({ request, response }: HttpContextContract) {
     const dto = FaqRessourcePostDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -23,11 +23,11 @@ export default class FaqsController {
     return response.ok(faq)
   }
 
-  public async show ({}: HttpContextContract) {}
+  public async show({}: HttpContextContract) {}
 
-  public async edit ({}: HttpContextContract) {}
+  public async edit({}: HttpContextContract) {}
 
-  public async update ({ request, response }: HttpContextContract) {
+  public async update({ request, response }: HttpContextContract) {
     const dto = FaqRessourcePatchDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -44,7 +44,7 @@ export default class FaqsController {
     return response.ok(faq)
   }
 
-  public async destroy ({ request, response }: HttpContextContract) {
+  public async destroy({ request, response }: HttpContextContract) {
     const dto = FaqRessourceDeleteDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {

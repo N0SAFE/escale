@@ -21,13 +21,13 @@ import { LucidModel, ModelQueryBuilderContract } from '@ioc:Adonis/Lucid/Orm'
 |
 */
 export default class ModelQueryBuilderPreloadProvider {
-  constructor (protected app: ApplicationContract) {}
+  constructor(protected app: ApplicationContract) {}
 
-  public register () {
+  public register() {
     // Register your own bindings
   }
 
-  public async boot () {
+  public async boot() {
     this.app.container.withBindings(['Adonis/Lucid/Database'], ({ ModelQueryBuilder }) => {
       ModelQueryBuilder.macro(
         'onPreloadedChain',
@@ -156,11 +156,11 @@ export default class ModelQueryBuilderPreloadProvider {
     // All bindings are ready, feel free to use them
   }
 
-  public async ready () {
+  public async ready() {
     // App is ready
   }
 
-  public async shutdown () {
+  public async shutdown() {
     // Cleanup, since app is going down
   }
 }

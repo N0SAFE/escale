@@ -7,7 +7,7 @@ import {
 } from 'class-transformer'
 
 // New decorator to be used on members that should not be transformed.
-export function Ignore () {
+export function Ignore() {
   // reuse transform decorator
   return Transform((params: TransformFnParams) => {
     if (params.type === TransformationType.CLASS_TO_CLASS) {
@@ -24,14 +24,14 @@ export function Ignore () {
 }
 
 // Extended classToPlain to unwrap the container objects
-export function customInstanceToInstance<T> (object: T, options?: ClassTransformOptions) {
+export function customInstanceToInstance<T>(object: T, options?: ClassTransformOptions) {
   const result = instanceToInstance(object, options)
   unwrapSkipTransformContainers(result)
   return result
 }
 
 // Recursive function to iterate over all keys of an object and its nested objects.
-function unwrapSkipTransformContainers (obj: any) {
+function unwrapSkipTransformContainers(obj: any) {
   for (const i in obj) {
     if (obj.hasOwnProperty(i)) {
       const currentValue = obj[i]

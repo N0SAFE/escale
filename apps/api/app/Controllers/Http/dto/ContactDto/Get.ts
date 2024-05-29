@@ -20,16 +20,16 @@ export class ContactRessourceGetDto extends BaseDto {
   @Type(() => ContactRessourceGetQueryDto)
   public query: ContactRessourceGetQueryDto
 
-  public get after () {
+  public get after() {
     return new ContactRessourceGetDtoAfter(this)
   }
 }
 
 export class ContactRessourceGetBodyDtoAfter
-implements AsSameProperties<ContactRessourceGetBodyDto> {}
+  implements AsSameProperties<ContactRessourceGetBodyDto> {}
 
 export class ContactRessourceGetQueryDtoAfter
-implements AsSameProperties<ContactRessourceGetQueryDto> {}
+  implements AsSameProperties<ContactRessourceGetQueryDto> {}
 
 export class ContactRessourceGetDtoAfter extends BaseDto {
   @IsDefined()

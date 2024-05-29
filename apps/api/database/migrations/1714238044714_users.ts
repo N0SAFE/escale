@@ -3,7 +3,7 @@ import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 export default class extends BaseSchema {
   protected tableName = 'users'
 
-  public async up () {
+  public async up() {
     this.schema.alterTable(this.tableName, (table) => {
       table.string('username').unique().notNullable().defaultTo('')
       table.integer('avatar_id').unsigned().references('id').inTable('images').onDelete('CASCADE')
@@ -11,7 +11,7 @@ export default class extends BaseSchema {
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.alterTable(this.tableName, (table) => {
       table.dropColumn('username')
       table.dropColumn('avatar_id')

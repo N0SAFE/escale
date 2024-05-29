@@ -3,7 +3,7 @@ import Spa from 'App/Models/Spa'
 import Tag from 'App/Models/Tag'
 
 export default class TagSeeder extends BaseSeeder {
-  public async run () {
+  public async run() {
     const tags = await Tag.createMany([
       {
         label: 'chambre',

@@ -7,7 +7,7 @@ import File from 'App/Models/File'
 import VideoSource from 'App/Models/VideoSource'
 
 export default class VideosController {
-  public async index ({ request, response }: HttpContextContract) {
+  public async index({ request, response }: HttpContextContract) {
     const dto = VideoRessourceGetCollectionDto.fromRequest(request)
     const errors = await dto.validate()
     if (errors.length) {
@@ -26,9 +26,9 @@ export default class VideosController {
     return response.ok(await videoQuery.exec())
   }
 
-  public async create ({}: HttpContextContract) {}
+  public async create({}: HttpContextContract) {}
 
-  public async store ({ request, response }: HttpContextContract) {
+  public async store({ request, response }: HttpContextContract) {
     const dto = VideoRessourcePostDto.fromRequest(request)
     const errors = await dto.validate()
     if (errors.length) {
@@ -87,11 +87,11 @@ export default class VideosController {
       .saveMany(sourcesData.map(({ videoSourceInstance }) => videoSourceInstance))
   }
 
-  public async show ({}: HttpContextContract) {}
+  public async show({}: HttpContextContract) {}
 
-  public async edit ({}: HttpContextContract) {}
+  public async edit({}: HttpContextContract) {}
 
-  public async update ({}: HttpContextContract) {}
+  public async update({}: HttpContextContract) {}
 
-  public async destroy ({}: HttpContextContract) {}
+  public async destroy({}: HttpContextContract) {}
 }

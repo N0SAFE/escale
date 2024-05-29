@@ -82,11 +82,11 @@ export class ReservationRessourceClosestUnreservableDto extends BaseDto {
   @Type(() => ReservationRessourceClosestUnreservableFilesDto)
   public files: ReservationRessourceClosestUnreservableFilesDto
 
-  public get after () {
+  public get after() {
     return new ReservationRessourceClosestUnreservableDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -97,10 +97,11 @@ export class ReservationRessourceClosestUnreservableDto extends BaseDto {
 }
 
 export class ReservationRessourceClosestUnreservableBodyDtoAfter
-implements AsSameProperties<ReservationRessourceClosestUnreservableBodyDto> {}
+  implements AsSameProperties<ReservationRessourceClosestUnreservableBodyDto> {}
 
 export class ReservationRessourceClosestUnreservableQueryDtoAfter
-implements AsSameProperties<ReservationRessourceClosestUnreservableQueryDto> {
+  implements AsSameProperties<ReservationRessourceClosestUnreservableQueryDto>
+{
   @Transform(({ value }) => Spa.firstOrFail(value))
   @AwaitPromise
   public spa: Spa
@@ -116,16 +117,17 @@ implements AsSameProperties<ReservationRessourceClosestUnreservableQueryDto> {
 }
 
 export class ReservationRessourceClosestUnreservableParamsDtoAfter
-implements AsSameProperties<ReservationRessourceClosestUnreservableParamsDto> {}
+  implements AsSameProperties<ReservationRessourceClosestUnreservableParamsDto> {}
 
 @Exclude()
 export class ReservationRessourceClosestUnreservableFilesDtoAfter
-implements AsSameProperties<ReservationRessourceClosestUnreservableFilesDto> {}
+  implements AsSameProperties<ReservationRessourceClosestUnreservableFilesDto> {}
 
 @SkipTransform([['files', ReservationRessourceClosestUnreservableFilesDtoAfter]])
 export class ReservationRessourceClosestUnreservableDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<ReservationRessourceClosestUnreservableDto, 'after'>> {
+  implements AsSameProperties<Omit<ReservationRessourceClosestUnreservableDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

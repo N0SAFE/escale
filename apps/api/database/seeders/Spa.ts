@@ -7,9 +7,9 @@ import Drive from '@ioc:Adonis/Core/Drive'
 import Image from 'App/Models/Image'
 
 export default class SpaSeeder extends BaseSeeder {
-  public async run () {
+  public async run() {
     const spa = await Spa.create({
-      title: 'l\'escale',
+      title: "l'escale",
       description: `Ce logement affiche un style résolument unique. Plongez vous au cœur de cette suite exceptionnelle et profitez pleinement de son jacuzzi. <br>
       Situé à 1h de Paris, 5 minutes de l'aéroport de Beauvais-Tillé et de la A16, faites une escale dans notre magnifique suite. <br>
       Plusieurs restaurants desservant la Suite via Uber eats et autres plateformes, savourez un moment de détente devant Netflix, Amazon Prime ainsi que Deezer. Et ce, depuis votre lit ou depuis votre jacuzzi grâce à notre TV rotative !`,

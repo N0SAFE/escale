@@ -20,7 +20,7 @@ export class RulesRessourceGetDto extends BaseDto {
   @Type(() => RulesRessourceGetQueryDto)
   public query: RulesRessourceGetQueryDto
 
-  public get after () {
+  public get after() {
     return new RulesRessourceGetDtoAfter(this)
   }
 }
@@ -28,7 +28,7 @@ export class RulesRessourceGetDto extends BaseDto {
 export class RulesRessourceGetBodyDtoAfter implements AsSameProperties<RulesRessourceGetBodyDto> {}
 
 export class RulesRessourceGetQueryDtoAfter
-implements AsSameProperties<RulesRessourceGetQueryDto> {}
+  implements AsSameProperties<RulesRessourceGetQueryDto> {}
 
 export class RulesRessourceGetDtoAfter extends BaseDto {
   @IsDefined()

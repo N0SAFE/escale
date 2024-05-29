@@ -1,7 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 export default class HasRole {
-  public async handle (
+  public async handle(
     { auth, response }: HttpContextContract,
     next: () => Promise<void>,
     roles: string[]

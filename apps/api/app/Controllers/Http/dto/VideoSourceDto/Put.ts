@@ -40,11 +40,11 @@ export class VideoSourceRessourcePutDto extends BaseDto {
   @Type(() => VideoSourceRessourcePutFilesDto)
   public files: VideoSourceRessourcePutFilesDto
 
-  public get after () {
+  public get after() {
     return new VideoSourceRessourcePutDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -55,22 +55,23 @@ export class VideoSourceRessourcePutDto extends BaseDto {
 }
 
 export class VideoSourceRessourcePutBodyDtoAfter
-implements AsSameProperties<VideoSourceRessourcePutBodyDto> {}
+  implements AsSameProperties<VideoSourceRessourcePutBodyDto> {}
 
 export class VideoSourceRessourcePutQueryDtoAfter
-implements AsSameProperties<VideoSourceRessourcePutQueryDto> {}
+  implements AsSameProperties<VideoSourceRessourcePutQueryDto> {}
 
 export class VideoSourceRessourcePutParamsDtoAfter
-implements AsSameProperties<VideoSourceRessourcePutParamsDto> {}
+  implements AsSameProperties<VideoSourceRessourcePutParamsDto> {}
 
 @Exclude()
 export class VideoSourceRessourcePutFilesDtoAfter
-implements AsSameProperties<VideoSourceRessourcePutFilesDto> {}
+  implements AsSameProperties<VideoSourceRessourcePutFilesDto> {}
 
 @SkipTransform([['files', VideoSourceRessourcePutFilesDtoAfter]])
 export class VideoSourceRessourcePutDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<VideoSourceRessourcePutDto, 'after'>> {
+  implements AsSameProperties<Omit<VideoSourceRessourcePutDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

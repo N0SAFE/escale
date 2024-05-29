@@ -10,19 +10,19 @@ export class CustomBaseModelFilter extends BaseModelFilter {
   protected $afters: OnFunction[] = []
   public $loadedRelation: Relation
 
-  constructor ($query: any, $input: any) {
+  constructor($query: any, $input: any) {
     super($query, $input)
   }
 
-  protected addBefore (setup: OnFunction) {
+  protected addBefore(setup: OnFunction) {
     this.$befores.push(setup)
   }
 
-  protected addAfter (after: OnFunction) {
+  protected addAfter(after: OnFunction) {
     this.$afters.push(after)
   }
 
-  public handle () {
+  public handle() {
     this.$befores.forEach((before) => {
       before(this.$query, this.$input)
     })

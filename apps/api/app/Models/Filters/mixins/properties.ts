@@ -31,16 +31,16 @@ type Properties = string[]
 
 export default function PropertiesFilter<
   T extends NormalizeConstructor<typeof CustomBaseModelFilter>
-> (allowedProperties?: Properties) {
+>(allowedProperties?: Properties) {
   allowedProperties
-  return function propertiesFilterMixin (Base: T) {
+  return function propertiesFilterMixin(Base: T) {
     return class SearchFilterMixin extends Base {
       public $loadedRelation: Relation
-      constructor (...args: any[]) {
+      constructor(...args: any[]) {
         super(...args)
       }
 
-      public property (value: RecursiveValue): void {
+      public property(value: RecursiveValue): void {
         const relationArray = nestedRelationToArray(value, this.$query)
 
         relationArray.forEach((relation) => {

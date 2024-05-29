@@ -18,7 +18,7 @@ import Spa from 'App/Models/Spa'
 import { Custom } from '../Decorator/Custom'
 import { DateTime } from 'luxon'
 
-function checkDateIsAfter (date1: string, args: ValidationArguments) {
+function checkDateIsAfter(date1: string, args: ValidationArguments) {
   const [relatedPropertyName] = args.constraints
   const self = args.object
   const date2 = self[relatedPropertyName]
@@ -61,70 +61,70 @@ export class AvailabilityRessourcePatchBodyDto {
   @ValidateNested()
   @Type(() => Price)
   public monPrice: Price = {
-      night: 0,
-      day: 0,
-      journey: 0,
-    }
+    night: 0,
+    day: 0,
+    journey: 0,
+  }
 
   @IsDefined()
   @IsObject()
   @ValidateNested()
   @Type(() => Price)
   public tuePrice: Price = {
-      night: 0,
-      day: 0,
-      journey: 0,
-    }
+    night: 0,
+    day: 0,
+    journey: 0,
+  }
 
   @IsDefined()
   @IsObject()
   @ValidateNested()
   @Type(() => Price)
   public wedPrice: Price = {
-      night: 0,
-      day: 0,
-      journey: 0,
-    }
+    night: 0,
+    day: 0,
+    journey: 0,
+  }
 
   @IsDefined()
   @IsObject()
   @ValidateNested()
   @Type(() => Price)
   public thuPrice: Price = {
-      night: 0,
-      day: 0,
-      journey: 0,
-    }
+    night: 0,
+    day: 0,
+    journey: 0,
+  }
 
   @IsDefined()
   @IsObject()
   @ValidateNested()
   @Type(() => Price)
   public friPrice: Price = {
-      night: 0,
-      day: 0,
-      journey: 0,
-    }
+    night: 0,
+    day: 0,
+    journey: 0,
+  }
 
   @IsDefined()
   @IsObject()
   @ValidateNested()
   @Type(() => Price)
   public satPrice: Price = {
-      night: 0,
-      day: 0,
-      journey: 0,
-    }
+    night: 0,
+    day: 0,
+    journey: 0,
+  }
 
   @IsDefined()
   @IsObject()
   @ValidateNested()
   @Type(() => Price)
   public sunPrice: Price = {
-      night: 0,
-      day: 0,
-      journey: 0,
-    }
+    night: 0,
+    day: 0,
+    journey: 0,
+  }
 }
 
 export class AvailabilityRessourcePatchQueryDto {}
@@ -166,11 +166,11 @@ export class AvailabilityRessourcePatchDto extends BaseDto {
   @Type(() => AvailabilityRessourcePatchFilesDto)
   public files: AvailabilityRessourcePatchFilesDto
 
-  public get after () {
+  public get after() {
     return new AvailabilityRessourcePatchDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -181,7 +181,8 @@ export class AvailabilityRessourcePatchDto extends BaseDto {
 }
 
 export class AvailabilityRessourcePatchBodyDtoAfter
-implements AsSameProperties<AvailabilityRessourcePatchBodyDto> {
+  implements AsSameProperties<AvailabilityRessourcePatchBodyDto>
+{
   public spaId: number
 
   @Transform(({ value }) => DateTime.fromISO(value))
@@ -200,10 +201,11 @@ implements AsSameProperties<AvailabilityRessourcePatchBodyDto> {
 }
 
 export class AvailabilityRessourcePatchQueryDtoAfter
-implements AsSameProperties<AvailabilityRessourcePatchQueryDto> {}
+  implements AsSameProperties<AvailabilityRessourcePatchQueryDto> {}
 
 export class AvailabilityRessourcePatchParamsDtoAfter
-implements AsSameProperties<AvailabilityRessourcePatchParamsDto> {
+  implements AsSameProperties<AvailabilityRessourcePatchParamsDto>
+{
   @Transform(({ value }) => Availability.findOrFail(value))
   @AwaitPromise
   public id: Availability
@@ -211,12 +213,13 @@ implements AsSameProperties<AvailabilityRessourcePatchParamsDto> {
 
 @Exclude()
 export class AvailabilityRessourcePatchFilesDtoAfter
-implements AsSameProperties<AvailabilityRessourcePatchFilesDto> {}
+  implements AsSameProperties<AvailabilityRessourcePatchFilesDto> {}
 
 @SkipTransform([['files', AvailabilityRessourcePatchFilesDtoAfter]])
 export class AvailabilityRessourcePatchDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<AvailabilityRessourcePatchDto, 'after'>> {
+  implements AsSameProperties<Omit<AvailabilityRessourcePatchDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

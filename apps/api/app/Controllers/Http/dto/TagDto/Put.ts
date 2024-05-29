@@ -20,7 +20,7 @@ export class TagRessourcePutDto extends BaseDto {
   @Type(() => TagRessourcePutQueryDto)
   public query: TagRessourcePutQueryDto
 
-  public get after () {
+  public get after() {
     return new TagRessourcePutDtoAfter(this)
   }
 }

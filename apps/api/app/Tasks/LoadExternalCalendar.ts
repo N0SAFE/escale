@@ -11,7 +11,7 @@ export default class LoadExternalCalendar extends BaseTask {
   private externalCalendarEventRepository: ExternalCalendarEventRepository =
     new ExternalCalendarEventRepository()
 
-  public static get schedule () {
+  public static get schedule() {
     // Use CronTimeV2 generator:
     return CronTimeV2.everyHourAt(0)
     // or just use return cron-style string (simple cron editor: crontab.guru)
@@ -20,11 +20,11 @@ export default class LoadExternalCalendar extends BaseTask {
    * Set enable use .lock file for block run retry task
    * Lock file save to `build/tmp/adonis5-scheduler/locks/your-class-name`
    */
-  public static get useLock () {
+  public static get useLock() {
     return true
   }
 
-  public async processLoadingExternalCalendar ({
+  public async processLoadingExternalCalendar({
     from,
     service,
     calendarUrl,
@@ -44,7 +44,7 @@ export default class LoadExternalCalendar extends BaseTask {
     await this.externalCalendarEventRepository.deleteEvents(airbnbEventIds)
   }
 
-  public async handle () {
+  public async handle() {
     const externalCalendars = await ExternalCalendar.all()
     await Promise.all(
       externalCalendars.map(async (externalCalendar) => {

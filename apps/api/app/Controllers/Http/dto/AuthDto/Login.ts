@@ -35,11 +35,11 @@ export default class AuthLoginDto extends BaseDto {
   @Type(() => AuthLoginBodyDto)
   private _body: AuthLoginBodyDto
 
-  public get body (): AuthLoginBodyDto {
+  public get body(): AuthLoginBodyDto {
     return this._body
   }
 
-  public set body (value: AuthLoginBodyDto) {
+  public set body(value: AuthLoginBodyDto) {
     this._body = new AuthLoginBodyDto(value)
   }
 }

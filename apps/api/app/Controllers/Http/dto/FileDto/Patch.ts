@@ -20,16 +20,16 @@ export class FileRessourcePatchDto extends BaseDto {
   @Type(() => FileRessourcePatchQueryDto)
   public query: FileRessourcePatchQueryDto
 
-  public get after () {
+  public get after() {
     return new FileRessourcePatchDtoAfter(this)
   }
 }
 
 export class FileRessourcePatchBodyDtoAfter
-implements AsSameProperties<FileRessourcePatchBodyDto> {}
+  implements AsSameProperties<FileRessourcePatchBodyDto> {}
 
 export class FileRessourcePatchQueryDtoAfter
-implements AsSameProperties<FileRessourcePatchQueryDto> {}
+  implements AsSameProperties<FileRessourcePatchQueryDto> {}
 
 export class FileRessourcePatchDtoAfter extends BaseDto {
   @IsDefined()

@@ -42,12 +42,12 @@ type Properties = (string | [string, (typeof strategy)[keyof typeof strategy]])[
 // NULLS_ALWAYS_FIRST the nulls always come first in the order
 // NULLS_ALWAYS_LAST the nulls always come last in the order
 
-export default function OrderFilter<T extends NormalizeConstructor<typeof CustomBaseModelFilter>> (
+export default function OrderFilter<T extends NormalizeConstructor<typeof CustomBaseModelFilter>>(
   _?: Properties
 ) {
-  return function orderFilterMixin (Base: T) {
+  return function orderFilterMixin(Base: T) {
     return class SearchFilterMixin extends Base {
-      public order (value: RecursiveValue): void {
+      public order(value: RecursiveValue): void {
         const relationArray = Object.entries(value).map(([key, value]) => {
           return {
             path: key.split('.'),

@@ -62,11 +62,11 @@ export class ServiceRessourcePatchDto extends BaseDto {
   @Type(() => ServiceRessourcePatchFilesDto)
   public files: ServiceRessourcePatchFilesDto
 
-  public get after () {
+  public get after() {
     return new ServiceRessourcePatchDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -77,17 +77,19 @@ export class ServiceRessourcePatchDto extends BaseDto {
 }
 
 export class ServiceRessourcePatchBodyDtoAfter
-implements AsSameProperties<ServiceRessourcePatchBodyDto> {
+  implements AsSameProperties<ServiceRessourcePatchBodyDto>
+{
   public label?: string
   public description?: string
   public image?: number | null
 }
 
 export class ServiceRessourcePatchQueryDtoAfter
-implements AsSameProperties<ServiceRessourcePatchQueryDto> {}
+  implements AsSameProperties<ServiceRessourcePatchQueryDto> {}
 
 export class ServiceRessourcePatchParamsDtoAfter
-implements AsSameProperties<ServiceRessourcePatchParamsDto> {
+  implements AsSameProperties<ServiceRessourcePatchParamsDto>
+{
   @Transform(({ value }) => Service.findOrFail(value))
   @AwaitPromise
   public id: Service
@@ -95,12 +97,13 @@ implements AsSameProperties<ServiceRessourcePatchParamsDto> {
 
 @Exclude()
 export class ServiceRessourcePatchFilesDtoAfter
-implements AsSameProperties<ServiceRessourcePatchFilesDto> {}
+  implements AsSameProperties<ServiceRessourcePatchFilesDto> {}
 
 @SkipTransform([['files', ServiceRessourcePatchFilesDtoAfter]])
 export class ServiceRessourcePatchDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<ServiceRessourcePatchDto, 'after'>> {
+  implements AsSameProperties<Omit<ServiceRessourcePatchDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

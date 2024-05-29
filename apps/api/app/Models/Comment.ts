@@ -31,7 +31,7 @@ export default class Comment extends AppBaseModel {
 
   @beforeFind()
   @beforeFetch()
-  public static async fetchComments (query) {
+  public static async fetchComments(query) {
     query.preload('user')
   }
 }

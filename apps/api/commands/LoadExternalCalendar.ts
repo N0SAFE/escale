@@ -37,7 +37,7 @@ export default class LoadExternalCalendar extends BaseCommand {
     stayAlive: false,
   }
 
-  public async processLoadingExternalCalendar ({
+  public async processLoadingExternalCalendar({
     from,
     service,
     calendarUrl,
@@ -57,7 +57,7 @@ export default class LoadExternalCalendar extends BaseCommand {
     await this.externalCalendarEventRepository.deleteEvents(airbnbEventIds)
   }
 
-  public async run () {
+  public async run() {
     const spinner = this.logger.await('loading external calendar', 'load:calendar')
     try {
       const externalCalendars = await ExternalCalendar.all()

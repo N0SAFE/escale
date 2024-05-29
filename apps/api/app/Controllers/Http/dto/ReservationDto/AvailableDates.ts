@@ -15,7 +15,7 @@ import Spa from 'App/Models/Spa'
 import { EntityExist } from '../Decorator/EntityExist'
 import { AwaitPromise } from '../Decorator/AwaitPromise'
 
-function checkDateIsAfter (date1: string, args: ValidationArguments) {
+function checkDateIsAfter(date1: string, args: ValidationArguments) {
   const [relatedPropertyName] = args.constraints
   const self = args.object
   const date2 = self[relatedPropertyName]
@@ -59,16 +59,17 @@ export class ReservationsRessourceAvailableDatesDto extends BaseDto {
   @Type(() => ReservationsRessourceAvailableDatesQueryDto)
   public query: ReservationsRessourceAvailableDatesQueryDto
 
-  public get after () {
+  public get after() {
     return new ReservationsRessourceAvailableDatesDtoAfter(this)
   }
 }
 
 export class ReservationsRessourceAvailableDatesBodyDtoAfter
-implements AsSameProperties<ReservationsRessourceAvailableDatesBodyDto> {}
+  implements AsSameProperties<ReservationsRessourceAvailableDatesBodyDto> {}
 
 export class ReservationsRessourceAvailableDatesQueryDtoAfter
-implements AsSameProperties<ReservationsRessourceAvailableDatesQueryDto> {
+  implements AsSameProperties<ReservationsRessourceAvailableDatesQueryDto>
+{
   @Transform(({ value }) => DateTime.fromISO(value))
   public startAt: DateTime
 

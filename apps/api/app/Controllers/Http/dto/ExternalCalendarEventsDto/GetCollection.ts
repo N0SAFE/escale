@@ -16,7 +16,7 @@ import { DateTime } from 'luxon'
 import ExternalCalendar from 'App/Models/ExternalCalendar'
 import { EntityExist } from '../Decorator/EntityExist'
 
-function checkDateIsAfter (date1: string, args: ValidationArguments) {
+function checkDateIsAfter(date1: string, args: ValidationArguments) {
   const [relatedPropertyName] = args.constraints
   const self = args.object
   const date2 = self[relatedPropertyName]
@@ -76,11 +76,11 @@ export class ExternalCalendarEventsRessourceGetCollectionDto extends BaseDto {
   @Type(() => ExternalCalendarEventsRessourceGetCollectionFilesDto)
   public files: ExternalCalendarEventsRessourceGetCollectionFilesDto
 
-  public get after () {
+  public get after() {
     return new ExternalCalendarEventsRessourceGetCollectionDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -91,10 +91,11 @@ export class ExternalCalendarEventsRessourceGetCollectionDto extends BaseDto {
 }
 
 export class ExternalCalendarEventsRessourceGetCollectionBodyDtoAfter
-implements AsSameProperties<ExternalCalendarEventsRessourceGetCollectionBodyDto> {}
+  implements AsSameProperties<ExternalCalendarEventsRessourceGetCollectionBodyDto> {}
 
 export class ExternalCalendarEventsRessourceGetCollectionQueryDtoAfter
-implements AsSameProperties<ExternalCalendarEventsRessourceGetCollectionQueryDto> {
+  implements AsSameProperties<ExternalCalendarEventsRessourceGetCollectionQueryDto>
+{
   @Transform(({ value }) => DateTime.fromISO(value))
   public startAt: DateTime
 
@@ -103,18 +104,20 @@ implements AsSameProperties<ExternalCalendarEventsRessourceGetCollectionQueryDto
 }
 
 export class ExternalCalendarEventsRessourceGetCollectionParamsDtoAfter
-implements AsSameProperties<ExternalCalendarEventsRessourceGetCollectionParamsDto> {
+  implements AsSameProperties<ExternalCalendarEventsRessourceGetCollectionParamsDto>
+{
   public externalCalendar: number
 }
 
 @Exclude()
 export class ExternalCalendarEventsRessourceGetCollectionFilesDtoAfter
-implements AsSameProperties<ExternalCalendarEventsRessourceGetCollectionFilesDto> {}
+  implements AsSameProperties<ExternalCalendarEventsRessourceGetCollectionFilesDto> {}
 
 @SkipTransform([['files', ExternalCalendarEventsRessourceGetCollectionFilesDtoAfter]])
 export class ExternalCalendarEventsRessourceGetCollectionDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<ExternalCalendarEventsRessourceGetCollectionDto, 'after'>> {
+  implements AsSameProperties<Omit<ExternalCalendarEventsRessourceGetCollectionDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

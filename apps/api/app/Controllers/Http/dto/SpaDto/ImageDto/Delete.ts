@@ -56,11 +56,11 @@ export class SpaImageRessourceDeleteDto extends BaseDto {
   @Type(() => SpaImageRessourceDeleteFilesDto)
   public files: SpaImageRessourceDeleteFilesDto
 
-  public get after () {
+  public get after() {
     return new SpaImageRessourceDeleteDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -71,13 +71,14 @@ export class SpaImageRessourceDeleteDto extends BaseDto {
 }
 
 export class SpaImageRessourceDeleteBodyDtoAfter
-implements AsSameProperties<SpaImageRessourceDeleteBodyDto> {}
+  implements AsSameProperties<SpaImageRessourceDeleteBodyDto> {}
 
 export class SpaImageRessourceDeleteQueryDtoAfter
-implements AsSameProperties<SpaImageRessourceDeleteQueryDto> {}
+  implements AsSameProperties<SpaImageRessourceDeleteQueryDto> {}
 
 export class SpaImageRessourceDeleteParamsDtoAfter
-implements AsSameProperties<SpaImageRessourceDeleteParamsDto> {
+  implements AsSameProperties<SpaImageRessourceDeleteParamsDto>
+{
   @Transform(async ({ value }) => await Spa.findOrFail(value))
   @AwaitPromise
   public spa: Spa
@@ -89,12 +90,13 @@ implements AsSameProperties<SpaImageRessourceDeleteParamsDto> {
 
 @Exclude()
 export class SpaImageRessourceDeleteFilesDtoAfter
-implements AsSameProperties<SpaImageRessourceDeleteFilesDto> {}
+  implements AsSameProperties<SpaImageRessourceDeleteFilesDto> {}
 
 @SkipTransform([['files', SpaImageRessourceDeleteFilesDtoAfter]])
 export class SpaImageRessourceDeleteDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<SpaImageRessourceDeleteDto, 'after'>> {
+  implements AsSameProperties<Omit<SpaImageRessourceDeleteDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

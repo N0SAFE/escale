@@ -47,11 +47,11 @@ export default class AuthRegisterDto extends BaseDto {
   @Type(() => AuthRegisterBodyDto)
   private _body: AuthRegisterBodyDto
 
-  public get body (): AuthRegisterBodyDto {
+  public get body(): AuthRegisterBodyDto {
     return this._body
   }
 
-  public set body (value: AuthRegisterBodyDto) {
+  public set body(value: AuthRegisterBodyDto) {
     this._body = new AuthRegisterBodyDto(value)
   }
 }

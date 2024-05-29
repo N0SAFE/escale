@@ -49,11 +49,11 @@ export class SpaRessourceGetDto extends BaseDto {
   @Type(() => SpaRessourceGetFilesDto)
   public files: SpaRessourceGetFilesDto
 
-  public get after () {
+  public get after() {
     return new SpaRessourceGetDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -79,7 +79,8 @@ export class SpaRessourceGetFilesDtoAfter implements AsSameProperties<SpaRessour
 @SkipTransform([['files', SpaRessourceGetFilesDtoAfter]])
 export class SpaRessourceGetDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<SpaRessourceGetDto, 'after'>> {
+  implements AsSameProperties<Omit<SpaRessourceGetDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

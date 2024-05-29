@@ -21,7 +21,7 @@ import { EntityExist } from '../Decorator/EntityExist'
 import { Custom } from '../Decorator/Custom'
 import Reservation from 'App/Models/Reservation'
 
-function checkDateIsAfter (date1: string, args: ValidationArguments) {
+function checkDateIsAfter(date1: string, args: ValidationArguments) {
   const [relatedPropertyName] = args.constraints
   const self = args.object
   const date2 = self[relatedPropertyName]
@@ -109,11 +109,11 @@ export class ReservationRessourceReservableDto extends BaseDto {
   @Type(() => ReservationRessourceReservableFilesDto)
   public files: ReservationRessourceReservableFilesDto
 
-  public get after () {
+  public get after() {
     return new ReservationRessourceReservableDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -124,10 +124,11 @@ export class ReservationRessourceReservableDto extends BaseDto {
 }
 
 export class ReservationRessourceReservableBodyDtoAfter
-implements AsSameProperties<ReservationRessourceReservableBodyDto> {}
+  implements AsSameProperties<ReservationRessourceReservableBodyDto> {}
 
 export class ReservationRessourceReservableQueryDtoAfter
-implements AsSameProperties<ReservationRessourceReservableQueryDto> {
+  implements AsSameProperties<ReservationRessourceReservableQueryDto>
+{
   @Transform(async ({ value }) => await Spa.findOrFail(value))
   @AwaitPromise
   public spa: Spa
@@ -146,16 +147,17 @@ implements AsSameProperties<ReservationRessourceReservableQueryDto> {
 }
 
 export class ReservationRessourceReservableParamsDtoAfter
-implements AsSameProperties<ReservationRessourceReservableParamsDto> {}
+  implements AsSameProperties<ReservationRessourceReservableParamsDto> {}
 
 @Exclude()
 export class ReservationRessourceReservableFilesDtoAfter
-implements AsSameProperties<ReservationRessourceReservableFilesDto> {}
+  implements AsSameProperties<ReservationRessourceReservableFilesDto> {}
 
 @SkipTransform([['files', ReservationRessourceReservableFilesDtoAfter]])
 export class ReservationRessourceReservableDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<ReservationRessourceReservableDto, 'after'>> {
+  implements AsSameProperties<Omit<ReservationRessourceReservableDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

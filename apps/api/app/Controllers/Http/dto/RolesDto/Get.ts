@@ -40,11 +40,11 @@ export class RolesRessourceGetDto extends BaseDto {
   @Type(() => RolesRessourceGetFilesDto)
   public files: RolesRessourceGetFilesDto
 
-  public get after () {
+  public get after() {
     return new RolesRessourceGetDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -57,19 +57,20 @@ export class RolesRessourceGetDto extends BaseDto {
 export class RolesRessourceGetBodyDtoAfter implements AsSameProperties<RolesRessourceGetBodyDto> {}
 
 export class RolesRessourceGetQueryDtoAfter
-implements AsSameProperties<RolesRessourceGetQueryDto> {}
+  implements AsSameProperties<RolesRessourceGetQueryDto> {}
 
 export class RolesRessourceGetParamsDtoAfter
-implements AsSameProperties<RolesRessourceGetParamsDto> {}
+  implements AsSameProperties<RolesRessourceGetParamsDto> {}
 
 @Exclude()
 export class RolesRessourceGetFilesDtoAfter
-implements AsSameProperties<RolesRessourceGetFilesDto> {}
+  implements AsSameProperties<RolesRessourceGetFilesDto> {}
 
 @SkipTransform([['files', RolesRessourceGetFilesDtoAfter]])
 export class RolesRessourceGetDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<RolesRessourceGetDto, 'after'>> {
+  implements AsSameProperties<Omit<RolesRessourceGetDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

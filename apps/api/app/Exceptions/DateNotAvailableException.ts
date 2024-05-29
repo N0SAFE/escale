@@ -13,7 +13,7 @@ import { Exception } from '@adonisjs/core/build/standalone'
 |
 */
 export default class DateNotAvailableException extends Exception {
-  constructor () {
+  constructor() {
     super('This date is not available', 400, 'E_DATE_NOT_AVAILABLE')
   }
 }

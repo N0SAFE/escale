@@ -20,7 +20,7 @@ import { Custom } from '../Decorator/Custom'
 import { DateTime } from 'luxon'
 import Spa from 'App/Models/Spa'
 
-function checkDateIsAfter (date1: string, args: ValidationArguments) {
+function checkDateIsAfter(date1: string, args: ValidationArguments) {
   const [relatedPropertyName] = args.constraints
   const self = args.object
   const date2 = self[relatedPropertyName]
@@ -88,11 +88,11 @@ export class ReservationRessourcePatchDto extends BaseDto {
   @Type(() => ReservationRessourcePatchFilesDto)
   public files: ReservationRessourcePatchFilesDto
 
-  public get after () {
+  public get after() {
     return new ReservationRessourcePatchDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -103,7 +103,8 @@ export class ReservationRessourcePatchDto extends BaseDto {
 }
 
 export class ReservationRessourcePatchBodyDtoAfter
-implements AsSameProperties<ReservationRessourcePatchBodyDto> {
+  implements AsSameProperties<ReservationRessourcePatchBodyDto>
+{
   public spaId: number
 
   @Transform(({ value }) => DateTime.fromISO(value))
@@ -116,10 +117,11 @@ implements AsSameProperties<ReservationRessourcePatchBodyDto> {
 }
 
 export class ReservationRessourcePatchQueryDtoAfter
-implements AsSameProperties<ReservationRessourcePatchQueryDto> {}
+  implements AsSameProperties<ReservationRessourcePatchQueryDto> {}
 
 export class ReservationRessourcePatchParamsDtoAfter
-implements AsSameProperties<ReservationRessourcePatchParamsDto> {
+  implements AsSameProperties<ReservationRessourcePatchParamsDto>
+{
   @Transform(({ value }) => Reservation.findOrFail(value))
   @AwaitPromise
   public id: Reservation
@@ -127,12 +129,13 @@ implements AsSameProperties<ReservationRessourcePatchParamsDto> {
 
 @Exclude()
 export class ReservationRessourcePatchFilesDtoAfter
-implements AsSameProperties<ReservationRessourcePatchFilesDto> {}
+  implements AsSameProperties<ReservationRessourcePatchFilesDto> {}
 
 @SkipTransform([['files', ReservationRessourcePatchFilesDtoAfter]])
 export class ReservationRessourcePatchDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<ReservationRessourcePatchDto, 'after'>> {
+  implements AsSameProperties<Omit<ReservationRessourcePatchDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

@@ -49,11 +49,11 @@ export class UsersRessourceDeleteDto extends BaseDto {
   @Type(() => UsersRessourceDeleteFilesDto)
   public files: UsersRessourceDeleteFilesDto
 
-  public get after () {
+  public get after() {
     return new UsersRessourceDeleteDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -64,13 +64,14 @@ export class UsersRessourceDeleteDto extends BaseDto {
 }
 
 export class UsersRessourceDeleteBodyDtoAfter
-implements AsSameProperties<UsersRessourceDeleteBodyDto> {}
+  implements AsSameProperties<UsersRessourceDeleteBodyDto> {}
 
 export class UsersRessourceDeleteQueryDtoAfter
-implements AsSameProperties<UsersRessourceDeleteQueryDto> {}
+  implements AsSameProperties<UsersRessourceDeleteQueryDto> {}
 
 export class UsersRessourceDeleteParamsDtoAfter
-implements AsSameProperties<UsersRessourceDeleteParamsDto> {
+  implements AsSameProperties<UsersRessourceDeleteParamsDto>
+{
   @Transform(({ value }) => User.findOrFail(value))
   @AwaitPromise
   public id: User
@@ -78,12 +79,13 @@ implements AsSameProperties<UsersRessourceDeleteParamsDto> {
 
 @Exclude()
 export class UsersRessourceDeleteFilesDtoAfter
-implements AsSameProperties<UsersRessourceDeleteFilesDto> {}
+  implements AsSameProperties<UsersRessourceDeleteFilesDto> {}
 
 @SkipTransform([['files', UsersRessourceDeleteFilesDtoAfter]])
 export class UsersRessourceDeleteDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<UsersRessourceDeleteDto, 'after'>> {
+  implements AsSameProperties<Omit<UsersRessourceDeleteDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

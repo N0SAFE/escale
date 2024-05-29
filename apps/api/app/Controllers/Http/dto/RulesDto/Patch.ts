@@ -20,16 +20,16 @@ export class RulesRessourcePatchDto extends BaseDto {
   @Type(() => RulesRessourcePatchQueryDto)
   public query: RulesRessourcePatchQueryDto
 
-  public get after () {
+  public get after() {
     return new RulesRessourcePatchDtoAfter(this)
   }
 }
 
 export class RulesRessourcePatchBodyDtoAfter
-implements AsSameProperties<RulesRessourcePatchBodyDto> {}
+  implements AsSameProperties<RulesRessourcePatchBodyDto> {}
 
 export class RulesRessourcePatchQueryDtoAfter
-implements AsSameProperties<RulesRessourcePatchQueryDto> {}
+  implements AsSameProperties<RulesRessourcePatchQueryDto> {}
 
 export class RulesRessourcePatchDtoAfter extends BaseDto {
   @IsDefined()

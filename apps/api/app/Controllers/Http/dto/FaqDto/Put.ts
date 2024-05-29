@@ -40,11 +40,11 @@ export class FaqRessourcePutDto extends BaseDto {
   @Type(() => FaqRessourcePutFilesDto)
   public files: FaqRessourcePutFilesDto
 
-  public get after () {
+  public get after() {
     return new FaqRessourcePutDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -66,7 +66,8 @@ export class FaqRessourcePutFilesDtoAfter implements AsSameProperties<FaqRessour
 @SkipTransform([['files', FaqRessourcePutFilesDtoAfter]])
 export class FaqRessourcePutDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<FaqRessourcePutDto, 'after'>> {
+  implements AsSameProperties<Omit<FaqRessourcePutDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

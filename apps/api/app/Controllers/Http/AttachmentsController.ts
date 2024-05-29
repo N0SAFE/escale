@@ -4,7 +4,7 @@ import Drive from '@ioc:Adonis/Core/Drive'
 import InternalCalendar from 'App/Models/InternalCalendar'
 
 export default class AttachmentsController {
-  public async calendarById ({ request, response }: HttpContextContract) {
+  public async calendarById({ request, response }: HttpContextContract) {
     const { id } = request.params()
     const image = await InternalCalendar.findOrFail(id)
     if (!(await Drive.exists(image.path!))) {

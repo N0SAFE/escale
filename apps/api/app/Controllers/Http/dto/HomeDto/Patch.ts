@@ -75,11 +75,11 @@ export class HomeRessourcePatchDto extends BaseDto {
   @Type(() => HomeRessourcePatchFilesDto)
   public files: HomeRessourcePatchFilesDto
 
-  public get after () {
+  public get after() {
     return new HomeRessourcePatchDtoAfter(this)
   }
 
-  public static fromRequest (request: RequestContract) {
+  public static fromRequest(request: RequestContract) {
     return new this({
       body: request.body(),
       query: request.qs(),
@@ -98,19 +98,20 @@ export class HomeRessourcePatchBodyDtoAfter implements AsSameProperties<HomeRess
 }
 
 export class HomeRessourcePatchQueryDtoAfter
-implements AsSameProperties<HomeRessourcePatchQueryDto> {}
+  implements AsSameProperties<HomeRessourcePatchQueryDto> {}
 
 export class HomeRessourcePatchParamsDtoAfter
-implements AsSameProperties<HomeRessourcePatchParamsDto> {}
+  implements AsSameProperties<HomeRessourcePatchParamsDto> {}
 
 @Exclude()
 export class HomeRessourcePatchFilesDtoAfter
-implements AsSameProperties<HomeRessourcePatchFilesDto> {}
+  implements AsSameProperties<HomeRessourcePatchFilesDto> {}
 
 @SkipTransform([['files', HomeRessourcePatchFilesDtoAfter]])
 export class HomeRessourcePatchDtoAfter
   extends BaseDto
-  implements AsSameProperties<Omit<HomeRessourcePatchDto, 'after'>> {
+  implements AsSameProperties<Omit<HomeRessourcePatchDto, 'after'>>
+{
   @IsDefined()
   @IsObject()
   @ValidateNested()

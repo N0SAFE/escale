@@ -20,7 +20,7 @@ export class FileRessourcePutDto extends BaseDto {
   @Type(() => FileRessourcePutQueryDto)
   public query: FileRessourcePutQueryDto
 
-  public get after () {
+  public get after() {
     return new FileRessourcePutDtoAfter(this)
   }
 }

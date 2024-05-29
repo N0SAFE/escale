@@ -2,11 +2,11 @@ import { DateTime } from 'luxon'
 import AppBaseService from './AppBaseService'
 
 export default class DateTimeService implements AppBaseService {
-  public getNumberOfDaysBetweenDates (startAt: DateTime, endAt: DateTime): number {
+  public getNumberOfDaysBetweenDates(startAt: DateTime, endAt: DateTime): number {
     return endAt.diff(startAt, 'days').days + 1
   }
 
-  public getIntersectionBetweenDates (
+  public getIntersectionBetweenDates(
     startAt: DateTime,
     endAt: DateTime,
     startAt2: DateTime,

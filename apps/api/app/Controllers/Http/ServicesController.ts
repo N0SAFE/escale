@@ -6,14 +6,14 @@ import { ServiceRessourcePostDto } from './dto/ServiceDto/Post'
 import { ServiceRessourceDeleteDto } from './dto/ServiceDto/Delete'
 
 export default class ServicesController {
-  public async index ({ response }: HttpContextContract) {
+  public async index({ response }: HttpContextContract) {
     return response.ok(await Service.query().exec())
     // return Service.query()
   }
 
-  public async create ({}: HttpContextContract) {}
+  public async create({}: HttpContextContract) {}
 
-  public async store ({ response, request }: HttpContextContract) {
+  public async store({ response, request }: HttpContextContract) {
     const dto = ServiceRessourcePostDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -27,13 +27,13 @@ export default class ServicesController {
     return response.ok(service)
   }
 
-  public async show ({}: HttpContextContract) {
+  public async show({}: HttpContextContract) {
     return Service.findOrFail(1)
   }
 
-  public async edit ({}: HttpContextContract) {}
+  public async edit({}: HttpContextContract) {}
 
-  public async update ({ request, response }: HttpContextContract) {
+  public async update({ request, response }: HttpContextContract) {
     const dto = ServiceRessourcePatchDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {
@@ -58,7 +58,7 @@ export default class ServicesController {
     return response.ok(service)
   }
 
-  public async destroy ({ response, request }: HttpContextContract) {
+  public async destroy({ response, request }: HttpContextContract) {
     const dto = ServiceRessourceDeleteDto.fromRequest(request)
     const error = await dto.validate()
     if (error.length > 0) {

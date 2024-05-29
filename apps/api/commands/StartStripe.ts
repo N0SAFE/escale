@@ -29,7 +29,7 @@ export default class StartStripe extends BaseCommand {
     stayAlive: false,
   }
 
-  public async run () {
+  public async run() {
     this.logger.success(`stripe started on port ${Env.get('PORT')}!`)
     spawnSync(
       `stripe listen --api-key ${Env.get(
