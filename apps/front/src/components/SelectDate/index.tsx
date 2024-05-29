@@ -122,7 +122,6 @@ export default function SelectDate({
                             defaultMonth={rangeDate?.from}
                             selected={rangeDate}
                             onSelect={setRangeDate}
-                            numberOfMonths={2}
                             disabled={disableDateFunction}
                             onMonthChange={onMonthChange}
                         />
