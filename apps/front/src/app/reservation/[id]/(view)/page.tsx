@@ -330,17 +330,37 @@ const Reservation = ({ params }: { params: { id: string } }) => {
     }, [selectedType, selectedDate, refetchPrice])
 
     useEffect(() => {
+        console.log(selectedDate)
         if (selectedDate?.from) {
             if (
                 availableDates?.get(
                     DateTime.fromJSDate(selectedDate.from).toISODate() as string
-                )?.partial === 'departure'
+                )?.partial === 'departure' &&
+                availableDates?.get(
+                    DateTime.fromJSDate(selectedDate.from)
+                        .minus({ day: 1 })
+                        .toISODate() as string
+                )?.isAvailable
             ) {
                 setSelectedDate({
                     from: DateTime.fromJSDate(selectedDate.from)
                         .minus({ day: 1 })
                         .toJSDate(),
                     to: selectedDate.from,
+                })
+            } else if (
+                !selectedDate?.to &&
+                availableDates?.get(
+                    DateTime.fromJSDate(selectedDate.from)
+                        .plus({ day: 1 })
+                        .toISODate() as string
+                )?.isAvailable
+            ) {
+                setSelectedDate({
+                    from: selectedDate.from,
+                    to: DateTime.fromJSDate(selectedDate.from)
+                        .plus({ day: 1 })
+                        .toJSDate(),
                 })
             }
         }
@@ -361,7 +381,30 @@ const Reservation = ({ params }: { params: { id: string } }) => {
     //     return confirm(Number(id), selected, date);
     // }
 
-    console.log(isSpaFetched)
+    const closestUnresevableDatesLocal = useMemo(() => {
+        if (!availableDates || !selectedDate?.from) {
+            return {
+                past: undefined,
+                future: undefined,
+            }
+        }
+        const availableDatesArray = Array.from(availableDates)
+        const fromIndex = availableDatesArray.findIndex(
+            ([d]) => d === DateTime.fromJSDate(selectedDate.from!).toISODate()
+        )
+        const pastArray = availableDatesArray.slice(0, fromIndex + 1)
+        const futureArray = availableDatesArray.slice(fromIndex)
+        const pastString = pastArray
+            .toReversed()
+            .find(([date, details]) => details.partial === 'arrival')?.[0]
+        const futureString = futureArray.find(
+            ([date, details]) => details.partial === 'departure'
+        )?.[0]
+        return {
+            past: pastString && DateTime.fromISO(pastString),
+            future: futureString && DateTime.fromISO(futureString),
+        }
+    }, [availableDates, selectedDate?.from])
 
     if (!isSpaFetched) {
         // ! try to know why the data is not loaded the same way in the admin part than in this part (prefetching data not here)
@@ -459,14 +502,20 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                                                 (closestUnreservableDate?.past
                                                     ? date <
                                                       closestUnreservableDate.past.toJSDate()
-                                                    : false) ||
+                                                    : closestUnresevableDatesLocal.past
+                                                      ? date <
+                                                        closestUnresevableDatesLocal.past.toJSDate()
+                                                      : false) ||
                                                 (closestUnreservableDate?.future
                                                     ? date >
                                                       closestUnreservableDate.future.toJSDate()
-                                                    : false)
+                                                    : closestUnresevableDatesLocal.future
+                                                      ? date >
+                                                        closestUnresevableDatesLocal.future.toJSDate()
+                                                      : false)
                                             )
                                         }}
-                                        defaultValue={{ date: selectedDate }}
+                                        value={selectedDate}
                                     />
                                 </div>
                                 {error && (
@@ -645,7 +694,10 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                                     </span>
                                     <SelectDate
                                         multiple
-                                        onSelect={setSelectedDate}
+                                        onSelect={(rangeDate) => {
+                                            console.log('onSelect selectDate')
+                                            setSelectedDate(rangeDate)
+                                        }}
                                         onMonthChange={function (date) {
                                             setSelectedMonth(date)
                                         }}
@@ -660,14 +712,20 @@ const Reservation = ({ params }: { params: { id: string } }) => {
                                                 (closestUnreservableDate?.past
                                                     ? date <
                                                       closestUnreservableDate.past.toJSDate()
-                                                    : false) ||
+                                                    : closestUnresevableDatesLocal.past
+                                                      ? date <
+                                                        closestUnresevableDatesLocal.past.toJSDate()
+                                                      : false) ||
                                                 (closestUnreservableDate?.future
                                                     ? date >
                                                       closestUnreservableDate.future.toJSDate()
-                                                    : false)
+                                                    : closestUnresevableDatesLocal.future
+                                                      ? date >
+                                                        closestUnresevableDatesLocal.future.toJSDate()
+                                                      : false)
                                             )
                                         }}
-                                        defaultValue={{ date: selectedDate }}
+                                        value={selectedDate}
                                     />
                                 </div>
                                 {error && (

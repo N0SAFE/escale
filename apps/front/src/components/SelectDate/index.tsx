@@ -19,17 +19,16 @@ import { fr } from 'date-fns/locale'
 type Props = {
     disableDateFunction?: (date: Date) => boolean
     onMonthChange: (month: Date) => void
-    defaultValue?: {
-        date?: Date | DateRange | undefined
-    }
 } & (
     | {
           onSelect?: (date: DateRange | undefined) => void
           multiple: true
+          value?: DateRange | undefined
       }
     | {
           onSelect?: (date: Date | undefined) => void
           multiple?: false
+          value?: Date | undefined
       }
 )
 
@@ -38,40 +37,18 @@ export default function SelectDate({
     className,
     multiple,
     onMonthChange,
-    defaultValue,
+    value,
     disableDateFunction,
 }: Omit<React.HTMLAttributes<HTMLDivElement>, keyof Props> & Props) {
     const [isOpen, setIsOpen] = useState(false)
-    const [rangeDate, setRangeDate] = useState<DateRange | undefined>(
-        multiple
-            ? defaultValue?.date
-                ? (defaultValue.date as DateRange)
-                : undefined
-            : undefined
-    )
-    const [date, setDate] = useState<Date | undefined>(
-        !multiple
-            ? defaultValue?.date
-                ? (defaultValue.date as Date)
-                : undefined
-            : undefined
-    )
+    const [date, setDate] = useState<Date | DateRange | undefined>(value)
 
     useEffect(() => {
-        setRangeDate(
-            defaultValue?.date ? (defaultValue.date as DateRange) : undefined
-        )
-    }, [defaultValue])
-
-    useEffect(() => {
-        if (onSelect) {
-            if (multiple) {
-                onSelect(rangeDate)
-            } else {
-                onSelect(date)
-            }
-        }
-    }, [date, onSelect, rangeDate, multiple])
+        console.log('defaultValue', value)
+        setDate(value ? value : undefined)
+    }, [value])
+    
+    console.log('date', date)
 
     return (
         <div className={cn('grid gap-2', className)}>
@@ -82,32 +59,32 @@ export default function SelectDate({
                         variant={'outline'}
                         className={cn(
                             'w-full max-w-[300px] justify-start text-left font-normal',
-                            !rangeDate && !rangeDate && 'text-muted-foreground'
+                            !value && !value && 'text-muted-foreground'
                         )}
                     >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {multiple ? (
-                            rangeDate?.from ? (
-                                rangeDate.to ? (
+                            value?.from ? (
+                                value.to ? (
                                     <>
-                                        {format(rangeDate.from, 'LLL dd, y', {
+                                        {format(value.from, 'LLL dd, y', {
                                             locale: fr,
                                         })}{' '}
                                         -{' '}
-                                        {format(rangeDate.to, 'LLL dd, y', {
+                                        {format(value.to, 'LLL dd, y', {
                                             locale: fr,
                                         })}
                                     </>
                                 ) : (
-                                    format(rangeDate.from, 'LLL dd, y', {
+                                    format(value.from, 'LLL dd, y', {
                                         locale: fr,
                                     })
                                 )
                             ) : (
                                 <span>Pick a date</span>
                             )
-                        ) : date ? (
-                            format(date, 'PPP')
+                        ) : value ? (
+                            format(value, 'PPP')
                         ) : (
                             <span>Pick a date</span>
                         )}
@@ -119,9 +96,9 @@ export default function SelectDate({
                             fixedWeeks
                             initialFocus
                             mode="range"
-                            defaultMonth={rangeDate?.from}
-                            selected={rangeDate}
-                            onSelect={setRangeDate}
+                            defaultMonth={(date as DateRange | undefined)?.from}
+                            selected={date as DateRange | undefined}
+                            onSelect={onSelect}
                             disabled={disableDateFunction}
                             onMonthChange={onMonthChange}
                         />
@@ -129,13 +106,14 @@ export default function SelectDate({
                         <Calendar
                             mode="single"
                             selected={
-                                disableDateFunction && date
-                                    ? !disableDateFunction(date)
-                                        ? date
+                                disableDateFunction &&
+                                (date as Date | undefined)
+                                    ? !disableDateFunction(date as Date)
+                                        ? (date as Date | undefined)
                                         : undefined
                                     : undefined
                             }
-                            onSelect={setDate}
+                            onSelect={onSelect}
                             initialFocus
                             onMonthChange={onMonthChange}
                             disabled={disableDateFunction}

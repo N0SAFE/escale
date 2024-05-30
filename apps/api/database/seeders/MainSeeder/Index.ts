@@ -63,8 +63,8 @@ export default class IndexSeeder extends BaseSeeder {
       Availability,
       Faq,
       Rule,
-      Reservation,
       ExternalCalendar,
+      Reservation,
       Video,
       Home,
     ])

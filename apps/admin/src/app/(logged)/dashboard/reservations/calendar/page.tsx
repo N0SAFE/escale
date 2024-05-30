@@ -128,15 +128,6 @@ const ReservationCalendarView = () => {
         [size]
     )
 
-    const { data } = useQuery({
-        queryKey: [],
-        queryFn: async () => {
-            return await xior.create().get('http')
-        },
-    })
-
-    console.log(data)
-
     const {
         refetch,
         data: [{ data: events }, { data: reservations }],
